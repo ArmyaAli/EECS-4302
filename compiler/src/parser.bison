@@ -9,11 +9,19 @@
 extern char *yytext            ;
 extern int yylex()             ;
 int yyerror( char *str)        ;
-struct stmt* parser_result = 0 ;
-#define YYSTYPE struct expr *
+extern struct expr* parser_result;
 
 %}
-%token TOKEN_EOF 0 // enum index start 0
+
+%union {
+    struct expr *expr;
+    int int_literal;
+};
+
+%type <expr> program
+%type <int_literal> factor
+
+%token TOKEN_EOF 0 // enum index start 
 %token TOKEN_SEMICOLON 1
 %token TOKEN_DIGIT 2
 %token TOKEN_CHARACTER_LITERAL 3
@@ -72,7 +80,7 @@ struct stmt* parser_result = 0 ;
 %%
 
 // The program is a list of declaration
-program : declaration_list
+program : factor TOKEN_ADD factor { parser_result = expr_create(EXPR_ADD, expr_create_integer_literal($1), expr_create_integer_literal($3)); }
 ;
 
 // declaration list can be a single / multiple declaration
@@ -245,14 +253,7 @@ term : term TOKEN_EXP TOKEN_DIGIT // 3^3
 ;
 
 // atomic tokens in b-minor
-factor : TOKEN_SUB factor
-| TOKEN_LPAREN expr TOKEN_RPAREN
-| TOKEN_DIGIT
-| TOKEN_TRUE
-| TOKEN_FALSE
-| TOKEN_STRING_LITERAL
-| TOKEN_CHARACTER_LITERAL
-| TOKEN_IDENTIFIER
+factor : TOKEN_DIGIT { $$ = atoi(yytext);}
 
 %%
 
