@@ -47,7 +47,6 @@ struct expr {
 };
 
 struct expr * expr_create( expr_t kind, struct expr *left, struct expr *right );
-struct expr *expr_create_value(int value, expr_t kind);
 
 struct expr * expr_create_name( const char *n );
 struct expr * expr_create_integer_literal( int c );

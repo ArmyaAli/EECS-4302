@@ -18,6 +18,5 @@ extern int yylineno; // Line number of the last scanned text.
 extern int EXIT_CODE; 
 // defined in constants.c, 1-1 mapping with token_t from token.h
 extern const char* TOKEN_LOOKUP[];
-extern struct stmt* parser_result;
 
 #endif 

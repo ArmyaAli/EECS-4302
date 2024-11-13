@@ -10,12 +10,6 @@ struct expr *expr_create(expr_t kind, struct expr *left, struct expr *right) {
   return e;
 }
 
-struct expr *expr_create_value(int value, expr_t kind) {
-  struct expr *e = expr_create(kind, 0, 0);
-  e->literal_value = value;
-  return e;
-}
-
 // TODO(Ali)
 // NOTE(Ali): Note sure what this thing is, probably an identifier
 struct expr * expr_create_name( const char *n ) { 
