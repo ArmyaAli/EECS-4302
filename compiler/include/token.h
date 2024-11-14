@@ -111,9 +111,9 @@ union YYSTYPE
 {
 #line 16 "src/parser.bison" /* yacc.c:1909  */
 
-    struct expr *expr;
-    char *name;
-    int int_literal;
+struct expr *expr ;
+char *name        ;
+int int_literal   ;
 
 #line 119 "include/token.h" /* yacc.c:1909  */
 };

@@ -14,14 +14,13 @@ extern struct expr* parser_result ;
 %}
 
 %union {
-    struct expr *expr;
-    char *name;
-    int int_literal;
-};
+struct expr *expr ;
+char *name        ;
+int int_literal   ;
+}                 ;
 
 %type <expr> program
-%type <expr> term
-%type <expr> factor
+%type <expr> expr cond_expr term factor
 
 %token TOKEN_EOF 0 // enum index start
 %token TOKEN_SEMICOLON 1
@@ -82,7 +81,7 @@ extern struct expr* parser_result ;
 %%
 
 // The program is a list of declaration
-program : term { parser_result = $1; }
+program : expr { parser_result = $1     ; }
 ;
 
 // declaration list can be a single / multiple declaration
@@ -227,43 +226,44 @@ type_specifier : TOKEN_INTEGER
 | TOKEN_VOID
 ;
 
-// captures only conditional expressions. Used to seperate regular expression with conditiaonl ones
-cond_expr : TOKEN_UNARY_NEGATE expr
-| expr TOKEN_GT expr
-| expr TOKEN_LT expr
-| expr TOKEN_GE expr
-| expr TOKEN_LE expr
-| expr TOKEN_NEQ expr
-| expr TOKEN_EQ expr
-| expr TOKEN_LOGICAL_AND expr
-| expr TOKEN_LOGICAL_OR expr
-| function_call
-| factor
-
 // Expression Grammar
-expr : expr TOKEN_ADD term
-| expr TOKEN_SUB term
-| cond_expr
-| term
+expr : expr TOKEN_ADD term {$$ = expr_create(EXPR_ADD, $1, $3) ;}
+| expr TOKEN_SUB term {$$ = expr_create(EXPR_SUB, $1, $3)      ;}
+| cond_expr {$$ = $1                                           ;}
+| term {$$ = $1                                                ;}
 ;
 
-term : term TOKEN_EXP TOKEN_DIGIT // 3^3
-| term TOKEN_MUL factor {$$ = expr_create(EXPR_MUL, $1, $3);} // 3 * 3
-| term TOKEN_DIV factor {$$ = expr_create(EXPR_DIV, $1, $3);}
+// captures only conditional expressions. Used to seperate regular expression with conditiaonl ones
+cond_expr : TOKEN_UNARY_NEGATE expr {$$ = expr_create(EXPR_NEQ, $2, NULL)                           ;}
+| expr TOKEN_GT expr {$$ = expr_create(EXPR_GT, $1, $3)                                             ;}
+| expr TOKEN_LT expr {$$ = expr_create(EXPR_LT, $1, $3)                                             ;}
+| expr TOKEN_GE expr {$$ = expr_create(EXPR_GTE, $1, $3)                                            ;}
+| expr TOKEN_LE expr {$$ = expr_create(EXPR_LTE, $1, $3)                                            ;}
+| expr TOKEN_NEQ expr {$$ = expr_create(EXPR_NEQ, $1, $3)                                           ;}
+| expr TOKEN_EQ expr {$$ = expr_create(EXPR_EQ, $1, $3)                                             ;}
+| expr TOKEN_LOGICAL_AND expr {$$ = expr_create(EXPR_AND, $1, $3)                                   ;}
+| expr TOKEN_LOGICAL_OR expr {$$ = expr_create(EXPR_OR, $1, $3)                                     ;}
+| function_call
+| factor { $$ = $1                                                                                  ; }
+;
+
+term : term TOKEN_EXP factor {$$ = expr_create(EXPR_EXP, $1, $3) ;}
+| term TOKEN_MUL factor {$$ = expr_create(EXPR_MUL, $1, $3)      ;}
+| term TOKEN_DIV factor {$$ = expr_create(EXPR_DIV, $1, $3)      ;}
 | function_call // func(a, c)
-| factor { $$ = $1; }
+| factor { $$ = $1                                               ; }
 ;
 
 // atomic tokens in b-minor
-factor : TOKEN_SUB factor
-| TOKEN_LPAREN expr TOKEN_RPAREN
-| TOKEN_DIGIT {$$ = expr_create_integer_literal(atoi(yytext));}
-| TOKEN_TRUE
-| TOKEN_FALSE
-| TOKEN_STRING_LITERAL 
-| TOKEN_CHARACTER_LITERAL
-| TOKEN_IDENTIFIER
-
+factor : TOKEN_SUB factor {$$ = expr_create(EXPR_SUB, $2, NULL)     ;} // to be discussed and analyzed further
+| TOKEN_LPAREN expr TOKEN_RPAREN { $$ = $2                          ;}
+| TOKEN_DIGIT {$$ = expr_create_integer_literal(atoi(yytext))       ;}
+| TOKEN_TRUE {$$ = expr_create_boolean_literal(1)                   ;}
+| TOKEN_FALSE {$$ = expr_create_boolean_literal(0)                  ;}
+| TOKEN_STRING_LITERAL {$$ = expr_create_string_literal(yytext)     ;}
+| TOKEN_CHARACTER_LITERAL {$$ = expr_create_char_literal(yytext[0]) ;}
+| TOKEN_IDENTIFIER {$$ = expr_create_name(yytext)                   ;} // there is a bug in here - yytext in here somehow is empty
+;
 %%
 
 /* This function is called whenever the parser fails to parse the input */
