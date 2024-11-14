@@ -6,22 +6,24 @@
 #include "../include/expr.h"
 #include "../include/print.h"
 
-extern char *yytext            ;
-extern int yylex()             ;
-int yyerror( char *str)        ;
-extern struct expr* parser_result;
+extern char *yytext               ;
+extern int yylex()                ;
+int yyerror( char *str)           ;
+extern struct expr* parser_result ;
 
 %}
 
 %union {
     struct expr *expr;
+    char *name;
     int int_literal;
 };
 
 %type <expr> program
-%type <int_literal> factor
+%type <expr> term
+%type <expr> factor
 
-%token TOKEN_EOF 0 // enum index start 
+%token TOKEN_EOF 0 // enum index start
 %token TOKEN_SEMICOLON 1
 %token TOKEN_DIGIT 2
 %token TOKEN_CHARACTER_LITERAL 3
@@ -80,7 +82,7 @@ extern struct expr* parser_result;
 %%
 
 // The program is a list of declaration
-program : factor TOKEN_ADD factor { parser_result = expr_create(EXPR_ADD, expr_create_integer_literal($1), expr_create_integer_literal($3)); }
+program : term { parser_result = $1; }
 ;
 
 // declaration list can be a single / multiple declaration
@@ -246,14 +248,21 @@ expr : expr TOKEN_ADD term
 ;
 
 term : term TOKEN_EXP TOKEN_DIGIT // 3^3
-| term TOKEN_MUL factor // 3 * 3
-| term TOKEN_DIV factor // 3 / 3
+| term TOKEN_MUL factor {$$ = expr_create(EXPR_MUL, $1, $3);} // 3 * 3
+| term TOKEN_DIV factor {$$ = expr_create(EXPR_DIV, $1, $3);}
 | function_call // func(a, c)
-| factor
+| factor { $$ = $1; }
 ;
 
 // atomic tokens in b-minor
-factor : TOKEN_DIGIT { $$ = atoi(yytext);}
+factor : TOKEN_SUB factor
+| TOKEN_LPAREN expr TOKEN_RPAREN
+| TOKEN_DIGIT {$$ = expr_create_integer_literal(atoi(yytext));}
+| TOKEN_TRUE
+| TOKEN_FALSE
+| TOKEN_STRING_LITERAL 
+| TOKEN_CHARACTER_LITERAL
+| TOKEN_IDENTIFIER
 
 %%
 

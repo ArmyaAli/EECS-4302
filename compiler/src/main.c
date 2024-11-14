@@ -66,16 +66,9 @@ void run_parser(const char* filename) {
 
     if(yyparse() == 0) {
        printf("Parse success\n");
+
         expr_print(parser_result, 0, 0);
-       
     }
 
-    // run_print(parser_result);
-
     fclose(yyin);
-}
-
-void run_print(struct stmt* ast) {
-  printf("run_print\n");
-  stmt_print(ast, 0, 0);
 }
