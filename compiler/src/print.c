@@ -30,8 +30,9 @@ void decl_print(struct decl *d)
 void stmt_print(struct stmt *s, int indent, int indent_current)
 {
     //printf("%d\n", s->kind);
-    if (!s)
+    if (!s) {
         return;
+    }
 
     if (indent_current)
         for (int i = 0; i < indent; i++)

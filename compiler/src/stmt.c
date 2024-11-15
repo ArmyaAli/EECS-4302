@@ -7,6 +7,7 @@ struct stmt *stmt_create(stmt_t kind, struct decl *decl, struct expr *init_expr,
                          struct stmt *next) {
   struct stmt *s = malloc(sizeof(*s));
 
+  s->kind = kind;
   s->decl = decl;
   s->init_expr = init_expr;
   s->expr = expr;

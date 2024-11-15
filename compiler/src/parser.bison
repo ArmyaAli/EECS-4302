@@ -5,22 +5,29 @@
 #include "../include/helper.h"
 #include "../include/expr.h"
 #include "../include/print.h"
+#include "../include/type.h"
+#include "../include/stmt.h"
 
 extern char *yytext               ;
 extern int yylex()                ;
 int yyerror( char *str)           ;
-extern struct expr* parser_result ;
+extern struct stmt* parser_result ;
 
 %}
 
 %union {
 struct expr *expr ;
+struct type *type ;
+struct stmt *stmt ;
 char *name        ;
 int int_literal   ;
 }                 ;
 
-%type <expr> program
+%type <stmt> program
+%type <expr> expr_list
+%type <type> type_specifier
 %type <expr> expr cond_expr term factor
+%type <stmt> print_statement
 
 %token TOKEN_EOF 0 // enum index start
 %token TOKEN_SEMICOLON 1
@@ -81,7 +88,10 @@ int int_literal   ;
 %%
 
 // The program is a list of declaration
-program : expr { parser_result = $1     ; }
+//program : expr_list { parser_result = $1; }
+//;
+
+program : print_statement { parser_result = $1; }
 ;
 
 // declaration list can be a single / multiple declaration
@@ -205,25 +215,36 @@ function_call : TOKEN_IDENTIFIER TOKEN_LPAREN expr_list TOKEN_RPAREN
 block_statment : TOKEN_OPEN_CURLY_BRACE statement_list TOKEN_CLOSE_CURLY_BRACE
 ;
 
-print_statement : TOKEN_PRINT expr_list TOKEN_SEMICOLON
+print_statement : TOKEN_PRINT expr_list TOKEN_SEMICOLON { 
+$$ = stmt_create(
+ STMT_PRINT, 
+ NULL, 
+ NULL,
+ $2, 
+ NULL,
+ NULL, 
+ NULL,
+ NULL
+); } 
 ;
 
-return_statement : TOKEN_RETURN expr TOKEN_SEMICOLON
+return_statement : TOKEN_RETURN expr TOKEN_SEMICOLON 
 | TOKEN_RETURN TOKEN_IDENTIFIER TOKEN_INCR TOKEN_SEMICOLON
 | TOKEN_RETURN TOKEN_IDENTIFIER TOKEN_DECR TOKEN_SEMICOLON
 ;
 
-expr_list : expr_list TOKEN_COMMA expr_list
-| expr
-|
+expr_list : expr_list TOKEN_COMMA expr_list { $$ = expr_create(EXPR_ARG, $1, $3); }
+| expr { $$ = $1; }
+| { $$ = 0; }
 ;
 
 // Type Specifiers (int, bool, char, string)
-type_specifier : TOKEN_INTEGER
-| TOKEN_BOOLEAN
-| TOKEN_CHAR
-| TOKEN_STRING
-| TOKEN_VOID
+type_specifier : TOKEN_INTEGER { $$ = type_create(TYPE_INTEGER, NULL, NULL); }
+| TOKEN_BOOLEAN { $$ = type_create(TYPE_BOOLEAN, NULL, NULL);  }
+| TOKEN_CHAR   { $$ = type_create(TYPE_CHARACTER, NULL, NULL); }
+| TOKEN_STRING { $$ = type_create(TYPE_STRING, NULL, NULL);    }
+| TOKEN_VOID   { $$ = type_create(TYPE_VOID, NULL, NULL);      }
+
 ;
 
 // Expression Grammar
@@ -248,8 +269,8 @@ cond_expr : TOKEN_UNARY_NEGATE expr {$$ = expr_create(EXPR_NEQ, $2, NULL)       
 ;
 
 term : term TOKEN_EXP factor {$$ = expr_create(EXPR_EXP, $1, $3) ;}
-| term TOKEN_MUL factor {$$ = expr_create(EXPR_MUL, $1, $3)      ;}
-| term TOKEN_DIV factor {$$ = expr_create(EXPR_DIV, $1, $3)      ;}
+| term TOKEN_MUL factor { $$ = expr_create(EXPR_MUL, $1, $3)      ;}
+| term TOKEN_DIV factor { $$ = expr_create(EXPR_DIV, $1, $3)      ;}
 | function_call // func(a, c)
 | factor { $$ = $1                                               ; }
 ;
