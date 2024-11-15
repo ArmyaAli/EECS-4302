@@ -2,6 +2,7 @@
 #define EXPR_H
 
 #include "symbol.h"
+#include <string.h>
 
 typedef enum {
 	EXPR_ADD,

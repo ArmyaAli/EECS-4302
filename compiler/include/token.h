@@ -114,10 +114,9 @@ union YYSTYPE
 struct expr *expr ;
 struct type *type ;
 struct stmt *stmt ;
-char *name        ;
-int int_literal   ;
+char*  str       ;
 
-#line 121 "include/token.h" /* yacc.c:1909  */
+#line 120 "include/token.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;

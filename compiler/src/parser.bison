@@ -11,7 +11,7 @@
 extern char *yytext               ;
 extern int yylex()                ;
 int yyerror( char *str)           ;
-extern struct stmt* parser_result ;
+extern struct expr* parser_result ;
 
 %}
 
@@ -19,15 +19,16 @@ extern struct stmt* parser_result ;
 struct expr *expr ;
 struct type *type ;
 struct stmt *stmt ;
-char *name        ;
-int int_literal   ;
+char*  str       ;
 }                 ;
 
-%type <stmt> program
+%type <expr> program
 %type <expr> expr_list
 %type <type> type_specifier
 %type <expr> expr cond_expr term factor
 %type <stmt> print_statement
+%type <str> TOKEN_IDENTIFIER
+%type <expr> identifier
 
 %token TOKEN_EOF 0 // enum index start
 %token TOKEN_SEMICOLON 1
@@ -88,10 +89,10 @@ int int_literal   ;
 %%
 
 // The program is a list of declaration
-//program : expr_list { parser_result = $1; }
+//program : expr_list { print("program\n"); parser_result = $1; }
 //;
 
-program : print_statement { parser_result = $1; }
+program : cond_expr { printf("program\n"); parser_result = $1; }
 ;
 
 // declaration list can be a single / multiple declaration
@@ -250,8 +251,8 @@ type_specifier : TOKEN_INTEGER { $$ = type_create(TYPE_INTEGER, NULL, NULL); }
 // Expression Grammar
 expr : expr TOKEN_ADD term {$$ = expr_create(EXPR_ADD, $1, $3) ;}
 | expr TOKEN_SUB term {$$ = expr_create(EXPR_SUB, $1, $3)      ;}
-| cond_expr {$$ = $1                                           ;}
-| term {$$ = $1                                                ;}
+| cond_expr {printf("cond_expr\n"); $$ = $1                                           ;}
+| term { printf(yytext); $$ = $1                                                ;}
 ;
 
 // captures only conditional expressions. Used to seperate regular expression with conditiaonl ones
@@ -264,15 +265,15 @@ cond_expr : TOKEN_UNARY_NEGATE expr {$$ = expr_create(EXPR_NEQ, $2, NULL)       
 | expr TOKEN_EQ expr {$$ = expr_create(EXPR_EQ, $1, $3)                                             ;}
 | expr TOKEN_LOGICAL_AND expr {$$ = expr_create(EXPR_AND, $1, $3)                                   ;}
 | expr TOKEN_LOGICAL_OR expr {$$ = expr_create(EXPR_OR, $1, $3)                                     ;}
-| function_call
-| factor { $$ = $1                                                                                  ; }
+| function_call 
+| identifier { printf(yytext); printf("identifier\n"); $$ = $1          ;}                                       
 ;
 
 term : term TOKEN_EXP factor {$$ = expr_create(EXPR_EXP, $1, $3) ;}
 | term TOKEN_MUL factor { $$ = expr_create(EXPR_MUL, $1, $3)      ;}
 | term TOKEN_DIV factor { $$ = expr_create(EXPR_DIV, $1, $3)      ;}
 | function_call // func(a, c)
-| factor { $$ = $1                                               ; }
+| factor { printf(yytext); $$ = $1; }
 ;
 
 // atomic tokens in b-minor
@@ -283,7 +284,10 @@ factor : TOKEN_SUB factor {$$ = expr_create(EXPR_SUB, $2, NULL)     ;} // to be 
 | TOKEN_FALSE {$$ = expr_create_boolean_literal(0)                  ;}
 | TOKEN_STRING_LITERAL {$$ = expr_create_string_literal(yytext)     ;}
 | TOKEN_CHARACTER_LITERAL {$$ = expr_create_char_literal(yytext[0]) ;}
-| TOKEN_IDENTIFIER {$$ = expr_create_name(yytext)                   ;} // there is a bug in here - yytext in here somehow is empty
+| identifier { printf("factor\n"); printf(yytext); $$ = $1; } 
+;
+
+identifier: TOKEN_IDENTIFIER { printf("leaf\n"); printf(yytext); $$ = expr_create_name(yytext); }
 ;
 %%
 
