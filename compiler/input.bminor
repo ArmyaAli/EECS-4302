@@ -1,2 +1,2 @@
 //some variable usages
-x: array [2] boolean = {3, 3};
+x: array[] array [2] boolean = {3,3};

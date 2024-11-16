@@ -27,7 +27,7 @@ int integer_type_name         ;
 
 %type <decl> program
 %type <decl> var_declaration
-%type <expr> expr_list expr cond_expr term factor identifier function_call incr_decr init_expr next_expr mid_epr
+%type <expr> arg_list expr cond_expr term factor identifier function_call incr_decr init_expr next_expr mid_epr arr_element_list
 %type <stmt> print_statement return_statement for_statement statement statement_list block_statment
 %type <type> type_specifier neseted_array neseted_array_list
 %type <integer_type_name>  token_digit_literal
@@ -148,7 +148,7 @@ var_declaration : identifier TOKEN_TYPE_ASSIGNMENT type_specifier TOKEN_SEMICOLO
         );
     }
     ;
-| identifier TOKEN_TYPE_ASSIGNMENT neseted_array_list type_specifier TOKEN_ASSIGNMENT TOKEN_OPEN_CURLY_BRACE expr_list TOKEN_CLOSE_CURLY_BRACE TOKEN_SEMICOLON
+| identifier TOKEN_TYPE_ASSIGNMENT neseted_array_list type_specifier TOKEN_ASSIGNMENT TOKEN_OPEN_CURLY_BRACE arr_element_list TOKEN_CLOSE_CURLY_BRACE TOKEN_SEMICOLON
     { 
         // get the last element in the linked list
         struct type* current = $3;
@@ -185,6 +185,11 @@ param_list: param_list TOKEN_COMMA param_list
 // (param1: boolean) or (param1: boolean, param2: integer, ...)
 param : identifier TOKEN_TYPE_ASSIGNMENT type_specifier
 | identifier TOKEN_TYPE_ASSIGNMENT neseted_array_list type_specifier
+;
+
+arr_element_list : arr_element_list TOKEN_COMMA arr_element_list { $$ = expr_create(EXPR_ARR, $1, $3) ; }
+| expr { $$ = $1                                                                 ; }
+| { $$ = 0                                                                       ; }
 ;
 
 // a: array[] array[] ... OR a: array[3] array[2] ...
@@ -292,14 +297,14 @@ next_expr : expr { $$ = $1; }
 |
 ;
 
-function_call : identifier TOKEN_LPAREN expr_list TOKEN_RPAREN { $$ = expr_create(EXPR_CALL, $1, $3) ; }
+function_call : identifier TOKEN_LPAREN arg_list TOKEN_RPAREN { $$ = expr_create(EXPR_CALL, $1, $3) ; }
 ;
 
 // indicates a block of statements inside curly braces
 block_statment : TOKEN_OPEN_CURLY_BRACE statement_list TOKEN_CLOSE_CURLY_BRACE 
 ;
 
-print_statement : TOKEN_PRINT expr_list TOKEN_SEMICOLON 
+print_statement : TOKEN_PRINT arg_list TOKEN_SEMICOLON 
 {
     $$ = stmt_create(
         STMT_PRINT,
@@ -345,7 +350,7 @@ incr_decr : identifier TOKEN_INCR { $$ = expr_create(EXPR_INCR, $1, NULL) ; }
 | identifier TOKEN_DECR { $$ = expr_create(EXPR_DECR, $1, NULL)           ; }
 ;
 
-expr_list : expr_list TOKEN_COMMA expr_list { $$ = expr_create(EXPR_ARG, $1, $3) ; }
+arg_list : arg_list TOKEN_COMMA arg_list { $$ = expr_create(EXPR_ARG, $1, $3) ; }
 | expr { $$ = $1                                                                 ; }
 | { $$ = 0                                                                       ; }
 ;
