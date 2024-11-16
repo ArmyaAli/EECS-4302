@@ -7,6 +7,7 @@
 #include "../include/print.h"
 #include "../include/type.h"
 #include "../include/stmt.h"
+#include "../include/decl.h"
 
 extern char *yytext               ;
 extern int yylex()                ;
@@ -16,6 +17,7 @@ extern struct stmt* parser_result ;
 %}
 
 %union {
+struct decl *decl ;
 struct expr *expr ;
 struct type *type ;
 struct stmt *stmt ;
@@ -24,8 +26,9 @@ char* str         ;
 
 %type <type> type_specifier
 %type <stmt> program
-%type <expr> expr_list expr cond_expr term factor identifier function_call incr_decr
-%type <stmt> print_statement return_statement
+%type <expr> expr_list expr cond_expr term factor identifier function_call incr_decr init_expr next_expr mid_epr
+%type <stmt> print_statement return_statement for_statement statement statement_list block_statment
+%type <decl> var_declaration
 
 %token TOKEN_EOF 0 // enum index start
 %token TOKEN_SEMICOLON 1
@@ -86,7 +89,7 @@ char* str         ;
 %%
 
 // The program is a list of declaration
-program : return_statement { parser_result = $1 ; }
+program : block { parser_result = $1 ; }
 ;
 
 // declaration list can be a single / multiple declaration
@@ -101,9 +104,29 @@ declaration : function_declaration
 ;
 
 // Variable declaration can be either initialized or uninitialized
-var_declaration : identifier TOKEN_TYPE_ASSIGNMENT type_specifier TOKEN_SEMICOLON // x: boolean                                                                                                          ;
-| identifier TOKEN_TYPE_ASSIGNMENT type_specifier TOKEN_ASSIGNMENT expr TOKEN_SEMICOLON // x: boolean = true && false                                                                                    ;
-| identifier TOKEN_TYPE_ASSIGNMENT neseted_array_list type_specifier TOKEN_SEMICOLON // x: array[5] boolean                                                                                              ;
+var_declaration : identifier TOKEN_TYPE_ASSIGNMENT type_specifier TOKEN_SEMICOLON 
+    { 
+        $$ = decl_create (
+            $1->name,
+            $3,
+            NULL,
+            NULL,
+            NULL
+        );
+    }
+    ;
+| identifier TOKEN_TYPE_ASSIGNMENT type_specifier TOKEN_ASSIGNMENT expr TOKEN_SEMICOLON 
+    { 
+        $$ = decl_create (
+            $1->name,
+            $3,
+            $5,
+            NULL,
+            NULL
+        );
+    }
+    ;
+| identifier TOKEN_TYPE_ASSIGNMENT neseted_array_list type_specifier TOKEN_SEMICOLON
 | identifier TOKEN_TYPE_ASSIGNMENT neseted_array_list type_specifier TOKEN_ASSIGNMENT TOKEN_OPEN_CURLY_BRACE expr_list TOKEN_CLOSE_CURLY_BRACE TOKEN_SEMICOLON // x: array[5] ... boolean = {1, 2, 3, 4} ;
 | identifier TOKEN_TYPE_ASSIGNMENT type_specifier TOKEN_ASSIGNMENT identifier nested_sq_bracket_list TOKEN_SEMICOLON // x: char = str[1][4]...                                                           ;
 | identifier TOKEN_TYPE_ASSIGNMENT TOKEN_FUNCTION type_specifier TOKEN_LPAREN param_list TOKEN_RPAREN TOKEN_SEMICOLON // gfx_clear_color: function void ( red:integer, green: integer, blue:integer )    ;
@@ -142,8 +165,8 @@ nested_array_reassign : TOKEN_OPEN_SQUARE_BRACE expr TOKEN_CLOSE_SQUARE_BRACE
 ;
 
 // statement list can be a single / multiple statement
-statement_list : statement_list statement
-| statement
+statement_list : statement_list statement { $$ = $1; $1->next = $2; }
+| statement { $$ = $1; }
 |
 ;
 
@@ -151,11 +174,11 @@ statement_list : statement_list statement
 statement : var_declaration
 | reassignment
 | if_statement_list
-| for_statement
+| for_statement { $$ = $1; }
 | function_call TOKEN_SEMICOLON
-| block_statment
-| print_statement
-| return_statement
+| block_statment { $$ = $1; }
+| print_statement { $$ = $1; }
+| return_statement { $$ = $1; }
 ;
 
 reassignment : identifier TOKEN_ASSIGNMENT expr TOKEN_SEMICOLON // x = 3 + 4                                                          ;
@@ -181,23 +204,47 @@ else_statement : TOKEN_ELSE statement_list
 |
 ;
 
-for_statement : TOKEN_FOR TOKEN_LPAREN inner_expr TOKEN_SEMICOLON mid_epr TOKEN_SEMICOLON next_expr TOKEN_RPAREN
-| TOKEN_FOR TOKEN_LPAREN inner_expr TOKEN_SEMICOLON mid_epr TOKEN_SEMICOLON next_expr TOKEN_RPAREN block_statment
+for_statement : TOKEN_FOR TOKEN_LPAREN init_expr TOKEN_SEMICOLON mid_epr TOKEN_SEMICOLON next_expr TOKEN_RPAREN
+{
+    $$ = stmt_create (
+        STMT_FOR,
+        NULL,
+        $3,
+        $5,
+        $7,
+        NULL,
+        NULL,
+        NULL
+    );
+}
+| TOKEN_FOR TOKEN_LPAREN init_expr TOKEN_SEMICOLON mid_epr TOKEN_SEMICOLON next_expr TOKEN_RPAREN block_statment 
+{
+    $$ = stmt_create (
+        STMT_FOR,
+        NULL,
+        $3,
+        $5,
+        $7,
+        $9,
+        NULL,
+        NULL
+    );
 ;
+}
 
 // the first part of the for loop
-inner_expr : identifier TOKEN_ASSIGNMENT expr
+init_expr : identifier TOKEN_ASSIGNMENT expr { $$ = expr_create(EXPR_ASSIGN, $1, $3); }
 |
 ;
 
 // the conditional part of the for loop
-mid_epr : cond_expr
+mid_epr : cond_expr { $$ = $1; }
 |
 ;
 
 // the conditional decision maker part of for looop
-next_expr : expr
-| incr_decr
+next_expr : expr { $$ = $1; }
+| incr_decr { $$ = $1; }
 |
 ;
 
@@ -205,7 +252,19 @@ function_call : identifier TOKEN_LPAREN expr_list TOKEN_RPAREN { $$ = expr_creat
 ;
 
 // indicates a block of statements inside curly braces
-block_statment : TOKEN_OPEN_CURLY_BRACE statement_list TOKEN_CLOSE_CURLY_BRACE
+block_statment : TOKEN_OPEN_CURLY_BRACE statement_list TOKEN_CLOSE_CURLY_BRACE 
+{
+    $$ = stmt_create (
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        $3,
+        NULL,
+        NULL
+    );
+}
 ;
 
 print_statement : TOKEN_PRINT expr_list TOKEN_SEMICOLON {

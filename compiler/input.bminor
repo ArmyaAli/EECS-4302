@@ -1,1 +1,2 @@
-testIdene
+//some variable usages
+for(i = 0; i < 3; i++)
