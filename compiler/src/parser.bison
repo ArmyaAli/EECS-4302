@@ -29,7 +29,7 @@ int integer_type_name         ;
 %type <decl> var_declaration
 %type <expr> expr_list expr cond_expr term factor identifier function_call incr_decr init_expr next_expr mid_epr
 %type <stmt> print_statement return_statement for_statement statement statement_list block_statment
-%type <type> type_specifier neseted_array
+%type <type> type_specifier neseted_array neseted_array_list
 %type <integer_type_name>  token_digit_literal
 
 %token TOKEN_EOF 0 // enum index start
@@ -91,7 +91,7 @@ int integer_type_name         ;
 %%
 
 // The program is a list of declaration
-program : neseted_array { parser_result = $1 ; }
+program : neseted_array_list { parser_result = $1 ; }
 ;
 
 // declaration list can be a single / multiple declaration
@@ -150,8 +150,8 @@ param : identifier TOKEN_TYPE_ASSIGNMENT type_specifier
 ;
 
 // a: array[] array[] ... OR a: array[3] array[2] ...
-neseted_array_list : neseted_array_list neseted_array
-| neseted_array
+neseted_array_list : neseted_array neseted_array_list { $$ = $1; $1->subtype = $2; }
+| neseted_array { $$ = $1; }
 ;
 
 neseted_array : TOKEN_ARRAY TOKEN_OPEN_SQUARE_BRACE TOKEN_CLOSE_SQUARE_BRACE
@@ -261,42 +261,45 @@ function_call : identifier TOKEN_LPAREN expr_list TOKEN_RPAREN { $$ = expr_creat
 block_statment : TOKEN_OPEN_CURLY_BRACE statement_list TOKEN_CLOSE_CURLY_BRACE 
 ;
 
-print_statement : TOKEN_PRINT expr_list TOKEN_SEMICOLON {
-$$ = stmt_create(
-STMT_PRINT,
-NULL,
-NULL,
-$2,
-NULL,
-NULL,
-NULL,
-NULL
-)                                                         ; }
+print_statement : TOKEN_PRINT expr_list TOKEN_SEMICOLON 
+{
+    $$ = stmt_create(
+        STMT_PRINT,
+        NULL,
+        NULL,
+        $2,
+        NULL,
+        NULL,
+        NULL,
+        NULL
+    )                                                         ; }
 ;
 
-return_statement : TOKEN_RETURN expr TOKEN_SEMICOLON {
-$$ = stmt_create(
-STMT_RETURN,
-NULL,
-NULL,
-$2,
-NULL,
-NULL,
-NULL,
-NULL
-)                                                      ;
+return_statement : TOKEN_RETURN expr TOKEN_SEMICOLON 
+{
+    $$ = stmt_create(
+        STMT_RETURN,
+        NULL,
+        NULL,
+        $2,
+        NULL,
+        NULL,
+        NULL,
+        NULL
+    )                                                      ;
 }
-| TOKEN_RETURN incr_decr TOKEN_SEMICOLON {
-$$ = stmt_create(
-STMT_RETURN,
-NULL,
-NULL,
-$2,
-NULL,
-NULL,
-NULL,
-NULL
-)                                                      ;
+| TOKEN_RETURN incr_decr TOKEN_SEMICOLON 
+{
+    $$ = stmt_create(
+        STMT_RETURN,
+        NULL,
+        NULL,
+        $2,
+        NULL,
+        NULL,
+        NULL,
+        NULL
+    )                                                      ;
 }
 ;
 
