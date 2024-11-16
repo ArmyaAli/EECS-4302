@@ -27,7 +27,7 @@ char* str         ;
 int integer_type_name         ;
 }                 ;
 
-%type <expr> program
+%type <stmt> program
 %type <decl> var_declaration
 %type <expr> arg_list expr cond_expr term factor identifier function_call incr_decr init_expr next_expr mid_epr arr_element_list nested_array_reassign nested_sq_bracket_list
 %type <stmt> print_statement return_statement for_statement statement statement_list block_statment reassignment
@@ -94,7 +94,7 @@ int integer_type_name         ;
 %%
 
 // The program is a list of declaration
-program : reassignment { parser_result = $1 ; }
+program : statement { parser_result = $1 ; }
 ;
 
 // declaration list can be a single / multiple declaration
@@ -256,6 +256,18 @@ statement : var_declaration
 | if_statement_list
 | for_statement { $$ = $1; }
 | function_call TOKEN_SEMICOLON
+{
+    $$ = stmt_create (
+        STMT_EXPR,
+        NULL,
+        NULL,
+        $1,
+        NULL,
+        NULL,
+        NULL,
+        NULL
+    );
+}
 | block_statment { $$ = $1; }
 | print_statement { $$ = $1; }
 | return_statement { $$ = $1; }
