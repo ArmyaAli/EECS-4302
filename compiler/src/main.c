@@ -10,7 +10,7 @@ extern void run_scan(const char *);
 extern int yyparse(); 
 void run_parser(const char *);
 void run_print(struct stmt* ast);
-struct stmt* parser_result;
+struct type* parser_result;
 
 int main(int argc, char *argv[]) {
     const char *option = argv[1];
@@ -67,8 +67,8 @@ void run_parser(const char* filename) {
     if(yyparse() == 0) {
        printf("Parse success\n");
     //   expr_print(parser_result, 4, 0);
-      stmt_print(parser_result, 4, 0);
-       //type_print(parser_result);
+    //   stmt_print(parser_result, 4, 0);
+       type_print(parser_result);
     //    decl_print(parser_result);
     }
 

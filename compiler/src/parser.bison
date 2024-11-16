@@ -12,7 +12,7 @@
 extern char *yytext               ;
 extern int yylex()                ;
 int yyerror( char *str)           ;
-extern struct stmt* parser_result ;
+extern struct type* parser_result ;
 
 %}
 
@@ -22,13 +22,15 @@ struct expr *expr ;
 struct type *type ;
 struct stmt *stmt ;
 char* str         ;
+int integer_type_name         ;
 }                 ;
 
-%type <type> type_specifier
-%type <stmt> program
+%type <type> program
+%type <decl> var_declaration
 %type <expr> expr_list expr cond_expr term factor identifier function_call incr_decr init_expr next_expr mid_epr
 %type <stmt> print_statement return_statement for_statement statement statement_list block_statment
-%type <decl> var_declaration
+%type <type> type_specifier neseted_array
+%type <integer_type_name>  token_digit_literal
 
 %token TOKEN_EOF 0 // enum index start
 %token TOKEN_SEMICOLON 1
@@ -89,7 +91,7 @@ char* str         ;
 %%
 
 // The program is a list of declaration
-program : for_statement { parser_result = $1 ; }
+program : neseted_array { parser_result = $1 ; }
 ;
 
 // declaration list can be a single / multiple declaration
@@ -153,7 +155,23 @@ neseted_array_list : neseted_array_list neseted_array
 ;
 
 neseted_array : TOKEN_ARRAY TOKEN_OPEN_SQUARE_BRACE TOKEN_CLOSE_SQUARE_BRACE
-| TOKEN_ARRAY TOKEN_OPEN_SQUARE_BRACE TOKEN_DIGIT TOKEN_CLOSE_SQUARE_BRACE
+{
+    $$ = type_create(
+        TYPE_ARRAY,
+        NULL,
+        NULL
+    );
+}
+| TOKEN_ARRAY TOKEN_OPEN_SQUARE_BRACE token_digit_literal TOKEN_CLOSE_SQUARE_BRACE 
+{
+    struct type* t = type_create(
+        TYPE_ARRAY,
+        NULL,
+        NULL
+    );
+    t->array_size = $3;
+    $$ = t;
+}
 ;
 
 // [3][3+4][2/23+4^4]...
@@ -336,6 +354,9 @@ factor : TOKEN_SUB factor {$$ = expr_create(EXPR_SUB, $2, NULL)                 
 | TOKEN_STRING_LITERAL {$$ = expr_create_string_literal(yytext)                               ;}
 | function_call { $$ = $1                                                                     ;}
 | TOKEN_CHARACTER_LITERAL {printf("%s", "factor\n"); $$ = expr_create_char_literal(yytext[0]) ;}
+;
+
+token_digit_literal : TOKEN_DIGIT { $$ = atoi(yytext); }
 ;
 
 identifier: TOKEN_IDENTIFIER {printf("%s", "identifier\n"); $$ = expr_create_name(strdup(yytext)) ; }
