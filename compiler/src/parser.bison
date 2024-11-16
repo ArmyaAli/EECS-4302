@@ -12,7 +12,7 @@
 extern char *yytext               ;
 extern int yylex()                ;
 int yyerror( char *str)           ;
-extern struct type* parser_result ;
+extern struct decl* parser_result ;
 
 %}
 
@@ -25,7 +25,7 @@ char* str         ;
 int integer_type_name         ;
 }                 ;
 
-%type <type> program
+%type <decl> program
 %type <decl> var_declaration
 %type <expr> expr_list expr cond_expr term factor identifier function_call incr_decr init_expr next_expr mid_epr
 %type <stmt> print_statement return_statement for_statement statement statement_list block_statment
@@ -91,7 +91,7 @@ int integer_type_name         ;
 %%
 
 // The program is a list of declaration
-program : neseted_array_list { parser_result = $1 ; }
+program : var_declaration { parser_result = $1 ; }
 ;
 
 // declaration list can be a single / multiple declaration
@@ -129,7 +129,45 @@ var_declaration : identifier TOKEN_TYPE_ASSIGNMENT type_specifier TOKEN_SEMICOLO
     }
     ;
 | identifier TOKEN_TYPE_ASSIGNMENT neseted_array_list type_specifier TOKEN_SEMICOLON
-| identifier TOKEN_TYPE_ASSIGNMENT neseted_array_list type_specifier TOKEN_ASSIGNMENT TOKEN_OPEN_CURLY_BRACE expr_list TOKEN_CLOSE_CURLY_BRACE TOKEN_SEMICOLON // x: array[5] ... boolean = {1, 2, 3, 4} ;
+    { 
+        // get the last element in the linked list
+        struct type* current = $3;
+        struct type* head = current;
+        while (current->subtype != NULL) {
+            current = current->subtype;
+        }
+        // set the last element of linked list to have the value of type specifier - refer to page 93 to understand this
+        current->subtype = $4;
+        
+        $$ = decl_create (
+            $1->name,
+            head,
+            NULL,
+            NULL,
+            NULL
+        );
+    }
+    ;
+| identifier TOKEN_TYPE_ASSIGNMENT neseted_array_list type_specifier TOKEN_ASSIGNMENT TOKEN_OPEN_CURLY_BRACE expr_list TOKEN_CLOSE_CURLY_BRACE TOKEN_SEMICOLON
+    { 
+        // get the last element in the linked list
+        struct type* current = $3;
+        struct type* head = current;
+        while (current->subtype != NULL) {
+            current = current->subtype;
+        }
+        // set the last element of linked list to have the value of type specifier - refer to page 93 to understand this
+        current->subtype = $4;
+        
+        $$ = decl_create (
+            $1->name,
+            head,
+            $7,
+            NULL,
+            NULL
+        );
+    }
+    ;
 | identifier TOKEN_TYPE_ASSIGNMENT type_specifier TOKEN_ASSIGNMENT identifier nested_sq_bracket_list TOKEN_SEMICOLON // x: char = str[1][4]...                                                           ;
 | identifier TOKEN_TYPE_ASSIGNMENT TOKEN_FUNCTION type_specifier TOKEN_LPAREN param_list TOKEN_RPAREN TOKEN_SEMICOLON // gfx_clear_color: function void ( red:integer, green: integer, blue:integer )    ;
 ;
@@ -162,7 +200,7 @@ neseted_array : TOKEN_ARRAY TOKEN_OPEN_SQUARE_BRACE TOKEN_CLOSE_SQUARE_BRACE
         NULL
     );
 }
-| TOKEN_ARRAY TOKEN_OPEN_SQUARE_BRACE token_digit_literal TOKEN_CLOSE_SQUARE_BRACE 
+| TOKEN_ARRAY TOKEN_OPEN_SQUARE_BRACE token_digit_literal TOKEN_CLOSE_SQUARE_BRACE
 {
     struct type* t = type_create(
         TYPE_ARRAY,
