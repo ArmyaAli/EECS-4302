@@ -11,7 +11,7 @@
 extern char *yytext               ;
 extern int yylex()                ;
 int yyerror( char *str)           ;
-extern struct expr* parser_result ;
+extern struct stmt* parser_result ;
 
 %}
 
@@ -23,8 +23,9 @@ char* str         ;
 }                 ;
 
 %type <type> type_specifier
-%type <expr> program expr_list expr cond_expr term factor identifier function_call incr_decr
-%type <stmt> print_statement
+%type <stmt> program
+%type <expr> expr_list expr cond_expr term factor identifier function_call incr_decr
+%type <stmt> print_statement return_statement
 
 %token TOKEN_EOF 0 // enum index start
 %token TOKEN_SEMICOLON 1
@@ -85,7 +86,7 @@ char* str         ;
 %%
 
 // The program is a list of declaration
-program : incr_decr { parser_result = $1 ; }
+program : return_statement { parser_result = $1 ; }
 ;
 
 // declaration list can be a single / multiple declaration
@@ -220,8 +221,30 @@ NULL
 )                                                         ; }
 ;
 
-return_statement : TOKEN_RETURN expr TOKEN_SEMICOLON
-| TOKEN_RETURN incr_decr TOKEN_SEMICOLON
+return_statement : TOKEN_RETURN expr TOKEN_SEMICOLON {
+$$ = stmt_create(
+STMT_RETURN,
+NULL,
+NULL,
+$2,
+NULL,
+NULL,
+NULL,
+NULL
+)                                                      ;
+}
+| TOKEN_RETURN incr_decr TOKEN_SEMICOLON {
+$$ = stmt_create(
+STMT_RETURN,
+NULL,
+NULL,
+$2,
+NULL,
+NULL,
+NULL,
+NULL
+)                                                      ;
+}
 ;
 
 incr_decr : identifier TOKEN_INCR { $$ = expr_create(EXPR_INCR, $1, NULL) ; }
