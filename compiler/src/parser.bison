@@ -8,11 +8,12 @@
 #include "../include/type.h"
 #include "../include/stmt.h"
 #include "../include/decl.h"
+#include "../include/param_list.h"
 
 extern char *yytext               ;
 extern int yylex()                ;
 int yyerror( char *str)           ;
-extern struct decl* parser_result ;
+extern struct param_list* parser_result ;
 
 %}
 
@@ -21,16 +22,18 @@ struct decl *decl ;
 struct expr *expr ;
 struct type *type ;
 struct stmt *stmt ;
+struct param_list *param_list ;
 char* str         ;
 int integer_type_name         ;
 }                 ;
 
-%type <decl> program
+%type <param_list> program
 %type <decl> var_declaration
 %type <expr> arg_list expr cond_expr term factor identifier function_call incr_decr init_expr next_expr mid_epr arr_element_list
 %type <stmt> print_statement return_statement for_statement statement statement_list block_statment
 %type <type> type_specifier neseted_array neseted_array_list
 %type <integer_type_name>  token_digit_literal
+%type <param_list>  param param_list
 
 %token TOKEN_EOF 0 // enum index start
 %token TOKEN_SEMICOLON 1
@@ -91,7 +94,7 @@ int integer_type_name         ;
 %%
 
 // The program is a list of declaration
-program : var_declaration { parser_result = $1 ; }
+program : param_list { parser_result = $1 ; }
 ;
 
 // declaration list can be a single / multiple declaration
@@ -177,13 +180,20 @@ function_declaration : identifier TOKEN_TYPE_ASSIGNMENT TOKEN_FUNCTION type_spec
 ;
 
 // param list can be a single / multiple param
-param_list: param_list TOKEN_COMMA param_list
-| param
+param_list: param_list TOKEN_COMMA param_list { $$ = $1; $1->next = $3; }
+| param { $$ = $1; }
 |
 ;
 
 // (param1: boolean) or (param1: boolean, param2: integer, ...)
-param : identifier TOKEN_TYPE_ASSIGNMENT type_specifier
+param : identifier TOKEN_TYPE_ASSIGNMENT type_specifier 
+{
+    $$ = param_list_create(
+        $1->name,
+        $3,
+        NULL
+    );
+}
 | identifier TOKEN_TYPE_ASSIGNMENT neseted_array_list type_specifier
 ;
 
@@ -405,7 +415,7 @@ factor : TOKEN_SUB factor {$$ = expr_create(EXPR_SUB, $2, NULL)                 
 token_digit_literal : TOKEN_DIGIT { $$ = atoi(yytext); }
 ;
 
-identifier: TOKEN_IDENTIFIER {printf("%s", "identifier\n"); $$ = expr_create_name(strdup(yytext)) ; }
+identifier: TOKEN_IDENTIFIER { $$ = expr_create_name(strdup(yytext)) ; }
 ;
 %%
 
