@@ -22,13 +22,9 @@ struct stmt *stmt ;
 char* str         ;
 }                 ;
 
-%type <expr> program
-%type <expr> expr_list
 %type <type> type_specifier
-%type <expr> expr cond_expr term factor
+%type <expr> program expr_list expr cond_expr term factor identifier function_call incr_decr
 %type <stmt> print_statement
-%type <str> TOKEN_IDENTIFIER
-%type <expr> identifier
 
 %token TOKEN_EOF 0 // enum index start
 %token TOKEN_SEMICOLON 1
@@ -89,7 +85,7 @@ char* str         ;
 %%
 
 // The program is a list of declaration
-program : expr { parser_result = $1     ; }
+program : incr_decr { parser_result = $1 ; }
 ;
 
 // declaration list can be a single / multiple declaration
@@ -162,8 +158,7 @@ statement : var_declaration
 ;
 
 reassignment : identifier TOKEN_ASSIGNMENT expr TOKEN_SEMICOLON // x = 3 + 4                                                          ;
-| identifier TOKEN_INCR TOKEN_SEMICOLON // x++
-| identifier TOKEN_DECR TOKEN_SEMICOLON // x--
+| incr_decr TOKEN_SEMICOLON
 | identifier nested_sq_bracket_list TOKEN_ASSIGNMENT expr TOKEN_SEMICOLON // x[3][4][3]... = 3                                        ;
 | identifier TOKEN_ASSIGNMENT identifier nested_sq_bracket_list TOKEN_SEMICOLON // x = arr[3][4]...
 | identifier nested_sq_bracket_list TOKEN_ASSIGNMENT identifier nested_sq_bracket_list TOKEN_SEMICOLON // arr[2][3]... = arr[3][3]... ;
@@ -201,12 +196,11 @@ mid_epr : cond_expr
 
 // the conditional decision maker part of for looop
 next_expr : expr
-| identifier TOKEN_INCR
-| identifier TOKEN_DECR
+| incr_decr
 |
 ;
 
-function_call : identifier TOKEN_LPAREN expr_list TOKEN_RPAREN
+function_call : identifier TOKEN_LPAREN expr_list TOKEN_RPAREN { $$ = expr_create(EXPR_CALL, $1, $3) ; }
 ;
 
 // indicates a block of statements inside curly braces
@@ -227,8 +221,11 @@ NULL
 ;
 
 return_statement : TOKEN_RETURN expr TOKEN_SEMICOLON
-| TOKEN_RETURN identifier TOKEN_INCR TOKEN_SEMICOLON
-| TOKEN_RETURN identifier TOKEN_DECR TOKEN_SEMICOLON
+| TOKEN_RETURN incr_decr TOKEN_SEMICOLON
+;
+
+incr_decr : identifier TOKEN_INCR { $$ = expr_create(EXPR_INCR, $1, NULL) ; }
+| identifier TOKEN_DECR { $$ = expr_create(EXPR_DECR, $1, NULL)           ; }
 ;
 
 expr_list : expr_list TOKEN_COMMA expr_list { $$ = expr_create(EXPR_ARG, $1, $3) ; }
@@ -268,22 +265,22 @@ cond_expr : TOKEN_UNARY_NEGATE expr {$$ = expr_create(EXPR_NEQ, $2, NULL)       
 term : term TOKEN_EXP factor {$$ = expr_create(EXPR_EXP, $1, $3) ;}
 | term TOKEN_MUL factor { $$ = expr_create(EXPR_MUL, $1, $3)     ;}
 | term TOKEN_DIV factor { $$ = expr_create(EXPR_DIV, $1, $3)     ;}
-| function_call // func(a, c)
+| function_call { $$ = $1                                        ;}
 | factor { $$ = $1                                               ; }
 ;
 
 // atomic tokens in b-minor
-factor : TOKEN_SUB factor {$$ = expr_create(EXPR_SUB, $2, NULL)     ;} // to be discussed and analyzed further
-| TOKEN_LPAREN expr TOKEN_RPAREN { $$ = $2                          ;}
-| TOKEN_DIGIT {$$ = expr_create_integer_literal(atoi(yytext))       ;}
-| TOKEN_TRUE {$$ = expr_create_boolean_literal(1)                   ;}
-| TOKEN_FALSE {$$ = expr_create_boolean_literal(0)                  ;}
-| TOKEN_STRING_LITERAL {$$ = expr_create_string_literal(yytext)     ;}
-| function_call
-| TOKEN_CHARACTER_LITERAL {$$ = expr_create_char_literal(yytext[0]) ;}
+factor : TOKEN_SUB factor {$$ = expr_create(EXPR_SUB, $2, NULL)                               ;} // to be discussed and analyzed further
+| TOKEN_LPAREN expr TOKEN_RPAREN { $$ = $2                                                    ;}
+| TOKEN_DIGIT {$$ = expr_create_integer_literal(atoi(yytext))                                 ;}
+| TOKEN_TRUE {$$ = expr_create_boolean_literal(1)                                             ;}
+| TOKEN_FALSE {$$ = expr_create_boolean_literal(0)                                            ;}
+| TOKEN_STRING_LITERAL {$$ = expr_create_string_literal(yytext)                               ;}
+| function_call { $$ = $1                                                                     ;}
+| TOKEN_CHARACTER_LITERAL {printf("%s", "factor\n"); $$ = expr_create_char_literal(yytext[0]) ;}
 ;
 
-identifier: TOKEN_IDENTIFIER { $$ = expr_create_name(strdup(yytext)) ; }
+identifier: TOKEN_IDENTIFIER {printf("%s", "identifier\n"); $$ = expr_create_name(strdup(yytext)) ; }
 ;
 %%
 
