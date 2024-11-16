@@ -13,7 +13,7 @@
 extern char *yytext               ;
 extern int yylex()                ;
 int yyerror( char *str)           ;
-extern struct param_list* parser_result ;
+extern struct stmt* parser_result ;
 
 %}
 
@@ -27,10 +27,10 @@ char* str         ;
 int integer_type_name         ;
 }                 ;
 
-%type <param_list> program
+%type <expr> program
 %type <decl> var_declaration
-%type <expr> arg_list expr cond_expr term factor identifier function_call incr_decr init_expr next_expr mid_epr arr_element_list
-%type <stmt> print_statement return_statement for_statement statement statement_list block_statment
+%type <expr> arg_list expr cond_expr term factor identifier function_call incr_decr init_expr next_expr mid_epr arr_element_list nested_array_reassign nested_sq_bracket_list
+%type <stmt> print_statement return_statement for_statement statement statement_list block_statment reassignment
 %type <type> type_specifier neseted_array neseted_array_list
 %type <integer_type_name>  token_digit_literal
 %type <param_list>  param param_list
@@ -94,7 +94,7 @@ int integer_type_name         ;
 %%
 
 // The program is a list of declaration
-program : param_list { parser_result = $1 ; }
+program : reassignment { parser_result = $1 ; }
 ;
 
 // declaration list can be a single / multiple declaration
@@ -176,7 +176,7 @@ var_declaration : identifier TOKEN_TYPE_ASSIGNMENT type_specifier TOKEN_SEMICOLO
 ;
 
 // calc: function integer (param1: boolean, param2: integer) = {}
-function_declaration : identifier TOKEN_TYPE_ASSIGNMENT TOKEN_FUNCTION type_specifier TOKEN_LPAREN param_list TOKEN_RPAREN TOKEN_ASSIGNMENT block_statment
+function_declaration : identifier TOKEN_TYPE_ASSIGNMENT TOKEN_FUNCTION type_specifier TOKEN_LPAREN param_list TOKEN_RPAREN TOKEN_ASSIGNMENT block_statment 
 ;
 
 // param list can be a single / multiple param
@@ -228,11 +228,20 @@ neseted_array : TOKEN_ARRAY TOKEN_OPEN_SQUARE_BRACE TOKEN_CLOSE_SQUARE_BRACE
 ;
 
 // [3][3+4][2/23+4^4]...
-nested_sq_bracket_list : nested_sq_bracket_list nested_array_reassign
-| nested_array_reassign
+nested_sq_bracket_list : nested_array_reassign nested_sq_bracket_list // works only for one level - no nesting 
+{
+    $$ = $1; $1->right = expr_create(EXPR_SUBSCRIPT, $1->right, $2->right);
+}
+| nested_array_reassign 
+{
+    $$ = $1;
+}
 ;
 
 nested_array_reassign : TOKEN_OPEN_SQUARE_BRACE expr TOKEN_CLOSE_SQUARE_BRACE
+{
+    $$ = expr_create(EXPR_SUBSCRIPT, NULL, $2);
+}
 ;
 
 // statement list can be a single / multiple statement
@@ -252,8 +261,33 @@ statement : var_declaration
 | return_statement { $$ = $1; }
 ;
 
-reassignment : identifier TOKEN_ASSIGNMENT expr TOKEN_SEMICOLON // x = 3 + 4                                                          ;
+reassignment : identifier TOKEN_ASSIGNMENT expr TOKEN_SEMICOLON 
+{
+    struct expr* e = expr_create(EXPR_ASSIGN, expr_create_name($1->name), $3);
+    $$ = stmt_create (
+        STMT_EXPR,
+        NULL,
+        NULL,
+        e,
+        NULL,
+        NULL,
+        NULL,
+        NULL
+    );
+};
 | incr_decr TOKEN_SEMICOLON
+{
+    $$ = stmt_create (
+        STMT_EXPR,
+        NULL,
+        NULL,
+        $1,
+        NULL,
+        NULL,
+        NULL,
+        NULL
+    );
+}
 | identifier nested_sq_bracket_list TOKEN_ASSIGNMENT expr TOKEN_SEMICOLON // x[3][4][3]... = 3                                        ;
 | identifier TOKEN_ASSIGNMENT identifier nested_sq_bracket_list TOKEN_SEMICOLON // x = arr[3][4]...
 | identifier nested_sq_bracket_list TOKEN_ASSIGNMENT identifier nested_sq_bracket_list TOKEN_SEMICOLON // arr[2][3]... = arr[3][3]... ;
