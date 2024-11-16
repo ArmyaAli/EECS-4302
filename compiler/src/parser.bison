@@ -89,7 +89,7 @@ char* str         ;
 %%
 
 // The program is a list of declaration
-program : block { parser_result = $1 ; }
+program : for_statement { parser_result = $1 ; }
 ;
 
 // declaration list can be a single / multiple declaration
@@ -217,20 +217,8 @@ for_statement : TOKEN_FOR TOKEN_LPAREN init_expr TOKEN_SEMICOLON mid_epr TOKEN_S
         NULL
     );
 }
-| TOKEN_FOR TOKEN_LPAREN init_expr TOKEN_SEMICOLON mid_epr TOKEN_SEMICOLON next_expr TOKEN_RPAREN block_statment 
-{
-    $$ = stmt_create (
-        STMT_FOR,
-        NULL,
-        $3,
-        $5,
-        $7,
-        $9,
-        NULL,
-        NULL
-    );
+| TOKEN_FOR TOKEN_LPAREN init_expr TOKEN_SEMICOLON mid_epr TOKEN_SEMICOLON next_expr TOKEN_RPAREN block_statment
 ;
-}
 
 // the first part of the for loop
 init_expr : identifier TOKEN_ASSIGNMENT expr { $$ = expr_create(EXPR_ASSIGN, $1, $3); }
@@ -253,18 +241,6 @@ function_call : identifier TOKEN_LPAREN expr_list TOKEN_RPAREN { $$ = expr_creat
 
 // indicates a block of statements inside curly braces
 block_statment : TOKEN_OPEN_CURLY_BRACE statement_list TOKEN_CLOSE_CURLY_BRACE 
-{
-    $$ = stmt_create (
-        NULL,
-        NULL,
-        NULL,
-        NULL,
-        NULL,
-        $3,
-        NULL,
-        NULL
-    );
-}
 ;
 
 print_statement : TOKEN_PRINT expr_list TOKEN_SEMICOLON {
