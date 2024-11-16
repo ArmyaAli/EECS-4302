@@ -89,10 +89,7 @@ char*  str       ;
 %%
 
 // The program is a list of declaration
-//program : expr_list { print("program\n"); parser_result = $1; }
-//;
-
-program : cond_expr { printf("program\n"); parser_result = $1; }
+program : expr { parser_result = $1; }
 ;
 
 // declaration list can be a single / multiple declaration
@@ -107,16 +104,16 @@ declaration : function_declaration
 ;
 
 // Variable declaration can be either initialized or uninitialized
-var_declaration : TOKEN_IDENTIFIER TOKEN_TYPE_ASSIGNMENT type_specifier TOKEN_SEMICOLON // x: boolean                                                                                                          ;
-| TOKEN_IDENTIFIER TOKEN_TYPE_ASSIGNMENT type_specifier TOKEN_ASSIGNMENT expr TOKEN_SEMICOLON // x: boolean = true && false                                                                                    ;
-| TOKEN_IDENTIFIER TOKEN_TYPE_ASSIGNMENT neseted_array_list type_specifier TOKEN_SEMICOLON // x: array[5] boolean                                                                                              ;
-| TOKEN_IDENTIFIER TOKEN_TYPE_ASSIGNMENT neseted_array_list type_specifier TOKEN_ASSIGNMENT TOKEN_OPEN_CURLY_BRACE expr_list TOKEN_CLOSE_CURLY_BRACE TOKEN_SEMICOLON // x: array[5] ... boolean = {1, 2, 3, 4} ;
-| TOKEN_IDENTIFIER TOKEN_TYPE_ASSIGNMENT type_specifier TOKEN_ASSIGNMENT TOKEN_IDENTIFIER nested_sq_bracket_list TOKEN_SEMICOLON // x: char = str[1][4]...                                                     ;
-| TOKEN_IDENTIFIER TOKEN_TYPE_ASSIGNMENT TOKEN_FUNCTION type_specifier TOKEN_LPAREN param_list TOKEN_RPAREN TOKEN_SEMICOLON // gfx_clear_color: function void ( red:integer, green: integer, blue:integer )    ;
+var_declaration : identifier TOKEN_TYPE_ASSIGNMENT type_specifier TOKEN_SEMICOLON // x: boolean                                                                                                          ;
+| identifier TOKEN_TYPE_ASSIGNMENT type_specifier TOKEN_ASSIGNMENT expr TOKEN_SEMICOLON // x: boolean = true && false                                                                                    ;
+| identifier TOKEN_TYPE_ASSIGNMENT neseted_array_list type_specifier TOKEN_SEMICOLON // x: array[5] boolean                                                                                              ;
+| identifier TOKEN_TYPE_ASSIGNMENT neseted_array_list type_specifier TOKEN_ASSIGNMENT TOKEN_OPEN_CURLY_BRACE expr_list TOKEN_CLOSE_CURLY_BRACE TOKEN_SEMICOLON // x: array[5] ... boolean = {1, 2, 3, 4} ;
+| identifier TOKEN_TYPE_ASSIGNMENT type_specifier TOKEN_ASSIGNMENT identifier nested_sq_bracket_list TOKEN_SEMICOLON // x: char = str[1][4]...                                                     ;
+| identifier TOKEN_TYPE_ASSIGNMENT TOKEN_FUNCTION type_specifier TOKEN_LPAREN param_list TOKEN_RPAREN TOKEN_SEMICOLON // gfx_clear_color: function void ( red:integer, green: integer, blue:integer )    ;
 ;
 
 // calc: function integer (param1: boolean, param2: integer) = {}
-function_declaration : TOKEN_IDENTIFIER TOKEN_TYPE_ASSIGNMENT TOKEN_FUNCTION type_specifier TOKEN_LPAREN param_list TOKEN_RPAREN TOKEN_ASSIGNMENT block_statment
+function_declaration : identifier TOKEN_TYPE_ASSIGNMENT TOKEN_FUNCTION type_specifier TOKEN_LPAREN param_list TOKEN_RPAREN TOKEN_ASSIGNMENT block_statment
 ;
 
 // param list can be a single / multiple param
@@ -126,8 +123,8 @@ param_list: param_list TOKEN_COMMA param_list
 ;
 
 // (param1: boolean) or (param1: boolean, param2: integer, ...)
-param : TOKEN_IDENTIFIER TOKEN_TYPE_ASSIGNMENT type_specifier
-| TOKEN_IDENTIFIER TOKEN_TYPE_ASSIGNMENT neseted_array_list type_specifier
+param : identifier TOKEN_TYPE_ASSIGNMENT type_specifier
+| identifier TOKEN_TYPE_ASSIGNMENT neseted_array_list type_specifier
 ;
 
 // a: array[] array[] ... OR a: array[3] array[2] ...
@@ -164,12 +161,12 @@ statement : var_declaration
 | return_statement
 ;
 
-reassignment : TOKEN_IDENTIFIER TOKEN_ASSIGNMENT expr TOKEN_SEMICOLON // x = 3 + 4                                                                ;
-| TOKEN_IDENTIFIER TOKEN_INCR TOKEN_SEMICOLON // x++
-| TOKEN_IDENTIFIER TOKEN_DECR TOKEN_SEMICOLON // x--
-| TOKEN_IDENTIFIER nested_sq_bracket_list TOKEN_ASSIGNMENT expr TOKEN_SEMICOLON // x[3][4][3]... = 3                                              ;
-| TOKEN_IDENTIFIER TOKEN_ASSIGNMENT TOKEN_IDENTIFIER nested_sq_bracket_list TOKEN_SEMICOLON // x = arr[3][4]...
-| TOKEN_IDENTIFIER nested_sq_bracket_list TOKEN_ASSIGNMENT TOKEN_IDENTIFIER nested_sq_bracket_list TOKEN_SEMICOLON // arr[2][3]... = arr[3][3]... ;
+reassignment : identifier TOKEN_ASSIGNMENT expr TOKEN_SEMICOLON // x = 3 + 4                                                                ;
+| identifier TOKEN_INCR TOKEN_SEMICOLON // x++
+| identifier TOKEN_DECR TOKEN_SEMICOLON // x--
+| identifier nested_sq_bracket_list TOKEN_ASSIGNMENT expr TOKEN_SEMICOLON // x[3][4][3]... = 3                                              ;
+| identifier TOKEN_ASSIGNMENT identifier nested_sq_bracket_list TOKEN_SEMICOLON // x = arr[3][4]...
+| identifier nested_sq_bracket_list TOKEN_ASSIGNMENT identifier nested_sq_bracket_list TOKEN_SEMICOLON // arr[2][3]... = arr[3][3]... ;
 ;
 
 // if statment can be a single / multiple nested if statments
@@ -182,7 +179,7 @@ if_statement : TOKEN_IF TOKEN_LPAREN cond_expr TOKEN_RPAREN statement_list else_
 | TOKEN_IF TOKEN_LPAREN cond_expr TOKEN_RPAREN block_statment else_statement
 ;
 
-// optional else-statments that is else followed by either statment list or a block statment
+// optional else-statments that is else followed by either statment list or  a block statment
 else_statement : TOKEN_ELSE statement_list
 | TOKEN_ELSE block_statment
 |
@@ -193,7 +190,7 @@ for_statement : TOKEN_FOR TOKEN_LPAREN inner_expr TOKEN_SEMICOLON mid_epr TOKEN_
 ;
 
 // the first part of the for loop
-inner_expr : TOKEN_IDENTIFIER TOKEN_ASSIGNMENT expr
+inner_expr : identifier TOKEN_ASSIGNMENT expr
 |
 ;
 
@@ -204,12 +201,12 @@ mid_epr : cond_expr
 
 // the conditional decision maker part of for looop
 next_expr : expr
-| TOKEN_IDENTIFIER TOKEN_INCR
-| TOKEN_IDENTIFIER TOKEN_DECR
+| identifier TOKEN_INCR
+| identifier TOKEN_DECR
 |
 ;
 
-function_call : TOKEN_IDENTIFIER TOKEN_LPAREN expr_list TOKEN_RPAREN
+function_call : identifier TOKEN_LPAREN expr_list TOKEN_RPAREN
 ;
 
 // indicates a block of statements inside curly braces
@@ -230,8 +227,8 @@ $$ = stmt_create(
 ;
 
 return_statement : TOKEN_RETURN expr TOKEN_SEMICOLON 
-| TOKEN_RETURN TOKEN_IDENTIFIER TOKEN_INCR TOKEN_SEMICOLON
-| TOKEN_RETURN TOKEN_IDENTIFIER TOKEN_DECR TOKEN_SEMICOLON
+| TOKEN_RETURN identifier TOKEN_INCR TOKEN_SEMICOLON
+| TOKEN_RETURN identifier TOKEN_DECR TOKEN_SEMICOLON
 ;
 
 expr_list : expr_list TOKEN_COMMA expr_list { $$ = expr_create(EXPR_ARG, $1, $3); }
@@ -251,8 +248,8 @@ type_specifier : TOKEN_INTEGER { $$ = type_create(TYPE_INTEGER, NULL, NULL); }
 // Expression Grammar
 expr : expr TOKEN_ADD term {$$ = expr_create(EXPR_ADD, $1, $3) ;}
 | expr TOKEN_SUB term {$$ = expr_create(EXPR_SUB, $1, $3)      ;}
-| cond_expr {printf("cond_expr\n"); $$ = $1                                           ;}
-| term { printf(yytext); $$ = $1                                                ;}
+| cond_expr { $$ = $1                                           ;}
+| term { $$ = $1                                                ;}
 ;
 
 // captures only conditional expressions. Used to seperate regular expression with conditiaonl ones
@@ -265,15 +262,14 @@ cond_expr : TOKEN_UNARY_NEGATE expr {$$ = expr_create(EXPR_NEQ, $2, NULL)       
 | expr TOKEN_EQ expr {$$ = expr_create(EXPR_EQ, $1, $3)                                             ;}
 | expr TOKEN_LOGICAL_AND expr {$$ = expr_create(EXPR_AND, $1, $3)                                   ;}
 | expr TOKEN_LOGICAL_OR expr {$$ = expr_create(EXPR_OR, $1, $3)                                     ;}
-| function_call 
-| identifier { printf(yytext); printf("identifier\n"); $$ = $1          ;}                                       
+| identifier { $$ = $1          ;}                                       
 ;
 
 term : term TOKEN_EXP factor {$$ = expr_create(EXPR_EXP, $1, $3) ;}
 | term TOKEN_MUL factor { $$ = expr_create(EXPR_MUL, $1, $3)      ;}
 | term TOKEN_DIV factor { $$ = expr_create(EXPR_DIV, $1, $3)      ;}
 | function_call // func(a, c)
-| factor { printf(yytext); $$ = $1; }
+| factor { $$ = $1; }
 ;
 
 // atomic tokens in b-minor
@@ -283,11 +279,11 @@ factor : TOKEN_SUB factor {$$ = expr_create(EXPR_SUB, $2, NULL)     ;} // to be 
 | TOKEN_TRUE {$$ = expr_create_boolean_literal(1)                   ;}
 | TOKEN_FALSE {$$ = expr_create_boolean_literal(0)                  ;}
 | TOKEN_STRING_LITERAL {$$ = expr_create_string_literal(yytext)     ;}
+| function_call // func(a, c)
 | TOKEN_CHARACTER_LITERAL {$$ = expr_create_char_literal(yytext[0]) ;}
-| identifier { printf("factor\n"); printf(yytext); $$ = $1; } 
 ;
 
-identifier: TOKEN_IDENTIFIER { printf("leaf\n"); printf(yytext); $$ = expr_create_name(yytext); }
+identifier: TOKEN_IDENTIFIER { $$ = expr_create_name(strdup(yytext)); }
 ;
 %%
 

@@ -46,9 +46,9 @@ struct expr {
 	struct expr *right;
 
 	/* used by various leaf exprs */
-	const char *name;
+	char *name;
 	int literal_value;
-	const char * string_literal;
+	char * string_literal;
 	struct symbol *symbol;
 };
 
