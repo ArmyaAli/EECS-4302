@@ -19,7 +19,7 @@ extern struct expr* parser_result ;
 struct expr *expr ;
 struct type *type ;
 struct stmt *stmt ;
-char*  str       ;
+char* str         ;
 }                 ;
 
 %type <expr> program
@@ -89,7 +89,7 @@ char*  str       ;
 %%
 
 // The program is a list of declaration
-program : expr { parser_result = $1; }
+program : expr { parser_result = $1     ; }
 ;
 
 // declaration list can be a single / multiple declaration
@@ -108,7 +108,7 @@ var_declaration : identifier TOKEN_TYPE_ASSIGNMENT type_specifier TOKEN_SEMICOLO
 | identifier TOKEN_TYPE_ASSIGNMENT type_specifier TOKEN_ASSIGNMENT expr TOKEN_SEMICOLON // x: boolean = true && false                                                                                    ;
 | identifier TOKEN_TYPE_ASSIGNMENT neseted_array_list type_specifier TOKEN_SEMICOLON // x: array[5] boolean                                                                                              ;
 | identifier TOKEN_TYPE_ASSIGNMENT neseted_array_list type_specifier TOKEN_ASSIGNMENT TOKEN_OPEN_CURLY_BRACE expr_list TOKEN_CLOSE_CURLY_BRACE TOKEN_SEMICOLON // x: array[5] ... boolean = {1, 2, 3, 4} ;
-| identifier TOKEN_TYPE_ASSIGNMENT type_specifier TOKEN_ASSIGNMENT identifier nested_sq_bracket_list TOKEN_SEMICOLON // x: char = str[1][4]...                                                     ;
+| identifier TOKEN_TYPE_ASSIGNMENT type_specifier TOKEN_ASSIGNMENT identifier nested_sq_bracket_list TOKEN_SEMICOLON // x: char = str[1][4]...                                                           ;
 | identifier TOKEN_TYPE_ASSIGNMENT TOKEN_FUNCTION type_specifier TOKEN_LPAREN param_list TOKEN_RPAREN TOKEN_SEMICOLON // gfx_clear_color: function void ( red:integer, green: integer, blue:integer )    ;
 ;
 
@@ -161,10 +161,10 @@ statement : var_declaration
 | return_statement
 ;
 
-reassignment : identifier TOKEN_ASSIGNMENT expr TOKEN_SEMICOLON // x = 3 + 4                                                                ;
+reassignment : identifier TOKEN_ASSIGNMENT expr TOKEN_SEMICOLON // x = 3 + 4                                                          ;
 | identifier TOKEN_INCR TOKEN_SEMICOLON // x++
 | identifier TOKEN_DECR TOKEN_SEMICOLON // x--
-| identifier nested_sq_bracket_list TOKEN_ASSIGNMENT expr TOKEN_SEMICOLON // x[3][4][3]... = 3                                              ;
+| identifier nested_sq_bracket_list TOKEN_ASSIGNMENT expr TOKEN_SEMICOLON // x[3][4][3]... = 3                                        ;
 | identifier TOKEN_ASSIGNMENT identifier nested_sq_bracket_list TOKEN_SEMICOLON // x = arr[3][4]...
 | identifier nested_sq_bracket_list TOKEN_ASSIGNMENT identifier nested_sq_bracket_list TOKEN_SEMICOLON // arr[2][3]... = arr[3][3]... ;
 ;
@@ -179,7 +179,7 @@ if_statement : TOKEN_IF TOKEN_LPAREN cond_expr TOKEN_RPAREN statement_list else_
 | TOKEN_IF TOKEN_LPAREN cond_expr TOKEN_RPAREN block_statment else_statement
 ;
 
-// optional else-statments that is else followed by either statment list or  a block statment
+// optional else-statments that is else followed by either statment list or a block statment
 else_statement : TOKEN_ELSE statement_list
 | TOKEN_ELSE block_statment
 |
@@ -213,43 +213,43 @@ function_call : identifier TOKEN_LPAREN expr_list TOKEN_RPAREN
 block_statment : TOKEN_OPEN_CURLY_BRACE statement_list TOKEN_CLOSE_CURLY_BRACE
 ;
 
-print_statement : TOKEN_PRINT expr_list TOKEN_SEMICOLON { 
+print_statement : TOKEN_PRINT expr_list TOKEN_SEMICOLON {
 $$ = stmt_create(
- STMT_PRINT, 
- NULL, 
- NULL,
- $2, 
- NULL,
- NULL, 
- NULL,
- NULL
-); } 
+STMT_PRINT,
+NULL,
+NULL,
+$2,
+NULL,
+NULL,
+NULL,
+NULL
+)                                                         ; }
 ;
 
-return_statement : TOKEN_RETURN expr TOKEN_SEMICOLON 
+return_statement : TOKEN_RETURN expr TOKEN_SEMICOLON
 | TOKEN_RETURN identifier TOKEN_INCR TOKEN_SEMICOLON
 | TOKEN_RETURN identifier TOKEN_DECR TOKEN_SEMICOLON
 ;
 
-expr_list : expr_list TOKEN_COMMA expr_list { $$ = expr_create(EXPR_ARG, $1, $3); }
-| expr { $$ = $1; }
-| { $$ = 0; }
+expr_list : expr_list TOKEN_COMMA expr_list { $$ = expr_create(EXPR_ARG, $1, $3) ; }
+| expr { $$ = $1                                                                 ; }
+| { $$ = 0                                                                       ; }
 ;
 
 // Type Specifiers (int, bool, char, string)
-type_specifier : TOKEN_INTEGER { $$ = type_create(TYPE_INTEGER, NULL, NULL); }
-| TOKEN_BOOLEAN { $$ = type_create(TYPE_BOOLEAN, NULL, NULL);  }
-| TOKEN_CHAR   { $$ = type_create(TYPE_CHARACTER, NULL, NULL); }
-| TOKEN_STRING { $$ = type_create(TYPE_STRING, NULL, NULL);    }
-| TOKEN_VOID   { $$ = type_create(TYPE_VOID, NULL, NULL);      }
+type_specifier : TOKEN_INTEGER { $$ = type_create(TYPE_INTEGER, NULL, NULL) ; }
+| TOKEN_BOOLEAN { $$ = type_create(TYPE_BOOLEAN, NULL, NULL)                ;  }
+| TOKEN_CHAR { $$ = type_create(TYPE_CHARACTER, NULL, NULL)                 ; }
+| TOKEN_STRING { $$ = type_create(TYPE_STRING, NULL, NULL)                  ;    }
+| TOKEN_VOID { $$ = type_create(TYPE_VOID, NULL, NULL)                      ;      }
 
 ;
 
 // Expression Grammar
 expr : expr TOKEN_ADD term {$$ = expr_create(EXPR_ADD, $1, $3) ;}
 | expr TOKEN_SUB term {$$ = expr_create(EXPR_SUB, $1, $3)      ;}
-| cond_expr { $$ = $1                                           ;}
-| term { $$ = $1                                                ;}
+| cond_expr { $$ = $1                                          ;}
+| term { $$ = $1                                               ;}
 ;
 
 // captures only conditional expressions. Used to seperate regular expression with conditiaonl ones
@@ -262,14 +262,14 @@ cond_expr : TOKEN_UNARY_NEGATE expr {$$ = expr_create(EXPR_NEQ, $2, NULL)       
 | expr TOKEN_EQ expr {$$ = expr_create(EXPR_EQ, $1, $3)                                             ;}
 | expr TOKEN_LOGICAL_AND expr {$$ = expr_create(EXPR_AND, $1, $3)                                   ;}
 | expr TOKEN_LOGICAL_OR expr {$$ = expr_create(EXPR_OR, $1, $3)                                     ;}
-| identifier { $$ = $1          ;}                                       
+| identifier { $$ = $1                                                                              ;}
 ;
 
 term : term TOKEN_EXP factor {$$ = expr_create(EXPR_EXP, $1, $3) ;}
-| term TOKEN_MUL factor { $$ = expr_create(EXPR_MUL, $1, $3)      ;}
-| term TOKEN_DIV factor { $$ = expr_create(EXPR_DIV, $1, $3)      ;}
+| term TOKEN_MUL factor { $$ = expr_create(EXPR_MUL, $1, $3)     ;}
+| term TOKEN_DIV factor { $$ = expr_create(EXPR_DIV, $1, $3)     ;}
 | function_call // func(a, c)
-| factor { $$ = $1; }
+| factor { $$ = $1                                               ; }
 ;
 
 // atomic tokens in b-minor
@@ -279,11 +279,11 @@ factor : TOKEN_SUB factor {$$ = expr_create(EXPR_SUB, $2, NULL)     ;} // to be 
 | TOKEN_TRUE {$$ = expr_create_boolean_literal(1)                   ;}
 | TOKEN_FALSE {$$ = expr_create_boolean_literal(0)                  ;}
 | TOKEN_STRING_LITERAL {$$ = expr_create_string_literal(yytext)     ;}
-| function_call // func(a, c)
+| function_call
 | TOKEN_CHARACTER_LITERAL {$$ = expr_create_char_literal(yytext[0]) ;}
 ;
 
-identifier: TOKEN_IDENTIFIER { $$ = expr_create_name(strdup(yytext)); }
+identifier: TOKEN_IDENTIFIER { $$ = expr_create_name(strdup(yytext)) ; }
 ;
 %%
 
