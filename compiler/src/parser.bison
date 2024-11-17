@@ -13,7 +13,7 @@
 extern char *yytext               ;
 extern int yylex()                ;
 int yyerror( char *str)           ;
-extern struct stmt* parser_result ;
+extern struct param_list* parser_result ;
 
 %}
 
@@ -27,7 +27,7 @@ char* str         ;
 int integer_type_name         ;
 }                 ;
 
-%type <stmt> program
+%type <param_list> program
 %type <decl> var_declaration
 %type <expr> arg_list expr cond_expr term factor identifier function_call incr_decr init_expr next_expr mid_epr arr_element_list nested_array_reassign nested_sq_bracket_list
 %type <stmt> print_statement return_statement for_statement statement statement_list block_statment reassignment
@@ -94,7 +94,7 @@ int integer_type_name         ;
 %%
 
 // The program is a list of declaration
-program : reassignment { parser_result = $1 ; }
+program : param_list { parser_result = $1 ; }
 ;
 
 // declaration list can be a single / multiple declaration
@@ -206,6 +206,22 @@ param : identifier TOKEN_TYPE_ASSIGNMENT type_specifier
     );
 }
 | identifier TOKEN_TYPE_ASSIGNMENT neseted_array_list type_specifier
+{
+    // get the last element in the linked list
+    struct type* current = $3;
+    struct type* head = current;
+    while (current->subtype != NULL) {
+        current = current->subtype;
+    }
+    // set the last element of linked list to have the value of type specifier - refer to page 93 to understand this
+    current->subtype = $4;
+
+    $$ = param_list_create(
+        $1->name,
+        head,
+        NULL
+    );
+}
 ;
 
 arr_element_list : arr_element_list TOKEN_COMMA arr_element_list { $$ = expr_create(EXPR_ARR, $1, $3) ; }
