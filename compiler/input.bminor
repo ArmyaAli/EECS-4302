@@ -1,2 +1,9 @@
 // produces correct precedence of operations
-x * 3
+
+
+//main:function integer () = {
+  //  x = 3;
+
+//}
+
+a: integer = 3;

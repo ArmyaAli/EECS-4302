@@ -14,7 +14,7 @@ void run_parser(const char *);
 void run_resolve(const char *);
 void run_typecheck(const char *);
 void run_print(struct stmt* ast);
-struct expr* parser_result;
+struct decl* parser_result;
 
 int main(int argc, char *argv[]) {
     const char *option = argv[1];
@@ -70,7 +70,7 @@ void run_parser(const char* filename) {
     yyin = fopen(filename, "r");
     if(yyparse() == 0) {
        printf("Parse success\n");
-       expr_print(parser_result, 0, 0);
+       decl_print(parser_result);
     }
     fclose(yyin);
 }
@@ -80,7 +80,7 @@ void run_resolve(const char* filename) {
   // init our stack
   SYMBOL_STACK = init_stack();
   // traverse AST
-  expr_resolve(parser_result);
+  decl_resolve(parser_result);
 }
 
 void run_typecheck(const char* filename) {

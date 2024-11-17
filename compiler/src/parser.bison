@@ -13,7 +13,7 @@
 extern char *yytext               ;
 extern int yylex()                ;
 int yyerror( char *str)           ;
-extern struct expr* parser_result ;
+extern struct decl* parser_result ;
 
 %}
 
@@ -27,7 +27,7 @@ char* str         ;
 int integer_type_name         ;
 }                 ;
 
-%type <expr> program
+%type <decl> program
 %type <decl> var_declaration function_declaration declaration declaration_list
 %type <expr> arg_list expr cond_expr term factor identifier function_call incr_decr init_expr next_expr mid_epr arr_element_list nested_array_reassign nested_sq_bracket_list
 %type <stmt> print_statement return_statement for_statement statement statement_list block_statment reassignment if_statement if_statement_list
@@ -94,10 +94,7 @@ int integer_type_name         ;
 %%
 
 // The program is a list of declaration
-//program : declaration_list { parser_result = $1 ; }
-//;
-
-program : expr { parser_result = $1 ; }
+program : declaration_list { parser_result = $1 ; }
 ;
 
 // declaration list can be a single / multiple declaration
@@ -329,7 +326,7 @@ statement : var_declaration
             NULL
         );
     }
-| block_statment { $$ = $1; }
+| block_statment { printf("block"); $$ = $1; }
 | print_statement { $$ = $1; }
 | return_statement { $$ = $1; }
 ;
