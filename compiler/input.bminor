@@ -1,2 +1,2 @@
 //some variable usages
-s:string, s:string
+x[3] = 3;

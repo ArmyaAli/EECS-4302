@@ -13,7 +13,7 @@
 extern char *yytext               ;
 extern int yylex()                ;
 int yyerror( char *str)           ;
-extern struct decl* parser_result ;
+extern struct stmt* parser_result ;
 
 %}
 
@@ -27,7 +27,7 @@ char* str         ;
 int integer_type_name         ;
 }                 ;
 
-%type <decl> program
+%type <stmt> program
 %type <decl> var_declaration
 %type <expr> arg_list expr cond_expr term factor identifier function_call incr_decr init_expr next_expr mid_epr arr_element_list nested_array_reassign nested_sq_bracket_list
 %type <stmt> print_statement return_statement for_statement statement statement_list block_statment reassignment
@@ -94,7 +94,7 @@ int integer_type_name         ;
 %%
 
 // The program is a list of declaration
-program : var_declaration { parser_result = $1 ; }
+program : reassignment { parser_result = $1 ; }
 ;
 
 // declaration list can be a single / multiple declaration
@@ -310,7 +310,21 @@ reassignment : identifier TOKEN_ASSIGNMENT expr TOKEN_SEMICOLON
         NULL
     );
 }
-| identifier nested_sq_bracket_list TOKEN_ASSIGNMENT expr TOKEN_SEMICOLON // x[3][4][3]... = 3                                        ;
+| identifier nested_sq_bracket_list TOKEN_ASSIGNMENT expr TOKEN_SEMICOLON
+{
+    $2->left = $1;
+    struct expr* e = expr_create(EXPR_ASSIGN, $2, $4);
+    $$ = stmt_create (
+        STMT_EXPR,
+        NULL,
+        NULL,
+        e,
+        NULL,
+        NULL,
+        NULL,
+        NULL
+    );
+}
 | identifier TOKEN_ASSIGNMENT identifier nested_sq_bracket_list TOKEN_SEMICOLON // x = arr[3][4]...
 | identifier nested_sq_bracket_list TOKEN_ASSIGNMENT identifier nested_sq_bracket_list TOKEN_SEMICOLON // arr[2][3]... = arr[3][3]... ;
 ;
