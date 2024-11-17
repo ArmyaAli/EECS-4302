@@ -408,22 +408,20 @@ reassignment : identifier TOKEN_ASSIGNMENT expr TOKEN_SEMICOLON
 ;
 
 // if statment can be a single / multiple nested if statments
-if_statement_list : if_statement_list if_statement
+if_statement_list : if_statement if_statement_list 
 | if_statement
 ;
 
 // i.g, if {condition} {statments}
-if_statement : TOKEN_IF TOKEN_LPAREN cond_expr TOKEN_RPAREN statement_list else_statement
-| TOKEN_IF TOKEN_LPAREN cond_expr TOKEN_RPAREN block_statment else_statement
+if_statement : TOKEN_IF TOKEN_LPAREN cond_expr TOKEN_RPAREN statement_list
+| TOKEN_IF TOKEN_LPAREN cond_expr TOKEN_RPAREN block_statment
+| TOKEN_IF TOKEN_LPAREN cond_expr TOKEN_RPAREN statement_list TOKEN_ELSE statement_list
+| TOKEN_IF TOKEN_LPAREN cond_expr TOKEN_RPAREN block_statment TOKEN_ELSE statement_list
+| TOKEN_IF TOKEN_LPAREN cond_expr TOKEN_RPAREN statement_list TOKEN_ELSE block_statment
+| TOKEN_IF TOKEN_LPAREN cond_expr TOKEN_RPAREN block_statment TOKEN_ELSE block_statment
 ;
 
-// optional else-statments that is else followed by either statment list or a block statment
-else_statement : TOKEN_ELSE statement_list
-| TOKEN_ELSE block_statment
-|
-;
-
-for_statement : TOKEN_FOR TOKEN_LPAREN init_expr TOKEN_SEMICOLON mid_epr TOKEN_SEMICOLON next_expr TOKEN_RPAREN
+for_statement : TOKEN_FOR TOKEN_LPAREN init_expr TOKEN_SEMICOLON mid_epr TOKEN_SEMICOLON next_expr TOKEN_RPAREN statement_list
     {
         $$ = stmt_create (
             STMT_FOR,
@@ -431,7 +429,7 @@ for_statement : TOKEN_FOR TOKEN_LPAREN init_expr TOKEN_SEMICOLON mid_epr TOKEN_S
             $3,
             $5,
             $7,
-            NULL,
+            $9,
             NULL,
             NULL
         );
@@ -564,10 +562,11 @@ cond_expr : TOKEN_UNARY_NEGATE expr {$$ = expr_create(EXPR_NEQ, $2, NULL)       
 | expr TOKEN_EQ expr {$$ = expr_create(EXPR_EQ, $1, $3)                                             ;}
 | expr TOKEN_LOGICAL_AND expr {$$ = expr_create(EXPR_AND, $1, $3)                                   ;}
 | expr TOKEN_LOGICAL_OR expr {$$ = expr_create(EXPR_OR, $1, $3)                                     ;}
+| factor { $$ = $1; }
 | identifier { $$ = $1                                                                              ;}
 ;
 
-term : term TOKEN_EXP factor {$$ = expr_create(EXPR_EXP, $1, $3) ;}
+term : term TOKEN_EXP term {$$ = expr_create(EXPR_EXP, $1, $3) ;}
 | term TOKEN_MUL factor { $$ = expr_create(EXPR_MUL, $1, $3)     ;}
 | term TOKEN_DIV factor { $$ = expr_create(EXPR_DIV, $1, $3)     ;}
 | function_call { $$ = $1                                        ;}
@@ -583,6 +582,7 @@ factor : TOKEN_SUB factor {$$ = expr_create(EXPR_SUB, $2, NULL)                 
 | TOKEN_STRING_LITERAL {$$ = expr_create_string_literal(yytext)                               ;}
 | function_call { $$ = $1                                                                     ;}
 | TOKEN_CHARACTER_LITERAL {printf("%s", "factor\n"); $$ = expr_create_char_literal(yytext[0]) ;}
+| identifier { $$ = $1; }
 ;
 
 token_digit_literal : TOKEN_DIGIT { $$ = atoi(yytext); }

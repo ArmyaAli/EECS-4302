@@ -1,9 +1,11 @@
-calc: function integer (param1: boolean, param2: integer) = {
-    a: char;
-    a: char = 4;
-}
+// produces correct precedence of operations
 
-calc: function integer (param1: boolean, param2: integer) = {
-    a: char;
-    a: char = 4;
+main: function void() = {
+	x:integer = 5;
+	y:integer = 4;
+	if(!((4*x^5 + 4) - 4 >= 1))
+	{
+		x = 6;
+		
+	}
 }
