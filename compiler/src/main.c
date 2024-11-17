@@ -67,7 +67,7 @@ void run_parser(const char* filename) {
     if(yyparse() == 0) {
        printf("Parse success\n");
     //   expr_print(parser_result, 4, 0);
-      stmt_print(parser_result, 4, 0);
+      stmt_print(parser_result, 0, 0);
     //    type_print(parser_result);
     //    decl_print(parser_result);
         // param_list_print(parser_result);

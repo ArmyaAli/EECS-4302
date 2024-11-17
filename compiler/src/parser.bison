@@ -94,7 +94,7 @@ int integer_type_name         ;
 %%
 
 // The program is a list of declaration
-program : block_statment { parser_result = $1 ; }
+program : for_statement { parser_result = $1 ; }
 ;
 
 // declaration list can be a single / multiple declaration
@@ -358,19 +358,31 @@ else_statement : TOKEN_ELSE statement_list
 ;
 
 for_statement : TOKEN_FOR TOKEN_LPAREN init_expr TOKEN_SEMICOLON mid_epr TOKEN_SEMICOLON next_expr TOKEN_RPAREN
-{
-    $$ = stmt_create (
-        STMT_FOR,
-        NULL,
-        $3,
-        $5,
-        $7,
-        NULL,
-        NULL,
-        NULL
-    );
-}
+    {
+        $$ = stmt_create (
+            STMT_FOR,
+            NULL,
+            $3,
+            $5,
+            $7,
+            NULL,
+            NULL,
+            NULL
+        );
+    }
 | TOKEN_FOR TOKEN_LPAREN init_expr TOKEN_SEMICOLON mid_epr TOKEN_SEMICOLON next_expr TOKEN_RPAREN block_statment
+    {
+        $$ = stmt_create (
+            STMT_FOR,
+            NULL,
+            $3,
+            $5,
+            $7,
+            $9,
+            NULL,
+            NULL
+        );
+    }
 ;
 
 // the first part of the for loop
