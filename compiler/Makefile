@@ -4,6 +4,7 @@
 
 DIST=bin
 SRC=src
+
 OBJ_FILES=$(addprefix $(DIST)/, \
 	 main.o \
 	 scanner.o \
@@ -17,7 +18,12 @@ OBJ_FILES=$(addprefix $(DIST)/, \
 	 library.o \
 	 type.o \
 	 param_list.o \
-	 stmt.o)
+	 stmt.o \
+	 symbol.o \
+	 hash_table.o \
+	 resolve.o \
+	 stack.o \
+	 scope.o)
 
 INC=include
 
