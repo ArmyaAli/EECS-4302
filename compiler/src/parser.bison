@@ -94,7 +94,7 @@ int integer_type_name         ;
 %%
 
 // The program is a list of declaration
-program : for_statement { parser_result = $1 ; }
+program : reassignment { parser_result = $1 ; }
 ;
 
 // declaration list can be a single / multiple declaration
@@ -337,8 +337,39 @@ reassignment : identifier TOKEN_ASSIGNMENT expr TOKEN_SEMICOLON
         NULL
     );
 }
-| identifier TOKEN_ASSIGNMENT identifier nested_sq_bracket_list TOKEN_SEMICOLON // x = arr[3][4]...
-| identifier nested_sq_bracket_list TOKEN_ASSIGNMENT identifier nested_sq_bracket_list TOKEN_SEMICOLON // arr[2][3]... = arr[3][3]... ;
+| identifier TOKEN_ASSIGNMENT identifier nested_sq_bracket_list TOKEN_SEMICOLON
+{
+    $4->left = $3;
+    struct expr* e = expr_create(EXPR_ASSIGN, $1, $4);
+    $$ = stmt_create (
+        STMT_EXPR,
+        NULL,
+        NULL,
+        e,
+        NULL,
+        NULL,
+        NULL,
+        NULL
+    );
+}
+| identifier nested_sq_bracket_list TOKEN_ASSIGNMENT identifier nested_sq_bracket_list TOKEN_SEMICOLON
+{
+    // set the lft childs of `nested_sq_bracket_list`. We have left it NULL in its declaration
+    $2->left = $1;
+    $5->left = $4;
+    
+    struct expr* e = expr_create(EXPR_ASSIGN, $2, $5);
+    $$ = stmt_create (
+        STMT_EXPR,
+        NULL,
+        NULL,
+        e,
+        NULL,
+        NULL,
+        NULL,
+        NULL
+    );
+}
 ;
 
 // if statment can be a single / multiple nested if statments
