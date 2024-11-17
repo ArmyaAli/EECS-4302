@@ -1,1 +1,9 @@
-gfx_clear_color: function void ( red:integer, green: integer, blue:integer )    ;
+calc: function integer (param1: boolean, param2: integer) = {
+    a: char;
+    a: char = 4;
+}
+
+calc: function integer (param1: boolean, param2: integer) = {
+    a: char;
+    a: char = 4;
+}

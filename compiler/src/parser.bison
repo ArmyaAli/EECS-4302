@@ -28,7 +28,7 @@ int integer_type_name         ;
 }                 ;
 
 %type <decl> program
-%type <decl> var_declaration
+%type <decl> var_declaration function_declaration declaration declaration_list
 %type <expr> arg_list expr cond_expr term factor identifier function_call incr_decr init_expr next_expr mid_epr arr_element_list nested_array_reassign nested_sq_bracket_list
 %type <stmt> print_statement return_statement for_statement statement statement_list block_statment reassignment
 %type <type> type_specifier neseted_array neseted_array_list
@@ -94,18 +94,18 @@ int integer_type_name         ;
 %%
 
 // The program is a list of declaration
-program : var_declaration { parser_result = $1 ; }
+program : declaration_list { parser_result = $1 ; }
 ;
 
 // declaration list can be a single / multiple declaration
-declaration_list : declaration_list declaration
-| declaration
+declaration_list : declaration declaration_list { $$ = $1; $1->next = $2; }
+| declaration { $$ = $1; }
 |
 ;
 
 // declaration is either a Variable declaration or a function declaration
-declaration : function_declaration
-| var_declaration
+declaration : function_declaration { $$ = $1; }
+| var_declaration { $$ = $1; }
 ;
 
 // Variable declaration can be either initialized or uninitialized
@@ -184,20 +184,29 @@ var_declaration : identifier TOKEN_TYPE_ASSIGNMENT type_specifier TOKEN_SEMICOLO
     }
     ;
 | identifier TOKEN_TYPE_ASSIGNMENT TOKEN_FUNCTION type_specifier TOKEN_LPAREN param_list TOKEN_RPAREN TOKEN_SEMICOLON
-{
-    struct type* t = type_create(TYPE_FUNCTION, $4, $6);
-    $$ = decl_create (
-        $1->name,
-        t,
-        NULL,
-        NULL,
-        NULL
-    );
-}
+    {
+        struct type* t = type_create(TYPE_FUNCTION, $4, $6);
+        $$ = decl_create (
+            $1->name,
+            t,
+            NULL,
+            NULL,
+            NULL
+        );
+    }
 ;
-
-// calc: function integer (param1: boolean, param2: integer) = {}
+ 
 function_declaration : identifier TOKEN_TYPE_ASSIGNMENT TOKEN_FUNCTION type_specifier TOKEN_LPAREN param_list TOKEN_RPAREN TOKEN_ASSIGNMENT block_statment 
+    {
+        struct type* t = type_create(TYPE_FUNCTION, $4, $6);
+        $$ = decl_create (
+            $1->name,
+            t,
+            NULL,
+            $9,
+            NULL
+        );
+    }
 ;
 
 // param list can be a single / multiple param
@@ -284,7 +293,7 @@ nested_array_reassign : TOKEN_OPEN_SQUARE_BRACE expr TOKEN_CLOSE_SQUARE_BRACE
 // statement list can be a single / multiple statement
 statement_list : statement_list statement { $$ = $1; $1->next = $2; }
 | statement { $$ = $1; }
-|
+| { $$ = 0; }
 ;
 
 // statment can be either a variable declaration, if statement, block statement
