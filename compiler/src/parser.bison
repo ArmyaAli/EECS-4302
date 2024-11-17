@@ -94,7 +94,7 @@ int integer_type_name         ;
 %%
 
 // The program is a list of declaration
-program : reassignment { parser_result = $1 ; }
+program : block_statment { parser_result = $1 ; }
 ;
 
 // declaration list can be a single / multiple declaration
@@ -172,16 +172,17 @@ var_declaration : identifier TOKEN_TYPE_ASSIGNMENT type_specifier TOKEN_SEMICOLO
     }
     ;
 | identifier TOKEN_TYPE_ASSIGNMENT type_specifier TOKEN_ASSIGNMENT identifier nested_sq_bracket_list TOKEN_SEMICOLON
-{
-    $6->left = $5;
-    $$ = decl_create (
-        $1->name,
-        $3,
-        $6,
-        NULL,
-        NULL
-    );
-}                                                     ;
+    {
+        $6->left = $5;
+        $$ = decl_create (
+            $1->name,
+            $3,
+            $6,
+            NULL,
+            NULL
+        );
+    }
+    ;
 | identifier TOKEN_TYPE_ASSIGNMENT TOKEN_FUNCTION type_specifier TOKEN_LPAREN param_list TOKEN_RPAREN TOKEN_SEMICOLON // gfx_clear_color: function void ( red:integer, green: integer, blue:integer )    ;
 ;
 
@@ -261,8 +262,19 @@ statement_list : statement_list statement { $$ = $1; $1->next = $2; }
 ;
 
 // statment can be either a variable declaration, if statement, block statement
-statement : var_declaration
-| reassignment
+statement : var_declaration { 
+    $$ = stmt_create (
+        STMT_DECL,
+        $1,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        NULL
+    );
+ }
+| reassignment { $$ = $1; }
 | if_statement_list
 | for_statement { $$ = $1; }
 | function_call TOKEN_SEMICOLON
@@ -382,6 +394,18 @@ function_call : identifier TOKEN_LPAREN arg_list TOKEN_RPAREN { $$ = expr_create
 
 // indicates a block of statements inside curly braces
 block_statment : TOKEN_OPEN_CURLY_BRACE statement_list TOKEN_CLOSE_CURLY_BRACE 
+{
+    $$ = stmt_create (
+        STMT_BLOCK,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        $2,
+        NULL,
+        NULL
+    );
+}
 ;
 
 print_statement : TOKEN_PRINT arg_list TOKEN_SEMICOLON 
