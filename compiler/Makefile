@@ -16,6 +16,7 @@ OBJ_FILES=$(addprefix $(DIST)/, \
 	 decl.o \
 	 library.o \
 	 type.o \
+	 param_list.o \
 	 stmt.o)
 
 INC=include

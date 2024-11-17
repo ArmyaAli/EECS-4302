@@ -3,11 +3,14 @@
 #include "../include/messages.h"
 #include "../include/constants.h"
 #include "../include/print.h"
+#include "../include/expr.h"
+
 
 extern void run_scan(const char *); 
 extern int yyparse(); 
 void run_parser(const char *);
 void run_print(struct stmt* ast);
+struct decl* parser_result;
 
 int main(int argc, char *argv[]) {
     const char *option = argv[1];
@@ -63,14 +66,12 @@ void run_parser(const char* filename) {
 
     if(yyparse() == 0) {
        printf("Parse success\n");
+    //   expr_print(parser_result, 4, 0);
+    //   stmt_print(parser_result, 0, 0);
+    //    type_print(parser_result);
+       decl_print(parser_result);
+        // param_list_print(parser_result);
     }
 
-    // run_print(parser_result);
-
     fclose(yyin);
-}
-
-void run_print(struct stmt* ast) {
-  printf("run_print\n");
-  stmt_print(ast, 0, 0);
 }

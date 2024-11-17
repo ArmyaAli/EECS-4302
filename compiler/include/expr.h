@@ -2,21 +2,22 @@
 #define EXPR_H
 
 #include "symbol.h"
+#include <string.h>
 
 typedef enum {
 	EXPR_ADD,
 	EXPR_SUB,
 	EXPR_MUL,
 	EXPR_DIV,
-    EXPR_NAME,
-    EXPR_ASSIGN,
-    EXPR_INTEGER_LITERAL,
-    EXPR_BOOLEAN_LITERAL,
-    EXPR_CHAR_LITERAL,
-    EXPR_STRING_LITERAL,
-    EXPR_CALL,
-    EXPR_ARG,
-    EXPR_SUBSCRIPT,
+  EXPR_NAME,
+  EXPR_ASSIGN,
+  EXPR_INTEGER_LITERAL,
+  EXPR_BOOLEAN_LITERAL,
+  EXPR_CHAR_LITERAL,
+  EXPR_STRING_LITERAL,
+  EXPR_CALL,
+  EXPR_ARG,
+  EXPR_SUBSCRIPT,
 	EXPR_AND,
 	EXPR_OR,
 	EXPR_NOT,
@@ -33,6 +34,11 @@ typedef enum {
 	EXPR_ARR,
 } expr_t;
 
+struct expr_list {
+	char *name;
+	struct expr *next;
+};
+
 struct expr {
 	/* used by all kinds of exprs */
 	expr_t kind;
@@ -40,15 +46,13 @@ struct expr {
 	struct expr *right;
 
 	/* used by various leaf exprs */
-	const char *name;
+	char *name;
 	int literal_value;
-	const char * string_literal;
+	char * string_literal;
 	struct symbol *symbol;
 };
 
 struct expr * expr_create( expr_t kind, struct expr *left, struct expr *right );
-struct expr *expr_create_value(int value, expr_t kind);
-
 struct expr * expr_create_name( const char *n );
 struct expr * expr_create_integer_literal( int c );
 struct expr * expr_create_boolean_literal( int c );

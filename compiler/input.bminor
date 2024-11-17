@@ -1,1 +1,17 @@
-+
+// produces correct precedence of operations
+
+main: function void() = {
+	x:integer = 5;
+	y:integer = 4;
+	if(!((4*x^5 + 4) - 4 >= 1))
+    {
+            x = 2;
+    a: integer = 5;
+    a = 2;
+    }
+    else {
+        x = 4;
+    }
+    x = 4;
+
+}
