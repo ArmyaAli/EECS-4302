@@ -562,6 +562,7 @@ cond_expr : TOKEN_UNARY_NEGATE expr {$$ = expr_create(EXPR_NEQ, $2, NULL)       
 | expr TOKEN_EQ expr {$$ = expr_create(EXPR_EQ, $1, $3)                                             ;}
 | expr TOKEN_LOGICAL_AND expr {$$ = expr_create(EXPR_AND, $1, $3)                                   ;}
 | expr TOKEN_LOGICAL_OR expr {$$ = expr_create(EXPR_OR, $1, $3)                                     ;}
+| function_call { $$ = $1                                                                     ;}
 | factor { $$ = $1; }
 | identifier { $$ = $1                                                                              ;}
 ;
@@ -581,7 +582,7 @@ factor : TOKEN_SUB factor {$$ = expr_create(EXPR_SUB, $2, NULL)                 
 | TOKEN_FALSE {$$ = expr_create_boolean_literal(0)                                            ;}
 | TOKEN_STRING_LITERAL {$$ = expr_create_string_literal(yytext)                               ;}
 | function_call { $$ = $1                                                                     ;}
-| TOKEN_CHARACTER_LITERAL {printf("%s", "factor\n"); $$ = expr_create_char_literal(yytext[0]) ;}
+| TOKEN_CHARACTER_LITERAL { $$ = expr_create_char_literal(yytext[0]) ;}
 | identifier { $$ = $1; }
 ;
 
