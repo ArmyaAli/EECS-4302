@@ -1,4 +1,4 @@
-#include "hash_table.h"
+#include "../include/hash_table.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -7,21 +7,6 @@
 #define DEFAULT_LOAD 0.75
 #define DEFAULT_FUNC hash_string
 
-struct entry {
-	char *key;
-	void *value;
-	unsigned hash;
-	struct entry *next;
-};
-
-struct hash_table {
-	hash_func_t hash_func;
-	int bucket_count;
-	int size;
-	struct entry **buckets;
-	int ibucket;
-	struct entry *ientry;
-};
 
 struct hash_table *hash_table_create(int bucket_count, hash_func_t func)
 {

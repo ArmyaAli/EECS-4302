@@ -3,12 +3,16 @@
 #include "../include/messages.h"
 #include "../include/constants.h"
 #include "../include/print.h"
-#include "../include/expr.h"
+#include "../include/stack.h"
+#include "../include/resolve.h"
 
 
+extern stack_t* SYMBOL_STACK;
 extern void run_scan(const char *); 
 extern int yyparse(); 
 void run_parser(const char *);
+void run_resolve(const char *);
+void run_typecheck(const char *);
 void run_print(struct stmt* ast);
 struct decl* parser_result;
 
@@ -19,11 +23,15 @@ int main(int argc, char *argv[]) {
     if (argc < 3) {
         fprintf(stderr, "Usage: %s -scan sourcefile.bminor\n", argv[0]);
         fprintf(stderr, "Usage: %s -parse sourcefile.bminor \n", argv[0]);
+        fprintf(stderr, "Usage: %s -resolve sourcefile.bminor \n", argv[0]);
+        fprintf(stderr, "Usage: %s -typecheck sourcefile.bminor \n", argv[0]);
         exit(1);
     }
 
     if (strcmp(option, "-scan") == 0) run_scan(filename); 
     else if (strcmp(option, "-parse") == 0) run_parser(filename); 
+    else if (strcmp(option, "-resolve") == 0) run_resolve(filename); 
+    else if (strcmp(option, "-typecheck") == 0) run_typecheck(filename); 
     else {
         fprintf(stderr, "Unknown option: %s\n", option);
         exit(1);
@@ -49,10 +57,8 @@ void run_scan(const char *filename) {
                token == TOKEN_CHARACTER_LITERAL || 
                token == TOKEN_IDENTIFIER) {
            fprintf(stdout, "%s: %s\n", TOKEN_LOOKUP[token], yytext);
-           //fprintf(stdout, "%d\n", token);
           } else {
            fprintf(stdout, "%s\n", TOKEN_LOOKUP[token]);
-           //fprintf(stdout, "%d\n", token);
           }
         }
     }
@@ -61,17 +67,25 @@ void run_scan(const char *filename) {
 }
 
 void run_parser(const char* filename) {
-    printf("running parser\n");
     yyin = fopen(filename, "r");
-
     if(yyparse() == 0) {
        printf("Parse success\n");
-    //   expr_print(parser_result, 4, 0);
-    //   stmt_print(parser_result, 0, 0);
-    //    type_print(parser_result);
        decl_print(parser_result);
-        // param_list_print(parser_result);
     }
-
     fclose(yyin);
 }
+
+void run_resolve(const char* filename) {
+  // init our stack
+  SYMBOL_STACK = init_stack();
+  // traverse AST
+  expr_resolve(parser_result);
+
+
+
+}
+
+void run_typecheck(const char* filename) {
+  printf("running typechecker");
+}
+
