@@ -1,1 +1,1 @@
-z: array [] array [] array [] array [] boolean, a: char, b: boolean
+gfx_clear_color: function void ( red:integer, green: integer, blue:integer )    ;
