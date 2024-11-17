@@ -30,7 +30,7 @@ int integer_type_name         ;
 %type <decl> program
 %type <decl> var_declaration function_declaration declaration declaration_list
 %type <expr> arg_list expr cond_expr term factor identifier function_call incr_decr init_expr next_expr mid_epr arr_element_list nested_array_reassign nested_sq_bracket_list
-%type <stmt> print_statement return_statement for_statement statement statement_list block_statment reassignment
+%type <stmt> print_statement return_statement for_statement statement statement_list block_statment reassignment if_statement if_statement_list
 %type <type> type_specifier neseted_array neseted_array_list
 %type <integer_type_name>  token_digit_literal
 %type <param_list>  param param_list
@@ -212,7 +212,7 @@ function_declaration : identifier TOKEN_TYPE_ASSIGNMENT TOKEN_FUNCTION type_spec
 // param list can be a single / multiple param
 param_list: param_list TOKEN_COMMA param_list { $$ = $1; $1->next = $3; }
 | param { $$ = $1; }
-|
+| { $$ = 0; }
 ;
 
 // (param1: boolean) or (param1: boolean, param2: integer, ...)
@@ -291,13 +291,14 @@ nested_array_reassign : TOKEN_OPEN_SQUARE_BRACE expr TOKEN_CLOSE_SQUARE_BRACE
 ;
 
 // statement list can be a single / multiple statement
-statement_list : statement_list statement { $$ = $1; $1->next = $2; }
+statement_list : statement statement_list { $$ = $1; $1->next = $2; }
 | statement { $$ = $1; }
 | { $$ = 0; }
 ;
 
 // statment can be either a variable declaration, if statement, block statement
-    statement : var_declaration { 
+statement : var_declaration 
+    { 
         $$ = stmt_create (
             STMT_DECL,
             $1,
@@ -310,7 +311,7 @@ statement_list : statement_list statement { $$ = $1; $1->next = $2; }
         );
     }
 | reassignment { $$ = $1; }
-| if_statement_list
+| if_statement_list { $$ = $1; }
 | for_statement { $$ = $1; }
 | function_call TOKEN_SEMICOLON
     {
@@ -408,17 +409,95 @@ reassignment : identifier TOKEN_ASSIGNMENT expr TOKEN_SEMICOLON
 ;
 
 // if statment can be a single / multiple nested if statments
-if_statement_list : if_statement if_statement_list 
-| if_statement
+if_statement_list : if_statement if_statement_list { $$ = $1; $1->next = $2; }
+| if_statement { $$ = $1; }
 ;
 
 // i.g, if {condition} {statments}
 if_statement : TOKEN_IF TOKEN_LPAREN cond_expr TOKEN_RPAREN statement_list
+    {
+        $$ = stmt_create(
+            STMT_IF,
+            NULL,
+            NULL,
+            $3,
+            NULL,
+            $5,
+            NULL,
+            NULL
+        )
+        ;
+    }
 | TOKEN_IF TOKEN_LPAREN cond_expr TOKEN_RPAREN block_statment
+    {
+        $$ = stmt_create(
+            STMT_IF,
+            NULL,
+            NULL,
+            $3,
+            NULL,
+            $5,
+            NULL,
+            NULL
+        )
+        ;
+    }
 | TOKEN_IF TOKEN_LPAREN cond_expr TOKEN_RPAREN statement_list TOKEN_ELSE statement_list
+    {
+        $$ = stmt_create(
+            STMT_IF_ELSE,
+            NULL,
+            NULL,
+            $3,
+            NULL,
+            $5,
+            $7,
+            NULL
+        )
+        ;
+    }
 | TOKEN_IF TOKEN_LPAREN cond_expr TOKEN_RPAREN block_statment TOKEN_ELSE statement_list
+    {
+        $$ = stmt_create(
+            STMT_IF_ELSE,
+            NULL,
+            NULL,
+            $3,
+            NULL,
+            $5,
+            $7,
+            NULL
+        )
+        ;
+    }
 | TOKEN_IF TOKEN_LPAREN cond_expr TOKEN_RPAREN statement_list TOKEN_ELSE block_statment
+    {
+        $$ = stmt_create(
+            STMT_IF_ELSE,
+            NULL,
+            NULL,
+            $3,
+            NULL,
+            $5,
+            $7,
+            NULL
+        )
+        ;
+    }
 | TOKEN_IF TOKEN_LPAREN cond_expr TOKEN_RPAREN block_statment TOKEN_ELSE block_statment
+    {
+        $$ = stmt_create(
+            STMT_IF_ELSE,
+            NULL,
+            NULL,
+            $3,
+            NULL,
+            $5,
+            $7,
+            NULL
+        )
+        ;
+    }
 ;
 
 for_statement : TOKEN_FOR TOKEN_LPAREN init_expr TOKEN_SEMICOLON mid_epr TOKEN_SEMICOLON next_expr TOKEN_RPAREN statement_list
@@ -451,7 +530,7 @@ for_statement : TOKEN_FOR TOKEN_LPAREN init_expr TOKEN_SEMICOLON mid_epr TOKEN_S
 
 // the first part of the for loop
 init_expr : identifier TOKEN_ASSIGNMENT expr { $$ = expr_create(EXPR_ASSIGN, $1, $3); }
-|
+| { $$ = 0; }
 ;
 
 // the conditional part of the for loop
@@ -462,7 +541,7 @@ mid_epr : cond_expr { $$ = $1; }
 // the conditional decision maker part of for looop
 next_expr : expr { $$ = $1; }
 | incr_decr { $$ = $1; }
-|
+| { $$ = 0; }
 ;
 
 function_call : identifier TOKEN_LPAREN arg_list TOKEN_RPAREN { $$ = expr_create(EXPR_CALL, $1, $3) ; }
