@@ -25,8 +25,8 @@ void expr_resolve(struct expr *e) {
   if(e->kind==EXPR_NAME) {
     e->symbol = scope_lookup(e->name);
   } else {
-    expr_resolve( e->left );
-    expr_resolve( e->right );
+    expr_resolve(e->left);
+    expr_resolve(e->right);
   }
 }
 

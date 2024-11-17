@@ -13,7 +13,7 @@
 extern char *yytext               ;
 extern int yylex()                ;
 int yyerror( char *str)           ;
-extern struct decl* parser_result ;
+extern struct expr* parser_result ;
 
 %}
 
@@ -27,7 +27,7 @@ char* str         ;
 int integer_type_name         ;
 }                 ;
 
-%type <decl> program
+%type <expr> program
 %type <decl> var_declaration function_declaration declaration declaration_list
 %type <expr> arg_list expr cond_expr term factor identifier function_call incr_decr init_expr next_expr mid_epr arr_element_list nested_array_reassign nested_sq_bracket_list
 %type <stmt> print_statement return_statement for_statement statement statement_list block_statment reassignment if_statement if_statement_list
@@ -94,7 +94,10 @@ int integer_type_name         ;
 %%
 
 // The program is a list of declaration
-program : declaration_list { parser_result = $1 ; }
+//program : declaration_list { parser_result = $1 ; }
+//;
+
+program : expr { parser_result = $1 ; }
 ;
 
 // declaration list can be a single / multiple declaration
@@ -674,6 +677,6 @@ identifier: TOKEN_IDENTIFIER { $$ = expr_create_name(strdup(yytext)) ; }
 
 /* This function is called whenever the parser fails to parse the input */
 int yyerror( char *s ) {
-printf("parser.bison: parse error: %s\n",s);
-exit(1)                                                                    ;
+  printf("parser.bison: parse error: %s\n",s);
+  exit(1)                                                                    ;
 }
