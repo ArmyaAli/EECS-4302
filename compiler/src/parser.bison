@@ -198,30 +198,30 @@ param_list: param_list TOKEN_COMMA param_list { $$ = $1; $1->next = $3; }
 
 // (param1: boolean) or (param1: boolean, param2: integer, ...)
 param : identifier TOKEN_TYPE_ASSIGNMENT type_specifier 
-{
-    $$ = param_list_create(
-        $1->name,
-        $3,
-        NULL
-    );
-}
-| identifier TOKEN_TYPE_ASSIGNMENT neseted_array_list type_specifier
-{
-    // get the last element in the linked list
-    struct type* current = $3;
-    struct type* head = current;
-    while (current->subtype != NULL) {
-        current = current->subtype;
+    {
+        $$ = param_list_create(
+            $1->name,
+            $3,
+            NULL
+        );
     }
-    // set the last element of linked list to have the value of type specifier - refer to page 93 to understand this
-    current->subtype = $4;
+| identifier TOKEN_TYPE_ASSIGNMENT neseted_array_list type_specifier
+    {
+        // get the last element in the linked list
+        struct type* current = $3;
+        struct type* head = current;
+        while (current->subtype != NULL) {
+            current = current->subtype;
+        }
+        // set the last element of linked list to have the value of type specifier - refer to page 93 to understand this
+        current->subtype = $4;
 
-    $$ = param_list_create(
-        $1->name,
-        head,
-        NULL
-    );
-}
+        $$ = param_list_create(
+            $1->name,
+            head,
+            NULL
+        );
+    }
 ;
 
 arr_element_list : arr_element_list TOKEN_COMMA arr_element_list { $$ = expr_create(EXPR_ARR, $1, $3) ; }
@@ -235,34 +235,34 @@ neseted_array_list : neseted_array neseted_array_list { $$ = $1; $1->subtype = $
 ;
 
 neseted_array : TOKEN_ARRAY TOKEN_OPEN_SQUARE_BRACE TOKEN_CLOSE_SQUARE_BRACE
-{
-    $$ = type_create(
-        TYPE_ARRAY,
-        NULL,
-        NULL
-    );
-}
+    {
+        $$ = type_create(
+            TYPE_ARRAY,
+            NULL,
+            NULL
+        );
+    }
 | TOKEN_ARRAY TOKEN_OPEN_SQUARE_BRACE token_digit_literal TOKEN_CLOSE_SQUARE_BRACE
-{
-    struct type* t = type_create(
-        TYPE_ARRAY,
-        NULL,
-        NULL
-    );
-    t->array_size = $3;
-    $$ = t;
-}
+    {
+        struct type* t = type_create(
+            TYPE_ARRAY,
+            NULL,
+            NULL
+        );
+        t->array_size = $3;
+        $$ = t;
+    }
 ;
 
 // [3][3+4][2/23+4^4]...
 nested_sq_bracket_list : nested_array_reassign nested_sq_bracket_list // works only for one level - no nesting 
-{
-    $$ = $1; $1->right = expr_create(EXPR_SUBSCRIPT, $1->right, $2->right);
-}
+    {
+        $$ = $1; $1->right = expr_create(EXPR_SUBSCRIPT, $1->right, $2->right);
+    }
 | nested_array_reassign 
-{
-    $$ = $1;
-}
+    {
+        $$ = $1;
+    }
 ;
 
 nested_array_reassign : TOKEN_OPEN_SQUARE_BRACE expr TOKEN_CLOSE_SQUARE_BRACE
@@ -278,114 +278,114 @@ statement_list : statement_list statement { $$ = $1; $1->next = $2; }
 ;
 
 // statment can be either a variable declaration, if statement, block statement
-statement : var_declaration { 
-    $$ = stmt_create (
-        STMT_DECL,
-        $1,
-        NULL,
-        NULL,
-        NULL,
-        NULL,
-        NULL,
-        NULL
-    );
- }
+    statement : var_declaration { 
+        $$ = stmt_create (
+            STMT_DECL,
+            $1,
+            NULL,
+            NULL,
+            NULL,
+            NULL,
+            NULL,
+            NULL
+        );
+    }
 | reassignment { $$ = $1; }
 | if_statement_list
 | for_statement { $$ = $1; }
 | function_call TOKEN_SEMICOLON
-{
-    $$ = stmt_create (
-        STMT_EXPR,
-        NULL,
-        NULL,
-        $1,
-        NULL,
-        NULL,
-        NULL,
-        NULL
-    );
-}
+    {
+        $$ = stmt_create (
+            STMT_EXPR,
+            NULL,
+            NULL,
+            $1,
+            NULL,
+            NULL,
+            NULL,
+            NULL
+        );
+    }
 | block_statment { $$ = $1; }
 | print_statement { $$ = $1; }
 | return_statement { $$ = $1; }
 ;
 
 reassignment : identifier TOKEN_ASSIGNMENT expr TOKEN_SEMICOLON 
-{
-    struct expr* e = expr_create(EXPR_ASSIGN, expr_create_name($1->name), $3);
-    $$ = stmt_create (
-        STMT_EXPR,
-        NULL,
-        NULL,
-        e,
-        NULL,
-        NULL,
-        NULL,
-        NULL
-    );
-};
+    {
+        struct expr* e = expr_create(EXPR_ASSIGN, expr_create_name($1->name), $3);
+        $$ = stmt_create (
+            STMT_EXPR,
+            NULL,
+            NULL,
+            e,
+            NULL,
+            NULL,
+            NULL,
+            NULL
+        );
+    };
 | incr_decr TOKEN_SEMICOLON
-{
-    $$ = stmt_create (
-        STMT_EXPR,
-        NULL,
-        NULL,
-        $1,
-        NULL,
-        NULL,
-        NULL,
-        NULL
-    );
-}
+    {
+        $$ = stmt_create (
+            STMT_EXPR,
+            NULL,
+            NULL,
+            $1,
+            NULL,
+            NULL,
+            NULL,
+            NULL
+        );
+    }
 | identifier nested_sq_bracket_list TOKEN_ASSIGNMENT expr TOKEN_SEMICOLON
-{
-    $2->left = $1;
-    struct expr* e = expr_create(EXPR_ASSIGN, $2, $4);
-    $$ = stmt_create (
-        STMT_EXPR,
-        NULL,
-        NULL,
-        e,
-        NULL,
-        NULL,
-        NULL,
-        NULL
-    );
-}
+    {
+        $2->left = $1;
+        struct expr* e = expr_create(EXPR_ASSIGN, $2, $4);
+        $$ = stmt_create (
+            STMT_EXPR,
+            NULL,
+            NULL,
+            e,
+            NULL,
+            NULL,
+            NULL,
+            NULL
+        );
+    }
 | identifier TOKEN_ASSIGNMENT identifier nested_sq_bracket_list TOKEN_SEMICOLON
-{
-    $4->left = $3;
-    struct expr* e = expr_create(EXPR_ASSIGN, $1, $4);
-    $$ = stmt_create (
-        STMT_EXPR,
-        NULL,
-        NULL,
-        e,
-        NULL,
-        NULL,
-        NULL,
-        NULL
-    );
-}
+    {
+        $4->left = $3;
+        struct expr* e = expr_create(EXPR_ASSIGN, $1, $4);
+        $$ = stmt_create (
+            STMT_EXPR,
+            NULL,
+            NULL,
+            e,
+            NULL,
+            NULL,
+            NULL,
+            NULL
+        );
+    }
 | identifier nested_sq_bracket_list TOKEN_ASSIGNMENT identifier nested_sq_bracket_list TOKEN_SEMICOLON
-{
-    // set the lft childs of `nested_sq_bracket_list`. We have left it NULL in its declaration
-    $2->left = $1;
-    $5->left = $4;
-    
-    struct expr* e = expr_create(EXPR_ASSIGN, $2, $5);
-    $$ = stmt_create (
-        STMT_EXPR,
-        NULL,
-        NULL,
-        e,
-        NULL,
-        NULL,
-        NULL,
-        NULL
-    );
-}
+    {
+        // set the lft childs of `nested_sq_bracket_list`. We have left it NULL in its declaration
+        $2->left = $1;
+        $5->left = $4;
+        
+        struct expr* e = expr_create(EXPR_ASSIGN, $2, $5);
+        $$ = stmt_create (
+            STMT_EXPR,
+            NULL,
+            NULL,
+            e,
+            NULL,
+            NULL,
+            NULL,
+            NULL
+        );
+    }
 ;
 
 // if statment can be a single / multiple nested if statments
@@ -453,60 +453,61 @@ function_call : identifier TOKEN_LPAREN arg_list TOKEN_RPAREN { $$ = expr_create
 
 // indicates a block of statements inside curly braces
 block_statment : TOKEN_OPEN_CURLY_BRACE statement_list TOKEN_CLOSE_CURLY_BRACE 
-{
-    $$ = stmt_create (
-        STMT_BLOCK,
-        NULL,
-        NULL,
-        NULL,
-        NULL,
-        $2,
-        NULL,
-        NULL
-    );
-}
+    {
+        $$ = stmt_create (
+            STMT_BLOCK,
+            NULL,
+            NULL,
+            NULL,
+            NULL,
+            $2,
+            NULL,
+            NULL
+        );
+    }
 ;
 
 print_statement : TOKEN_PRINT arg_list TOKEN_SEMICOLON 
-{
-    $$ = stmt_create(
-        STMT_PRINT,
-        NULL,
-        NULL,
-        $2,
-        NULL,
-        NULL,
-        NULL,
-        NULL
-    )                                                         ; }
+    {
+        $$ = stmt_create(
+            STMT_PRINT,
+            NULL,
+            NULL,
+            $2,
+            NULL,
+            NULL,
+            NULL,
+            NULL
+        );
+    }
 ;
 
 return_statement : TOKEN_RETURN expr TOKEN_SEMICOLON 
-{
-    $$ = stmt_create(
-        STMT_RETURN,
-        NULL,
-        NULL,
-        $2,
-        NULL,
-        NULL,
-        NULL,
-        NULL
-    )                                                      ;
-}
+    {
+        $$ = stmt_create(
+            STMT_RETURN,
+            NULL,
+            NULL,
+            $2,
+            NULL,
+            NULL,
+            NULL,
+            NULL
+        );
+    }
 | TOKEN_RETURN incr_decr TOKEN_SEMICOLON 
-{
-    $$ = stmt_create(
-        STMT_RETURN,
-        NULL,
-        NULL,
-        $2,
-        NULL,
-        NULL,
-        NULL,
-        NULL
-    )                                                      ;
-}
+    {
+        $$ = stmt_create(
+            STMT_RETURN,
+            NULL,
+            NULL,
+            $2,
+            NULL,
+            NULL,
+            NULL,
+            NULL
+        );
+    }
 ;
 
 incr_decr : identifier TOKEN_INCR { $$ = expr_create(EXPR_INCR, $1, NULL) ; }
