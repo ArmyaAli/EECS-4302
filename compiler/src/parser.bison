@@ -100,7 +100,7 @@ program : declaration_list { parser_result = $1 ; }
 // declaration list can be a single / multiple declaration
 declaration_list : declaration declaration_list { $$ = $1; $1->next = $2; }
 | declaration { $$ = $1; }
-|
+| { $$ = 0; }
 ;
 
 // declaration is either a Variable declaration or a function declaration
@@ -285,9 +285,9 @@ nested_sq_bracket_list : nested_array_reassign nested_sq_bracket_list // works o
 ;
 
 nested_array_reassign : TOKEN_OPEN_SQUARE_BRACE expr TOKEN_CLOSE_SQUARE_BRACE
-{
-    $$ = expr_create(EXPR_SUBSCRIPT, NULL, $2);
-}
+    {
+        $$ = expr_create(EXPR_SUBSCRIPT, NULL, $2);
+    }
 ;
 
 // statement list can be a single / multiple statement
@@ -535,7 +535,7 @@ init_expr : identifier TOKEN_ASSIGNMENT expr { $$ = expr_create(EXPR_ASSIGN, $1,
 
 // the conditional part of the for loop
 mid_epr : cond_expr { $$ = $1; }
-|
+| { $$ = 0; }
 ;
 
 // the conditional decision maker part of for looop
