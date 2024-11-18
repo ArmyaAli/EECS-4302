@@ -6,8 +6,6 @@ void decl_resolve(struct decl *d) {
 	if(!d) return;
 	symbol_t kind = scope_level() > 1 ? SYMBOL_LOCAL : SYMBOL_GLOBAL;
 	d->symbol = symbol_create(kind,d->type,d->name);
-	printf("literal_value: %d\n", d->value->literal_value);
-	printf("kind: %p\n", (*(d->value)).left);
 	expr_resolve(d->value);
 	scope_bind(d->name,d->symbol);
 	if(d->code) {
