@@ -34,9 +34,15 @@ void scope_bind(const char *name, struct symbol *sym) {
   top->ientry->key = (char*)malloc(sizeof(name) * strlen(name));
   top->ientry->value = (struct symbol*)malloc(sizeof(struct symbol));
 
-  int success = hash_table_insert(top, name, sym);
-  if (!success) {
-    printf("Error");
+  if (a hashtable with this kind existed) {
+    int success = hash_table_insert(top, name, sym);
+    if (!success) {
+      printf("Error");
+    }
+  }
+  else {
+    // create a new hashtable using scope_enter indicating a new scope
+    // and add the new entry into it
   }
 }
 
