@@ -3,6 +3,7 @@
 #include "../include/stack.h"
 #include "../include/hash_table.h"
 #include "../include/print.h"
+#include "../include/constants.h"
 #define STACK_SIZE 512
 
 stack_t SYMBOL_STACK;
@@ -76,7 +77,7 @@ void stack_print(stack_t *stack) {
             // Print each entry in the bucket
             printf("  Bucket %d:\n", i);
             while (current_entry != NULL) {
-                printf("    Key: %s, Value: %d\n", current_entry->key, ((struct symbol*)current_entry->value)->type->kind);
+                printf("    Key: %s, Value: %s\n", current_entry->key, TYPE_LOOKUP[((struct symbol*)current_entry->value)->type->kind]);
                 current_entry = current_entry->next;
             }
         }

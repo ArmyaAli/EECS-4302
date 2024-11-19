@@ -79,10 +79,13 @@ void run_parser(const char* filename) {
 // OR we have some Undefined behaviour
 void run_resolve(const char* filename) {
   run_parser(filename);
+
   // init our stack
   stack_init(&SYMBOL_STACK);
   // traverse AST
   decl_resolve(parser_result);
+
+  // clean the stack
   stack_destroy(&SYMBOL_STACK);
 }
 

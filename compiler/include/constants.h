@@ -19,5 +19,6 @@ extern int EXIT_CODE;
 // defined in constants.c, 1-1 mapping with token_t from token.h
 extern const char* TOKEN_LOOKUP[];
 extern const char* SCOPE_LOOKUP[];
+extern const char* TYPE_LOOKUP[];
 
 #endif 

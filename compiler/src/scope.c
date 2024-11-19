@@ -32,7 +32,7 @@ void scope_bind(const char *name, struct symbol *sym) {
 }
 
 struct symbol *scope_lookup(const char *name) {
-  stack_print(&SYMBOL_STACK);
+  // stack_print(&SYMBOL_STACK);
   struct hash_table top = stack_peek(&SYMBOL_STACK);
   stack_node* cursor = SYMBOL_STACK.top;
   while(cursor != NULL) {

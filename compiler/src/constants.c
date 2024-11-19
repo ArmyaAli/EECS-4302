@@ -5,6 +5,17 @@ const char* SCOPE_LOOKUP[] = {
   "param",
   "global"
 };
+
+ const char* TYPE_LOOKUP[] = {
+	"TYPE_VOID",
+	"TYPE_BOOLEAN",
+	"TYPE_CHARACTER",
+	"TYPE_INTEGER",
+	"TYPE_STRING",
+	"TYPE_ARRAY",
+	"TYPE_FUNCTION",
+};
+
 // program exit code constant
 // token.h token_t -> string map
 const char* TOKEN_LOOKUP[] = {

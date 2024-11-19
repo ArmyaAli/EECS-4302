@@ -1,18 +1,26 @@
 #include "../include/resolve.h"
 #include "../include/scope.h"
 #include "../include/constants.h"
+#include "../include/stack.h"
+
+extern stack_t SYMBOL_STACK;
 
 void decl_resolve(struct decl *d) {
 	if(!d) return;
 	symbol_t kind = scope_level() > 1 ? SYMBOL_LOCAL : SYMBOL_GLOBAL;
 	d->symbol = symbol_create(kind,d->type,d->name);
-	printf("literal_value: %d\n", d->value->literal_value);
+	printf("%d\n", d->type->kind);
+	// printf("literal_value: %d\n", d->value->literal_value);
+
+	// create a local scope for function
 	expr_resolve(d->value);
 	scope_bind(d->name,d->symbol);
 	if(d->code) {
-    printf("d->code\n");
 		scope_enter();
+		
 		param_list_resolve(d->type->params);
+		stack_print(&SYMBOL_STACK);
+
 		stmt_resolve(d->code);
 		scope_exit();
 	}
@@ -51,6 +59,13 @@ void expr_resolve(struct expr *e) {
 }
 
 void param_list_resolve(struct param_list *p) {
+  	if(!p) {
+    	return;
+  	}
 
+	// create a symbol for hashtable
+	p->symbol = symbol_create(SYMBOL_LOCAL,p->type,p->name);
+	scope_bind(p->name,p->symbol);
 
+	param_list_resolve(p->next);
 }
