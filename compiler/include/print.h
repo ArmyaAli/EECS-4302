@@ -39,5 +39,6 @@ void expr_print(struct expr *e, int parent_prec, int is_array_start);
 void param_list_print(struct param_list *p);
 void type_print(struct type *t);
 int get_precedence(struct expr *e);
+void symbol_print(struct symbol *e);
 
 #endif

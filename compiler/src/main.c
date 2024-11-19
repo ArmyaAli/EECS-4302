@@ -7,7 +7,7 @@
 #include "../include/resolve.h"
 
 
-extern stack_t* SYMBOL_STACK;
+extern stack_t SYMBOL_STACK;
 extern void run_scan(const char *); 
 extern int yyparse(); 
 void run_parser(const char *);
@@ -75,12 +75,15 @@ void run_parser(const char* filename) {
     fclose(yyin);
 }
 
+// We have something leaking memory
+// OR we have some Undefined behaviour
 void run_resolve(const char* filename) {
   run_parser(filename);
   // init our stack
-  SYMBOL_STACK = init_stack();
+  stack_init(&SYMBOL_STACK);
   // traverse AST
   decl_resolve(parser_result);
+  stack_destroy(&SYMBOL_STACK);
 }
 
 void run_typecheck(const char* filename) {

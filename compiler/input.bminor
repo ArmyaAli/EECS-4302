@@ -1,9 +1,4 @@
 // produces correct precedence of operations
-
-
-//main:function integer () = {
-  //  x = 3;
-
-//}
-
-a: integer = 3;
+x: integer = 3;
+a: boolean = x; 
+y: boolean = a; 

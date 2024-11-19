@@ -1,5 +1,10 @@
 int EXIT_CODE = 0;
 
+const char* SCOPE_LOOKUP[] = {
+  "local",
+  "param",
+  "global"
+};
 // program exit code constant
 // token.h token_t -> string map
 const char* TOKEN_LOOKUP[] = {

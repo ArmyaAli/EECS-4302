@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <ctype.h>
 #include "../include/print.h"
+#include "../include/constants.h"
 
 void decl_print(struct decl *d)
 {
@@ -398,4 +399,8 @@ void type_print(struct type *t)
     default:
         break;
     }
+}
+
+void symbol_print(struct symbol *s) {
+  printf("name: %s, kind: %s\n", s->name, SCOPE_LOOKUP[s->kind]);
 }

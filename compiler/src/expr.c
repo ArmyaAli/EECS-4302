@@ -15,8 +15,7 @@ struct expr *expr_create(expr_t kind, struct expr *left, struct expr *right) {
 struct expr * expr_create_name( const char *n ) { 
 
   struct expr* identifier_expr =  expr_create(EXPR_NAME, NULL, NULL);
-  identifier_expr->name = malloc(sizeof(char) * strlen(n));
-  strcpy(identifier_expr->name, n);
+  identifier_expr->name = n;
   return identifier_expr;
 }
 
