@@ -21,10 +21,10 @@ int main(int argc, char *argv[]) {
     const char *filename = argv[2];
 
     if (argc < 3) {
-        fprintf(stderr, "Usage: %s -scan sourcefile.bminor\n", argv[0]);
-        fprintf(stderr, "Usage: %s -parse sourcefile.bminor \n", argv[0]);
-        fprintf(stderr, "Usage: %s -resolve sourcefile.bminor \n", argv[0]);
-        fprintf(stderr, "Usage: %s -typecheck sourcefile.bminor \n", argv[0]);
+        fprintf(stderr, USAGEMSG_SCANNER,      argv[0]);
+        fprintf(stderr, USAGEMSG_PARSER,       argv[0]);
+        fprintf(stderr, USAGEMSG_TYPECHECKER,  argv[0]);
+        fprintf(stderr, USAGEMSG_NAMERESOLVER, argv[0]);
         exit(1);
     }
 
@@ -85,6 +85,7 @@ void run_resolve(const char* filename) {
   // traverse AST
   decl_resolve(parser_result);
 
+  stack_print(&SYMBOL_STACK);
   // clean the stack
   stack_destroy(&SYMBOL_STACK);
 }

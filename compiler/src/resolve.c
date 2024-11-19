@@ -9,9 +9,6 @@ void decl_resolve(struct decl *d) {
 	if(!d) return;
 	symbol_t kind = scope_level() > 1 ? SYMBOL_LOCAL : SYMBOL_GLOBAL;
 	d->symbol = symbol_create(kind,d->type,d->name);
-	printf("%d\n", d->type->kind);
-	// printf("literal_value: %d\n", d->value->literal_value);
-
 	// create a local scope for function
 	expr_resolve(d->value);
 	scope_bind(d->name,d->symbol);
@@ -19,26 +16,53 @@ void decl_resolve(struct decl *d) {
 		scope_enter();
 		
 		param_list_resolve(d->type->params);
-		stack_print(&SYMBOL_STACK);
 
 		stmt_resolve(d->code);
 		scope_exit();
 	}
-  printf("==================================================\n");
 	decl_resolve(d->next);
 }
 
 // for every statement, create a scope.. with a body / block statement
 void stmt_resolve(struct stmt *s) {
 	if (!s) return;
-	printf("HEREEEEE: %d\n", s->kind);
 	switch (s->kind) {
 		case STMT_BLOCK:
+      printf("BLOCK\n");
+      scope_enter();
 			stmt_resolve(s->body);
+      scope_exit();
 			break;
 		case STMT_DECL:
+      printf("DECL\n");
 			decl_resolve(s->decl);
 			break;
+    case STMT_EXPR:
+      printf("EXPR\n");
+      expr_resolve(s->expr);
+      break;
+    case STMT_IF:
+      printf("STMT_IF\n");
+      stmt_resolve(s->body);
+      break;
+    case STMT_IF_ELSE:
+      printf("STMT_IF_ELSE\n");
+      stmt_resolve(s->body);
+      stmt_resolve(s->else_body);
+      break;
+    case STMT_FOR:
+      printf("STMT_FOR\n");
+      stmt_resolve(s->body);
+      break;
+    case STMT_PRINT:
+      printf("STMT_PRINT\n");
+      stmt_resolve(s->next);
+      // do nothing
+      break;
+    case STMT_RETURN:
+      printf("STMT_RETURN\n");
+      scope_exit();
+      break;
 	}
 }
 

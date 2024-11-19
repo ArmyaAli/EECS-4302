@@ -47,6 +47,3 @@ struct symbol *scope_lookup(const char *name) {
 struct symbol *scope_lookup_current(const char *name) {
   return NULL;
 }
-
-
-
