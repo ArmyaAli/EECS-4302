@@ -30,14 +30,16 @@ void decl_resolve(struct decl *d) {
 
 // for every statement, create a scope.. with a body / block statement
 void stmt_resolve(struct stmt *s) {
-//	switch (s->kind) {
-//	case STMT_EXPR:
-//		stmt_print(s, 0, 0);
-//		expr_resolve(s->expr);
-//		break;
-//	default:
-//		break;
-//	}
+	if (!s) return;
+	printf("HEREEEEE: %d\n", s->kind);
+	switch (s->kind) {
+		case STMT_BLOCK:
+			stmt_resolve(s->body);
+			break;
+		case STMT_DECL:
+			decl_resolve(s->decl);
+			break;
+	}
 }
 
 void expr_resolve(struct expr *e) {

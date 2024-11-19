@@ -1,7 +1,5 @@
-// produces correct precedence of operations
-a: integer = 1;
-d: integer = a;
-main:function integer(x: integer, y: boolean) = {
-	x: integer = 1;
-  y: boolean = x;
+x: integer = 10;
+y: integer = 5;
+f: function void ( x: string ) = {
+    a: integer = 2;
 }
