@@ -14,8 +14,8 @@ void run_parser(const char *);
 void run_resolve(const char *);
 void run_typecheck(const char *);
 void run_print(struct stmt* ast);
-struct decl* parser_result;
 
+struct decl* parser_result;
 int main(int argc, char *argv[]) {
     const char *option = argv[1];
     const char *filename = argv[2];

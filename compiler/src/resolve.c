@@ -17,7 +17,7 @@ void decl_resolve(struct decl *d) {
 		scope_enter();
 		
 		param_list_resolve(d->type->params);
-    stack_print(&SYMBOL_STACK);
+//    stack_print(&SYMBOL_STACK);
 
 		stmt_resolve(d->code);
 		scope_exit();
