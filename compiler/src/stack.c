@@ -43,7 +43,7 @@ struct hash_table stack_pop(stack_t *stack) {
 
 // Function to peek at the top hash_table on the stack without removing it
 struct hash_table stack_peek(stack_t *stack) {
-    return stack->top->data;
+    return SYMBOL_STACK.top->data;
 }
 
 // Function to get the size of the stack

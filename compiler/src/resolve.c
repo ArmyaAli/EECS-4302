@@ -7,6 +7,7 @@ extern stack_t SYMBOL_STACK;
 
 void decl_resolve(struct decl *d) {
 	if(!d) return;
+
 	symbol_t kind = scope_level() > 1 ? SYMBOL_LOCAL : SYMBOL_GLOBAL;
 	d->symbol = symbol_create(kind,d->type,d->name);
 	// create a local scope for function
@@ -33,11 +34,12 @@ void stmt_resolve(struct stmt *s) {
       scope_enter();
 			stmt_resolve(s->body);
       scope_exit();
+      stmt_resolve(s->next); // resolve further if we have more than 1 stmts
 			break;
 		case STMT_DECL:
       printf("DECL\n");
 			decl_resolve(s->decl);
-			stmt_resolve(s->next); // resolve further if we have more than 1 stmts
+      stmt_resolve(s->next); // resolve further if we have more than 1 stmts
 			break;
     case STMT_EXPR:
       printf("EXPR\n");
@@ -77,11 +79,14 @@ void expr_resolve(struct expr *e) {
   }
   if(e->kind==EXPR_NAME) {
     e->symbol = scope_lookup(e->name);
-    if(e->symbol->kind == SYMBOL_GLOBAL) {
-        printf("%s resolves %s %s\n", e->symbol->name, SCOPE_LOOKUP[e->symbol->kind], e->symbol->name);
-    } else {
-        printf("%s resolves %s %d\n", e->symbol->name, SCOPE_LOOKUP[e->symbol->kind], e->symbol->which);
+    if (e->symbol != NULL) {
+      if(e->symbol->kind == SYMBOL_GLOBAL) {
+          printf("%s resolves %s %s\n", e->symbol->name, SCOPE_LOOKUP[e->symbol->kind], e->symbol->name);
+      } else {
+          printf("%s resolves %s %d\n", e->symbol->name, SCOPE_LOOKUP[e->symbol->kind], e->symbol->which);
+      }
     }
+
   } else {
     expr_resolve(e->left);
     expr_resolve(e->right);

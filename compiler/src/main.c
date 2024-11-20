@@ -85,7 +85,6 @@ void run_resolve(const char* filename) {
   // traverse AST
   decl_resolve(parser_result);
 
-  stack_print(&SYMBOL_STACK);
   // clean the stack
   stack_destroy(&SYMBOL_STACK);
 }

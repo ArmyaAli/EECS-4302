@@ -16,6 +16,7 @@ extern stack_t SYMBOL_STACK;
 void scope_enter() {
   struct hash_table* table = hash_table_create(1, 0);
   stack_push(&SYMBOL_STACK, *table);
+  printf("****entered a new scope*****\n");
 }
 
 void scope_exit() {
@@ -28,7 +29,13 @@ int scope_level() {
 
 void scope_bind(const char *name, struct symbol *sym) {
   struct hash_table top = stack_peek(&SYMBOL_STACK);
+  printf("top pointer: %p\n", &top);
+  int temp = hash_table_size(&top);
+  printf("HASHTABLE_SIZE on ENTRY (%s): %d\n",name, temp);
+  sym->which = temp;
   hash_table_insert(&top, name, sym);
+  int as = hash_table_size(&top);
+  printf("after insersion: %d\n", as);
 }
 
 struct symbol *scope_lookup(const char *name) {

@@ -1,7 +1,7 @@
 
 f: function void ( x: string,  y: boolean ) = {
-   a: integer = 4;
+   a: char = 3;
+   b: char = 5;
    c: integer = a;
-   d: integer = c;
-   return d;
+   d: integer = b;
 }
