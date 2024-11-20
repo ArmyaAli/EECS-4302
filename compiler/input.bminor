@@ -1,5 +1,7 @@
-x: integer = 10;
-y: integer = 5;
-f: function void ( x: string ) = {
-    a: integer = 2;
+
+f: function void ( x: string,  y: boolean ) = {
+   a: integer = 4;
+   c: integer = a;
+   d: integer = c;
+   return d;
 }

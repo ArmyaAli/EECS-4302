@@ -16,6 +16,7 @@ void decl_resolve(struct decl *d) {
 		scope_enter();
 		
 		param_list_resolve(d->type->params);
+    stack_print(&SYMBOL_STACK);
 
 		stmt_resolve(d->code);
 		scope_exit();
@@ -36,6 +37,7 @@ void stmt_resolve(struct stmt *s) {
 		case STMT_DECL:
       printf("DECL\n");
 			decl_resolve(s->decl);
+			stmt_resolve(s->next); // resolve further if we have more than 1 stmts
 			break;
     case STMT_EXPR:
       printf("EXPR\n");
@@ -56,11 +58,14 @@ void stmt_resolve(struct stmt *s) {
       break;
     case STMT_PRINT:
       printf("STMT_PRINT\n");
-      stmt_resolve(s->next);
+      printf("left: %s\n", s->expr->left->name);
+      printf("right: %s\n", s->expr->right->name);
+      expr_resolve(s->expr);
       // do nothing
       break;
     case STMT_RETURN:
       printf("STMT_RETURN\n");
+      expr_resolve(s->expr);
       scope_exit();
       break;
 	}
@@ -72,7 +77,6 @@ void expr_resolve(struct expr *e) {
   }
   if(e->kind==EXPR_NAME) {
     e->symbol = scope_lookup(e->name);
-    printf("%p\n", e->symbol);
     if(e->symbol->kind == SYMBOL_GLOBAL) {
         printf("%s resolves %s %s\n", e->symbol->name, SCOPE_LOOKUP[e->symbol->kind], e->symbol->name);
     } else {
