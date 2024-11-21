@@ -3,18 +3,12 @@
 #include "hash_table.h"
 #define STACK_SIZE 512
 
-// Define the stack node for the hash_table
-typedef struct stack_node {
-    struct hash_table data;
-    struct stack_node *next;
-} stack_node;
-
 // Define the stack structure
 typedef struct stack {
-    int sp;
-    struct hash_table *data;
+    int top;
     int size;
     int MAX_SIZE;
+    struct hash_table *data;
 } stack_t;
 
 void stack_init(stack_t* stack);

@@ -9,3 +9,7 @@ struct symbol * symbol_create( symbol_t kind, struct type *type, char *name ) {
 	s->which = 0;
   return s;
 }
+
+void symbol_destroy(struct symbol* sym) {
+  free(sym);
+}

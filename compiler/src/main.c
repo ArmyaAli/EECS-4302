@@ -82,11 +82,15 @@ void run_resolve(const char* filename) {
 
   // init our stack
   stack_init(&SYMBOL_STACK);
+  //struct hash_table* ht = hash_table_create(1,0);
+  //stack_print(&SYMBOL_STACK);
+  //stack_push(&SYMBOL_STACK, *ht);
+  //stack_print(&SYMBOL_STACK);
   // traverse AST
   decl_resolve(parser_result);
 
   // clean the stack
-  stack_destroy(&SYMBOL_STACK);
+  //stack_destroy(&SYMBOL_STACK);
 }
 
 void run_typecheck(const char* filename) {

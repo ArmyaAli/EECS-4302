@@ -17,7 +17,6 @@ void decl_resolve(struct decl *d) {
 		scope_enter();
 		
 		param_list_resolve(d->type->params);
-//    stack_print(&SYMBOL_STACK);
 
 		stmt_resolve(d->code);
 		scope_exit();
@@ -33,6 +32,7 @@ void stmt_resolve(struct stmt *s) {
       printf("BLOCK\n");
       scope_enter();
 			stmt_resolve(s->body);
+      stack_print(&SYMBOL_STACK);
       scope_exit();
       stmt_resolve(s->next); // resolve further if we have more than 1 stmts
 			break;
@@ -97,10 +97,9 @@ void param_list_resolve(struct param_list *p) {
   	if(!p) {
     	return;
   	}
+    // create a symbol for hashtable
+    p->symbol = symbol_create(SYMBOL_PARAM, p->type,p->name);
+    scope_bind(p->name,p->symbol);
 
-	// create a symbol for hashtable
-	p->symbol = symbol_create(SYMBOL_LOCAL,p->type,p->name);
-	scope_bind(p->name,p->symbol);
-
-	param_list_resolve(p->next);
+    param_list_resolve(p->next);
 }
