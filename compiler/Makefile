@@ -23,6 +23,8 @@ OBJ_FILES=$(addprefix $(DIST)/, \
 	 hash_table.o \
 	 resolve.o \
 	 stack.o \
+	 global.o \
+	 pipeline.o \
 	 scope.o)
 
 INC=include
@@ -40,4 +42,4 @@ $(SRC)/parser.c $(INC)/token.h: $(SRC)/parser.bison
 	bison --defines=$(INC)/token.h --output=$(SRC)/parser.c -v $(SRC)/parser.bison 
 
 clean:
-	rm -f $(SRC)/scanner.c $(DIST)/*.o bminor
+	rm -f $(SRC)/scanner.c  $(SRC)/parser.c $(SRC)/parser.output $(DIST)/*.o $(DIST)/bminor

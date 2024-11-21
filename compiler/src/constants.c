@@ -1,5 +1,3 @@
-int EXIT_CODE = 0;
-
 const char* SCOPE_LOOKUP[] = {
   "local",
   "param",

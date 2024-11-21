@@ -1,5 +1,6 @@
 #include "../include/helper.h"
 #include "../include/constants.h"
+#include "../include/global.h"
 
 
 void process_string_literal() {

@@ -5,8 +5,6 @@
 #include "../include/constants.h"
 #include "../include/symbol.h"
 
-stack_t SYMBOL_STACK;
-
 void stack_init(stack_t *stack) {
     stack->data = (struct hash_table*)malloc(sizeof(struct hash_table) * STACK_SIZE);
     stack->size = 0;
@@ -47,6 +45,10 @@ struct hash_table stack_pop(stack_t *stack) {
         next = hash_table_nextkey(entry, &key, (void*)&sym);
       }
       //hash_table_delete(entry);
+    } else {
+      stack->top = 0;
+      stack->size = 0;
+      stack->data = NULL;
     }
 
     return temp;

@@ -2,6 +2,7 @@
 #include "../include/token.h"
 #include "../include/helper.h"
 #include "../include/constants.h"
+#include "../include/global.h"
 %}
 
 %option noinput
