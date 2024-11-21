@@ -9,4 +9,4 @@ bminor
 parser.c
 parser.output
 compiler/include/token.h
-
+.vscode/
