@@ -4,6 +4,7 @@
 
 DIST=bin
 SRC=src
+INC=$(SRC)/include
 
 OBJ_FILES=$(addprefix $(DIST)/, \
 	 main.o \
@@ -27,7 +28,6 @@ OBJ_FILES=$(addprefix $(DIST)/, \
 	 pipeline.o \
 	 scope.o)
 
-INC=include
 
 $(DIST)/bminor: $(OBJ_FILES)
 	gcc -I$(INC) $^ -o $(DIST)/bminor
@@ -42,4 +42,4 @@ $(SRC)/parser.c $(INC)/token.h: $(SRC)/parser.bison
 	bison --defines=$(INC)/token.h --output=$(SRC)/parser.c -v $(SRC)/parser.bison 
 
 clean:
-	rm -f $(SRC)/include.h $(SRC)/scanner.c  $(SRC)/parser.c $(SRC)/parser.output $(DIST)/*.o $(DIST)/bminor
+	rm -f $(INC)/token.h $(SRC)/scanner.c $(SRC)/parser.c $(SRC)/parser.output $(DIST)/*.o $(DIST)/bminor

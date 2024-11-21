@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <ctype.h>
-#include "../include/print.h"
-#include "../include/constants.h"
+#include "include/print.h"
+#include "include/constants.h"
 
 void decl_print(struct decl *d)
 {

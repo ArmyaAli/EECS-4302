@@ -1,8 +1,6 @@
 #ifndef TYPE_H
 #define TYPE_H
 
-#include "param_list.h"
-
 typedef enum {
 	TYPE_VOID,
 	TYPE_BOOLEAN,

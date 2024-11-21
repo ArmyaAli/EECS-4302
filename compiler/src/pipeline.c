@@ -1,4 +1,5 @@
-#include "../include/pipeline.h"
+#include "include/pipeline.h"
+#include "include/token.h"
 
 void run_scan(const char *filename) {
     // Open the file for reading

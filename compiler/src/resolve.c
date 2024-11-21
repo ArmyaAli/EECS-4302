@@ -1,7 +1,7 @@
-#include "../include/resolve.h"
-#include "../include/scope.h"
-#include "../include/constants.h"
-#include "../include/stack.h"
+#include "include/resolve.h"
+#include "include/scope.h"
+#include "include/constants.h"
+#include "include/stack.h"
 
 extern stack_t SYMBOL_STACK;
 

@@ -1,4 +1,4 @@
-#include "../include/expr.h"
+#include "include/expr.h"
 #include <stdlib.h>
 
 /* Used to create a general expression where its lift and right childs are also expressions */

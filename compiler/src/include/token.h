@@ -30,8 +30,8 @@
    This special exception was added by the Free Software Foundation in
    version 2.2 of Bison.  */
 
-#ifndef YY_YY_INCLUDE_TOKEN_H_INCLUDED
-# define YY_YY_INCLUDE_TOKEN_H_INCLUDED
+#ifndef YY_YY_SRC_INCLUDE_TOKEN_H_INCLUDED
+# define YY_YY_SRC_INCLUDE_TOKEN_H_INCLUDED
 /* Debug traces.  */
 #ifndef YYDEBUG
 # define YYDEBUG 0
@@ -119,7 +119,7 @@ struct param_list *param_list ;
 char* str         ;
 int integer_type_name         ;
 
-#line 123 "include/token.h" /* yacc.c:1909  */
+#line 123 "src/include/token.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;
@@ -132,4 +132,4 @@ extern YYSTYPE yylval;
 
 int yyparse (void);
 
-#endif /* !YY_YY_INCLUDE_TOKEN_H_INCLUDED  */
+#endif /* !YY_YY_SRC_INCLUDE_TOKEN_H_INCLUDED  */

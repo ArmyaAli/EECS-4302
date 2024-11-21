@@ -1,4 +1,4 @@
-#include "../include/param_list.h"
+#include "include/param_list.h"
 #include <stdlib.h>
 
 struct param_list * param_list_create( char *name, struct type *type, struct param_list *next ) {

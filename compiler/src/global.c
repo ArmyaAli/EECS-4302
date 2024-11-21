@@ -1,4 +1,4 @@
-#include "../include/global.h"
+#include "include/global.h"
 
 // GLOBALS
 int EXIT_CODE = 0;

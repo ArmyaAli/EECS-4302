@@ -1,4 +1,4 @@
-#include "../include/decl.h"
+#include "include/decl.h"
 #include <stdlib.h>
 
 struct decl *decl_create(char *name, struct type *type, struct expr *value,

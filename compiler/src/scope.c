@@ -1,6 +1,7 @@
-#include "../include/scope.h"
-#include "../include/symbol.h"
-#include "../include/stack.h"
+#include "include/scope.h"
+#include "include/symbol.h"
+#include "include/stack.h"
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 

@@ -1,4 +1,4 @@
-#include "../include/stmt.h"
+#include "include/stmt.h"
 #include <stdlib.h>
 
 struct stmt *stmt_create(stmt_t kind, struct decl *decl, struct expr *init_expr,

@@ -4,8 +4,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../include/stack.h"
-#include "../include/decl.h"
+#include "stack.h"
+#include "decl.h"
 
 // flex
 extern char *yytext; // Actual text scanned
