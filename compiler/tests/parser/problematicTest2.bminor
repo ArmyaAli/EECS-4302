@@ -1,0 +1,10 @@
+
+f: function void ( x: string, y: integer,  z: array [] array [] boolean) = {
+   arr:array[5]integer;
+   a: array[4] boolean = {x, y, arr, z};
+}
+
+d: function void ( x: string, y: integer,  z: array [] array [] boolean) = {
+   arr:array[5]integer;
+   a: array[4] boolean = {x, y, arr, z};
+}

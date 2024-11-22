@@ -22,11 +22,10 @@ int scope_level() {
 
 void scope_bind(const char *name, struct symbol *sym) {
   struct hash_table* top = stack_peek(&SYMBOL_STACK);
-  printf("%p\n", top);
   sym->which = hash_table_size(top);
   hash_table_insert(top, name, sym);
   int s = hash_table_size(top);
-  printf("after insersion: %d\n", s);
+  printf("Hashtable.size(): %d\n", s);
 }
 
 struct symbol *scope_lookup(const char *name) {

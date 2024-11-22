@@ -1,0 +1,18 @@
+
+f: function void ( x: string,  y: boolean ) = {
+   a: char = 3;
+   b: char = 5;
+   c: integer = a;
+   d: integer = b;
+   if (b == 1) {
+      newWar: string = 4;
+      ppp: boolean = 100;
+      new1: integer = 4;
+      newVar = ppp;
+      new2: integer = new1;
+      new3 = new2;
+   }
+   x: integer = i;
+   l: integer = x;
+
+}

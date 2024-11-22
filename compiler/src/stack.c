@@ -73,7 +73,7 @@ void stack_destroy(stack_t *stack) {
 
 void stack_print(stack_t *stack) {
   // for each entry in the array
-  printf("BEGIN PRINT STACK\n");
+  printf("----------------STACK---------------\n");
   for(int i = 0; i < stack->size; ++i) {
     // get the hash table
     struct hash_table* table = &stack->data[i];
@@ -90,5 +90,5 @@ void stack_print(stack_t *stack) {
       }
     }
   }
-  printf("END PRINT STACK\n");
+  printf("---------------------------------------\n");
 }
