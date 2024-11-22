@@ -44,7 +44,6 @@ void run_resolve(const char* filename) {
   // init our stack
   stack_init(&SYMBOL_STACK);
   struct hash_table* ht = hash_table_create(1,0);
-  printf("hello");
   //stack_push(&SYMBOL_STACK, *ht);
   //stack_push(&SYMBOL_STACK, *ht);
   //stack_push(&SYMBOL_STACK, *ht);

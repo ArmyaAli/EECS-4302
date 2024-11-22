@@ -4,14 +4,13 @@ f: function void ( x: string,  y: boolean ) = {
    b: char = 5;
    c: integer = a;
    d: integer = b;
-   i: boolean = 100;
    if (b == 1) {
       newWar: string = 4;
       ppp: boolean = 100;
       new1: integer = 4;
-      newWar = ppp;
+      newVar = ppp;
       new2: integer = new1;
-      i: integer = 3;
+      new3 = new2;
    }
    x: integer = i;
    l: integer = x;
