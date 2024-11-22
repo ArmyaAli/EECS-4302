@@ -1,5 +1,13 @@
 
 f: function void ( x: string, y: integer,  z: array [] array [] boolean) = {
-   arr:array[5]integer;
-   a: array[4] boolean = {x, y, arr, z};
+   n: integer;
+   n1: boolean = n;
+   {
+      a: string;
+      b: boolean = a;
+      c: integer = 3;
+      b = c;
+   }
+   n2: boolean = n1;
+
 }

@@ -4,6 +4,7 @@
 #include "include/stack.h"
 
 extern stack_t SYMBOL_STACK;
+int FUNC_BLOCK = 1;
 
 void decl_resolve(struct decl *d) {
   printf("DECL_RESOLVE: %p\n", d);
@@ -13,7 +14,8 @@ void decl_resolve(struct decl *d) {
 	expr_resolve(d->value);
 	scope_bind(d->name,d->symbol);
 	if(d->code) {
-    printf("I entered\n");
+    printf("Function Detected \n");
+    FUNC_BLOCK = 1;
 		scope_enter();
 		param_list_resolve(d->type->params);
 		stmt_resolve(d->code);
@@ -29,8 +31,18 @@ void stmt_resolve(struct stmt *s) {
 	if (!s) return;
 	switch (s->kind) {
 		case STMT_BLOCK:
-      printf("STMT_BLOCK\n");
-      stmt_resolve(s->body);
+      printf("STMT_BLOCK: %d\n", FUNC_BLOCK);
+      if (FUNC_BLOCK != 1) {
+        printf("NON-FUNC-BLOCK\n");
+        scope_enter();
+        stmt_resolve(s->body);
+        scope_exit();
+      }
+      else {
+        printf("FUNC_BLOCK\n");
+        FUNC_BLOCK = 0;
+        stmt_resolve(s->body);
+      }
 			break;
 		case STMT_DECL:
       printf("STMT_DECL\n");
@@ -38,9 +50,13 @@ void stmt_resolve(struct stmt *s) {
 			break;
     case STMT_EXPR:
       printf("STMT_EXPR\n");
+      expr_resolve(s->expr);
       break;
     case STMT_IF:
+      FUNC_BLOCK = 0;
       printf("STMT_IF\n");
+      expr_resolve(s->expr);
+      stmt_resolve(s->body);
       break;
     case STMT_IF_ELSE:
       printf("STMT_IF_ELSE\n");
