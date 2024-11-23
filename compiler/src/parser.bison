@@ -459,19 +459,6 @@ for_statement : TOKEN_FOR TOKEN_LPAREN init_expr TOKEN_SEMICOLON mid_epr TOKEN_S
             NULL
         );
     }
-| TOKEN_FOR TOKEN_LPAREN init_expr TOKEN_SEMICOLON mid_epr TOKEN_SEMICOLON next_expr TOKEN_RPAREN block_statment
-    {
-        $$ = stmt_create (
-            STMT_FOR,
-            NULL,
-            $3,
-            $5,
-            $7,
-            $9,
-            NULL,
-            NULL
-        );
-    }
 ;
 
 // the first part of the for loop

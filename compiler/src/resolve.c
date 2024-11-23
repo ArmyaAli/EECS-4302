@@ -5,7 +5,7 @@
 
 extern stack_t SYMBOL_STACK;
 int FUNC_BLOCK = 1;
-int func_inc = 0;
+int FOR_BLOCK = 0;
 
 void decl_resolve(struct decl *d) {
   printf("DECL_RESOLVE: %p\n", d);
@@ -68,6 +68,12 @@ void stmt_resolve(struct stmt *s) {
       break;
     case STMT_FOR:
       printf("STMT_FOR\n");
+      FOR_BLOCK = 1;
+      struct symbol* symbol = symbol_create(SYMBOL_LOCAL, type_create(TYPE_INTEGER, NULL, NULL), s->init_expr->name);
+      expr_resolve(s->init_expr);
+      expr_resolve(s->expr);
+      expr_resolve(s->next_expr);
+      stmt_resolve(s->body);
       break;
     case STMT_PRINT:
       printf("STMT_PRINT\n");
