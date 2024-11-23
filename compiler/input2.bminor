@@ -1,22 +1,14 @@
-f: function void ( x: string,  y: boolean ) = {
+f: function void ( x: string) = {
    a: char = 3;
-   b: char = 5;
    c: integer = a;
-   d: integer = b;
-   i: boolean = 100;
+   b: char = 4;
    if (b == 1) {
-      newWar: string = 4;
-      ppp: boolean = 100;
-      new1: integer = 4;
-      newWar = ppp;
-      new2: integer = new1;
-      i: integer = 3;
+      if_var: string = 4;
+      test_if_var: boolean = if_var;
+      test_if_var1: boolean = test_if_var;
    } else {
-      ali: boolean = 102;
-      ali2: boolean = ali;
+      else_if_var: string = 4;
+      else_test_if_var: boolean = else_if_var;
+      else_test_if_var2: boolean = else_test_if_var;
    }
-   x: integer = i;
-   l: integer = x;
-
 }
-

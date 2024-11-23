@@ -326,7 +326,7 @@ statement : var_declaration
             NULL
         );
     }
-| block_statment { printf("block"); $$ = $1; }
+| block_statment { $$ = $1; }
 | print_statement { $$ = $1; }
 | return_statement { $$ = $1; }
 ;
@@ -409,27 +409,14 @@ reassignment : identifier TOKEN_ASSIGNMENT expr TOKEN_SEMICOLON
 ;
 
 // if statment can be a single / multiple nested if statments
-if_statement_list : if_statement if_statement_list { $$ = $1; $1->next = $2; }
-| if_statement { $$ = $1; }
+if_statement_list : if_statement if_statement_list { printf("if_statement_412\n"); $$ = $1; $1->next = $2; }
+| if_statement {         printf("if_statement_413\n"); $$ = $1; }
 ;
 
 // i.g, if {condition} {statments}
 if_statement : TOKEN_IF TOKEN_LPAREN cond_expr TOKEN_RPAREN statement_list
     {
-        $$ = stmt_create(
-            STMT_IF,
-            NULL,
-            NULL,
-            $3,
-            NULL,
-            $5,
-            NULL,
-            NULL
-        )
-        ;
-    }
-| TOKEN_IF TOKEN_LPAREN cond_expr TOKEN_RPAREN block_statment
-    {
+        printf("IF_IF_419\n");
         $$ = stmt_create(
             STMT_IF,
             NULL,
@@ -444,48 +431,7 @@ if_statement : TOKEN_IF TOKEN_LPAREN cond_expr TOKEN_RPAREN statement_list
     }
 | TOKEN_IF TOKEN_LPAREN cond_expr TOKEN_RPAREN statement_list TOKEN_ELSE statement_list
     {
-        $$ = stmt_create(
-            STMT_IF_ELSE,
-            NULL,
-            NULL,
-            $3,
-            NULL,
-            $5,
-            $7,
-            NULL
-        )
-        ;
-    }
-| TOKEN_IF TOKEN_LPAREN cond_expr TOKEN_RPAREN block_statment TOKEN_ELSE statement_list
-    {
-        $$ = stmt_create(
-            STMT_IF_ELSE,
-            NULL,
-            NULL,
-            $3,
-            NULL,
-            $5,
-            $7,
-            NULL
-        )
-        ;
-    }
-| TOKEN_IF TOKEN_LPAREN cond_expr TOKEN_RPAREN statement_list TOKEN_ELSE block_statment
-    {
-        $$ = stmt_create(
-            STMT_IF_ELSE,
-            NULL,
-            NULL,
-            $3,
-            NULL,
-            $5,
-            $7,
-            NULL
-        )
-        ;
-    }
-| TOKEN_IF TOKEN_LPAREN cond_expr TOKEN_RPAREN block_statment TOKEN_ELSE block_statment
-    {
+        printf("IF_IF_449\n");
         $$ = stmt_create(
             STMT_IF_ELSE,
             NULL,

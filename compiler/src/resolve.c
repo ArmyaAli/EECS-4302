@@ -56,8 +56,9 @@ void stmt_resolve(struct stmt *s) {
     case STMT_IF_ELSE:
       FUNC_BLOCK = 0;
       printf("STMT_IF_ELSE\n");
-      expr_resolve(s->expr);
+      if (!s->expr) expr_resolve(s->expr);
       stmt_resolve(s->body);
+      stmt_resolve(s->else_body);
       break;
     case STMT_IF:
       FUNC_BLOCK = 0;
