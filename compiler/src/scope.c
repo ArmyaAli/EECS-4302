@@ -5,7 +5,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-extern stack_t SYMBOL_STACK;
 
 void scope_enter() {
   struct hash_table* table = hash_table_create(1, 0);
