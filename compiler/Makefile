@@ -26,6 +26,7 @@ OBJ_FILES=$(addprefix $(DIST)/, \
 	 stack.o \
 	 global.o \
 	 pipeline.o \
+	 typecheck.o \
 	 scope.o)
 
 

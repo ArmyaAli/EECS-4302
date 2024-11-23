@@ -2,7 +2,6 @@
 #include "include/constants.h"
 #include "include/global.h"
 
-
 void process_string_literal() {
   int len = strlen(yytext);
   char* copy = malloc(len * sizeof(char));

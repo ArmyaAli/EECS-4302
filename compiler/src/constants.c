@@ -4,7 +4,7 @@ const char* SCOPE_LOOKUP[] = {
   "global"
 };
 
- const char* TYPE_LOOKUP[] = {
+const char* TYPE_LOOKUP[] = {
 	"TYPE_VOID",
 	"TYPE_BOOLEAN",
 	"TYPE_CHARACTER",

@@ -62,6 +62,6 @@ void run_resolve(const char* filename) {
 }
 
 void run_typecheck(const char* filename) {
-  printf("running typechecker");
+  printf("running typechecker\n");
 }
 
