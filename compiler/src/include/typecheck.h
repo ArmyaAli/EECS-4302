@@ -5,6 +5,7 @@
 #include "stmt.h"
 #include "type.h"
 #include "decl.h"
+
 // helpers
 struct type *type_copy(struct type *t);
 int type_equals(struct type *a, struct type *b);

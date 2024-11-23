@@ -7,7 +7,9 @@
 #include "include/stack.h"
 #include "include/resolve.h"
 #include "include/pipeline.h"
+#include "include/type.h"
 #include "include/token.h"
+#include "include/typecheck.h"
 
 void run_scan(const char *filename) {
     // Open the file for reading
@@ -70,6 +72,15 @@ void run_resolve(const char* filename) {
 }
 
 void run_typecheck(const char* filename) {
+  run_parser(filename);
+  run_resolve(filename);
+
+  struct decl* d1 = parser_result;
+  struct decl* d2 = parser_result->next;
+  struct type* t1 = d1->type;
+  struct type* t2 = d2->type;
+  int output = type_equals(t1, t2);
+  printf("output: %d\n", output);
   printf("running typechecker\n");
 }
 

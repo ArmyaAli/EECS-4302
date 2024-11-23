@@ -16,4 +16,5 @@ struct param_list {
 
 struct param_list * param_list_create( char *name, struct type *type, struct param_list *next );
 
+int param_list_size(struct param_list* list);
 #endif
