@@ -102,10 +102,10 @@ struct type *expr_typecheck(struct expr *e) {
     result = type_create(TYPE_STRING, 0, 0);
     break;
   case EXPR_BOOLEAN_LITERAL:
-    result = type_create(TYPE_STRING, 0, 0);
+    result = type_create(TYPE_BOOLEAN, 0, 0);
     break;
   case EXPR_CHAR_LITERAL:
-    result = type_create(TYPE_STRING, 0, 0);
+    result = type_create(TYPE_CHARACTER, 0, 0);
     break;
   case EXPR_ADD:
     break;
@@ -116,6 +116,7 @@ struct type *expr_typecheck(struct expr *e) {
   case EXPR_DIV:
     break;
   case EXPR_NAME:
+    result = type_copy(e->symbol->type);
     break;
   case EXPR_ASSIGN:
     break;
@@ -154,6 +155,7 @@ struct type *expr_typecheck(struct expr *e) {
   case EXPR_ARR:
     break;
   }
+  // types are no longer needed
   type_delete(lt);
   type_delete(rt);
   return result;
