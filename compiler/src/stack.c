@@ -27,15 +27,14 @@ int stack_empty(stack_t *stack) {
 }
 
 struct hash_table stack_pop(stack_t *stack) {
-  //  printf("stack pointer: %d\n", stack->top);
     struct hash_table* entry = &stack->data[stack->top];
-  //  printf("entry: %p\n", &entry);
     struct hash_table temp = *entry;
     // create a copy
     if(stack->top > 0) { 
       --stack->top;
       --stack->size;
 
+      printf("pop stack, stack->size: %d\n", stack->size);
       char *key = NULL;
       struct symbol* sym = NULL;
       hash_table_firstkey(entry);

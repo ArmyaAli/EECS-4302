@@ -5,6 +5,7 @@
 
 extern stack_t SYMBOL_STACK;
 int FUNC_BLOCK = 1;
+int func_inc = 0;
 
 void decl_resolve(struct decl *d) {
   printf("DECL_RESOLVE: %p\n", d);
@@ -13,13 +14,13 @@ void decl_resolve(struct decl *d) {
 	d->symbol = symbol_create(kind,d->type,d->name);
 	expr_resolve(d->value);
 	scope_bind(d->name,d->symbol);
+  stack_print(&SYMBOL_STACK);
 	if(d->code) {
     printf("Function Detected \n");
     FUNC_BLOCK = 1;
 		scope_enter();
 		param_list_resolve(d->type->params);
 		stmt_resolve(d->code);
-    stack_print(&SYMBOL_STACK);
 		scope_exit();
 	}
 	decl_resolve(d->next);
@@ -52,14 +53,17 @@ void stmt_resolve(struct stmt *s) {
       printf("STMT_EXPR\n");
       expr_resolve(s->expr);
       break;
+    case STMT_IF_ELSE:
+      FUNC_BLOCK = 0;
+      printf("STMT_IF_ELSE\n");
+      expr_resolve(s->expr);
+      stmt_resolve(s->body);
+      break;
     case STMT_IF:
       FUNC_BLOCK = 0;
       printf("STMT_IF\n");
       expr_resolve(s->expr);
       stmt_resolve(s->body);
-      break;
-    case STMT_IF_ELSE:
-      printf("STMT_IF_ELSE\n");
       break;
     case STMT_FOR:
       printf("STMT_FOR\n");
