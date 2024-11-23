@@ -4,7 +4,12 @@
 #include <stdlib.h>
 
 // helpers
-struct type *type_copy(struct type *t) { return NULL; }
+struct type *type_copy(struct type *t) { 
+
+
+  return NULL; 
+
+}
 
 int is_atomic(struct type *x) {
   switch (x->kind) {
@@ -23,9 +28,9 @@ int type_equals(struct type *a, struct type *b) {
   if (a->kind == b->kind) {
     if (is_atomic(a) && is_atomic(b)) {
       return 1;
-    } else if (a->kind == TYPE_ARRAY && a->kind == TYPE_ARRAY) {
+    } else if (a->kind == TYPE_ARRAY && b->kind == TYPE_ARRAY) {
       return type_equals(a->subtype, b->subtype);
-    } else if (a->kind == TYPE_FUNCTION && a->kind == TYPE_FUNCTION) {
+    } else if (a->kind == TYPE_FUNCTION && b->kind == TYPE_FUNCTION) {
       int func_type = type_equals(a->subtype, b->subtype);
       struct param_list* pl_a = a->params;
       struct param_list* pl_b = b->params;
@@ -49,7 +54,10 @@ int type_equals(struct type *a, struct type *b) {
   return 0;
 }
 
-void type_delete(struct type *t) {}
+void type_delete(struct type *t) {
+
+
+}
 
 // typecheckers
 struct type *expr_typecheck(struct expr *e) {

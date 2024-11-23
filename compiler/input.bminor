@@ -1,7 +1,5 @@
-f: function integer ( y: string, z: string ) = {
+//a: array [5] integer = {1,'A',3,4,5};
+//b: array [5] integer = {1,true,3,4,5};
 
-}
-
-f2: function integer ( x: string, z: boolean ) = {
-
-}
+x: integer = 10;
+y: boolean = true;
