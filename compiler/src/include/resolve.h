@@ -7,10 +7,11 @@
 #include "stack.h"
 #include "param_list.h"
 
-typedef enum block_type {
-  FUNC_BLOCK,
-  FOR_BLOCK,
-} block_t;
+typedef enum curr_stmt_type {
+  FUNC,
+  FOR,
+  RETURN_TYPE
+} curr_stmt_t;
 
 void decl_resolve(struct decl *d);
 void stmt_resolve(struct stmt *s);

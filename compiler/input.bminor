@@ -14,13 +14,13 @@ f: function void ( x: string,  y: boolean ) = {
    }
    x: integer = i;
    l: integer = x;
-
 }
 
 f2: function void ( x: string,  y: boolean ) = {
-   a: char = 3;
-   b: char = 5;
-   j: integer = a;
+   a: boolean = 3;
+   b: boolean = 5;
+   j: string = a;
+   return a;
    k: integer = b;
    i: boolean = 100;
    if (b == 1) {

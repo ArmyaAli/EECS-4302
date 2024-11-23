@@ -2,7 +2,7 @@
 #include "include/scope.h"
 #include "include/constants.h"
 
-int current_block_type = -1;
+int current_stmt_type = -1;
 
 void decl_resolve(struct decl *d) {
   printf("DECL_RESOLVE: %p\n", d);
@@ -14,18 +14,15 @@ void decl_resolve(struct decl *d) {
   stack_print(&SYMBOL_STACK);
 	if(d->code) {
     printf("Function Detected \n");
-    current_block_type = FUNC_BLOCK;
+    current_stmt_type = FUNC;
 		scope_enter();
 		param_list_resolve(d->type->params);
 		stmt_resolve(d->code);
 
     // If we have a return statement, we should popoff stack till global scope 
     // or exit scope as normal
-    if(stack_size(&SYMBOL_STACK) > 1) 
-      scope_exit();
-    else {
-      return;
-    }
+    if(current_stmt_type == RETURN_TYPE && 
+        stack_size(&SYMBOL_STACK) > 1) return;
 	}
 	decl_resolve(d->next);
 }
@@ -36,15 +33,15 @@ void stmt_resolve(struct stmt *s) {
 	if (!s) return;
 	switch (s->kind) {
 		case STMT_BLOCK:
-      printf("STMT_BLOCK: %d\n", FUNC_BLOCK);
-      switch(current_block_type) {
-        case FUNC_BLOCK:
-          printf("FUNC_BLOCK\n");
+      printf("STMT_BLOCK: %d\n", FUNC);
+      switch(current_stmt_type) {
+        case FUNC:
+          printf("FUNC\n");
           stmt_resolve(s->body);
           scope_exit();
           break;
-        case FOR_BLOCK:
-          printf("FOR_BLOCK\n");
+        case FOR:
+          printf("FOR\n");
           stmt_resolve(s->body);
           scope_exit();
           break;
@@ -64,21 +61,21 @@ void stmt_resolve(struct stmt *s) {
       expr_resolve(s->expr);
       break;
     case STMT_IF_ELSE:
-     // FUNC_BLOCK = 0;
-      current_block_type = -1;
+     // FUNC = 0;
+      current_stmt_type = -1;
       printf("STMT_IF_ELSE\n");
       if (!s->expr) expr_resolve(s->expr);
       stmt_resolve(s->body);
       stmt_resolve(s->else_body);
       break;
     case STMT_IF:
-      current_block_type = -1;
+      current_stmt_type = -1;
       printf("STMT_IF\n");
       expr_resolve(s->expr);
       stmt_resolve(s->body);
       break;
     case STMT_FOR:
-      current_block_type = FOR_BLOCK;
+      current_stmt_type = FOR;
       printf("STMT_FOR\n");
       struct expr* init_expr = s->init_expr->left;
       struct expr* init_expr_value = s->init_expr->right;
@@ -95,6 +92,7 @@ void stmt_resolve(struct stmt *s) {
       expr_resolve(s->expr);
       break;
     case STMT_RETURN:
+      current_stmt_type = RETURN_TYPE;
       printf("STMT_RETURN\n");
       if(s->expr) expr_resolve(s->expr);
       printf("anything\n");
