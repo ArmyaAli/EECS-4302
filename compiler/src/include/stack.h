@@ -1,7 +1,8 @@
 #ifndef STACK_H
 #define STACK_H
-#include "hash_table.h"
 #define STACK_SIZE 512
+
+#include "hash_table.h"
 
 // Define the stack structure
 typedef struct stack {

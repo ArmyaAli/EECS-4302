@@ -1,6 +1,13 @@
+#include <stdlib.h>
+
+#include "include/global.h"
+#include "include/messages.h"
+#include "include/constants.h"
+#include "include/print.h"
+#include "include/stack.h"
+#include "include/resolve.h"
 #include "include/pipeline.h"
 #include "include/token.h"
-#include <stdlib.h>
 
 void run_scan(const char *filename) {
     // Open the file for reading

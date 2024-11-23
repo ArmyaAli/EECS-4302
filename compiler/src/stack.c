@@ -1,9 +1,9 @@
-#include <stdlib.h>
-#include <stdio.h>
 #include "include/stack.h"
 #include "include/hash_table.h"
 #include "include/constants.h"
 #include "include/symbol.h"
+#include <stdlib.h>
+#include <stdio.h>
 
 void stack_init(stack_t *stack) {
     stack->data = (struct hash_table*)malloc(sizeof(struct hash_table) * STACK_SIZE);
