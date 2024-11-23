@@ -1,6 +1,7 @@
 #include "include/typecheck.h"
 #include "include/param_list.h"
 #include "include/messages.h"
+#include "include/constants.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -108,6 +109,15 @@ struct type *expr_typecheck(struct expr *e) {
     result = type_create(TYPE_CHARACTER, 0, 0);
     break;
   case EXPR_ADD:
+    if( lt->kind!=TYPE_INTEGER || rt->kind!=TYPE_INTEGER ) {
+      printf("===================================\n");
+      printf("TYPE ERROR: << TYPE_MISTMATCH >>\n");
+      printf("\t Addition can not be performed on [(%s) %s + (%s) %s] \n", TYPE_LOOKUP[lt->kind], e->left->name, TYPE_LOOKUP[rt->kind], e->right->name);
+      printf("===================================\n");
+    }
+    else {
+      result = type_create(TYPE_INTEGER, 0, 0);
+    }
     break;
   case EXPR_SUB:
     break;
