@@ -76,10 +76,11 @@ void run_typecheck(const char* filename) {
   run_resolve(filename);
 
   struct decl* d1 = parser_result;
-  struct decl* d2 = parser_result->next;
+//  struct decl* d2 = parser_result->next;
   struct type* t1 = d1->type;
-  struct type* t2 = d2->type;
-  int output = type_equals(t1, t2);
+ // struct type* t2 = d2->type;
+  struct type* t3 = type_copy(t1);
+  int output = type_equals(t1, t3);
   printf("output: %d\n", output);
   printf("running typechecker\n");
 }

@@ -2,14 +2,46 @@
 #include "include/param_list.h"
 #include "include/messages.h"
 #include <stdlib.h>
+#include <string.h>
 
-// helpers
-struct type *type_copy(struct type *t) { 
+struct param_list *param_list_copy(struct param_list *params) {
+    if (!params) return NULL;
 
-
-  return NULL; 
-
+    struct param_list *copy = param_list_create(params->name, params->type, params->next);
+    copy->name = params->name ? strdup(params->name) : NULL; // Duplicate name if it exists
+    copy->type = type_copy(params->type);                   // Recursively copy the type
+    copy->symbol = params->symbol;                          // Assume symbol can be shared
+    copy->next = param_list_copy(params->next);             // Recursively copy the rest of the list
+    return copy;
 }
+
+// Function to copy a type structure
+struct type *type_copy(struct type *t) {
+    if (!t) return NULL;
+    // Recursively copy the subtype and params
+    struct type *subtype_copy = type_copy(t->subtype);
+    struct param_list *params_copy = param_list_copy(t->params);
+    // Create a new type and populate fields
+    struct type *new_type = type_create(t->kind, subtype_copy, params_copy);
+    new_type->array_size = t->array_size;
+    return new_type;
+}
+
+void param_list_delete(struct param_list *params) {
+    if (!params) return;
+    param_list_delete(params->next);
+    if (params->name) free(params->name);
+    if (params->type) type_delete(params->type);
+    free(params);
+}
+
+void type_delete(struct type *t) {
+    if (!t) return;
+    if (t->subtype) type_delete(t->subtype);
+    if (t->params) param_list_delete(t->params);
+    free(t);
+}
+
 
 int is_atomic(struct type *x) {
   switch (x->kind) {
@@ -52,11 +84,6 @@ int type_equals(struct type *a, struct type *b) {
     }
   }
   return 0;
-}
-
-void type_delete(struct type *t) {
-
-
 }
 
 // typecheckers
