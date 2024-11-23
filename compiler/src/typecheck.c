@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+int ERROR_COUNTER = 0;
+
 struct param_list *param_list_copy(struct param_list *params) {
     if (!params) return NULL;
 
@@ -115,15 +117,38 @@ struct type *expr_typecheck(struct expr *e) {
       printf("\t Addition can not be performed on [(%s) %s + (%s) %s] \n", TYPE_LOOKUP[lt->kind], e->left->name, TYPE_LOOKUP[rt->kind], e->right->name);
       printf("===================================\n");
     }
-    else {
-      result = type_create(TYPE_INTEGER, 0, 0);
-    }
+    ERROR_COUNTER ++;
+    result = type_create(TYPE_INTEGER, 0, 0);
     break;
   case EXPR_SUB:
+    if( lt->kind!=TYPE_INTEGER || rt->kind!=TYPE_INTEGER ) {
+      printf("===================================\n");
+      printf("TYPE ERROR: << TYPE_MISTMATCH >>\n");
+      printf("\t Subtraction can not be performed on [(%s) %s + (%s) %s] \n", TYPE_LOOKUP[lt->kind], e->left->name, TYPE_LOOKUP[rt->kind], e->right->name);
+      printf("===================================\n");
+    }
+    ERROR_COUNTER ++;
+    result = type_create(TYPE_INTEGER, 0, 0);
     break;
   case EXPR_MUL:
+    if( lt->kind!=TYPE_INTEGER || rt->kind!=TYPE_INTEGER ) {
+      printf("===================================\n");
+      printf("TYPE ERROR: << TYPE_MISTMATCH >>\n");
+      printf("\t Multiplication can not be performed on [(%s) %s + (%s) %s] \n", TYPE_LOOKUP[lt->kind], e->left->name, TYPE_LOOKUP[rt->kind], e->right->name);
+      printf("===================================\n");
+    }
+    ERROR_COUNTER ++;
+    result = type_create(TYPE_INTEGER, 0, 0);
     break;
   case EXPR_DIV:
+    if( lt->kind!=TYPE_INTEGER || rt->kind!=TYPE_INTEGER ) {
+      printf("===================================\n");
+      printf("TYPE ERROR: << TYPE_MISTMATCH >>\n");
+      printf("\t Division can not be performed on [(%s) %s + (%s) %s] \n", TYPE_LOOKUP[lt->kind], e->left->name, TYPE_LOOKUP[rt->kind], e->right->name);
+      printf("===================================\n");
+    }
+    ERROR_COUNTER ++;
+    result = type_create(TYPE_INTEGER, 0, 0);
     break;
   case EXPR_NAME:
     result = type_copy(e->symbol->type);
