@@ -7,11 +7,13 @@ test: function integer();
 
 main: function void ()=
 {
-	x:integer = y * 10 + 15 - test();
+  q: boolean = x;
+	x:integer = y * 10 + 15 - test(q);
 }
 
-test: function integer () =
+test: function integer (x: integer) =
 {
+  z: boolean = false;
 	return 5;
 }
 	
