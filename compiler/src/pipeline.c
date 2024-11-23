@@ -1,5 +1,6 @@
 #include "include/pipeline.h"
 #include "include/token.h"
+#include <stdlib.h>
 
 void run_scan(const char *filename) {
     // Open the file for reading

@@ -5,7 +5,6 @@
 #include "stmt.h"
 #include "param_list.h"
 #include "expr.h"
-#include <stdio.h>
 
 struct decl {
 	char *name;

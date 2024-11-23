@@ -1,6 +1,9 @@
 #include "include/helper.h"
 #include "include/constants.h"
 #include "include/global.h"
+#include <string.h>
+#include <stdlib.h>
+
 
 void process_string_literal() {
   int len = strlen(yytext);

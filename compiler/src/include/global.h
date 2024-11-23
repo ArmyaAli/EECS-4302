@@ -1,11 +1,8 @@
 #ifndef GLOBAL_H
 #define GLOBAL_H
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include "stack.h"
-#include "decl.h"
+#include <stdio.h>
 
 // flex
 extern char *yytext; // Actual text scanned
