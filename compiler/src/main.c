@@ -1,9 +1,9 @@
 #define _CRT_SECURE_NO_DEPRECATE
 
-#include "include/messages.h"
-#include "include/pipeline.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include "include/messages.h"
+#include "include/pipeline.h"
 
 int main(int argc, char *argv[]) {
     const char *option = argv[1];
