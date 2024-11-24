@@ -70,6 +70,28 @@ void stmt_resolve(struct stmt *s) {
 			break;
     case STMT_EXPR:
       printf("STMT_EXPR\n");
+      struct expr* e = s->expr;
+      printf("ekind %s\n", EXPR_LOOKUP[e->kind]);
+
+      struct symbol* symb = NULL;
+      switch (e->kind) {
+      case EXPR_NAME:
+        printf("SYMBOL CREATED for %s\n", e->name);
+        symb = scope_lookup(e->name);
+        printf("%p s->type: %symb\n",symb, TYPE_LOOKUP[symb->type->kind]);
+        e->symbol = symbol_copy(symb); // deep copy is needed since we have recurive struct types
+        break;
+      case EXPR_INCR:
+      case EXPR_DECR:
+        printf("SYMBOL CREATED for %s\n", e->left->name);
+        symb = scope_lookup(e->left->name);
+        printf("%p s->type: %s\n",symb, TYPE_LOOKUP[symb->type->kind]);
+        e->left->symbol = symbol_copy(symb); // deep copy is needed since we have recurive struct types
+        break;
+      default:
+        printf("No expressions matched\n");
+        break;
+      }
       expr_resolve(s->expr);
       break;
     case STMT_IF_ELSE:

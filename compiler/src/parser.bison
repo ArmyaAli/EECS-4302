@@ -539,7 +539,7 @@ return_statement : TOKEN_RETURN expr TOKEN_SEMICOLON
     }
 ;
 
-incr_decr : identifier TOKEN_INCR { $$ = expr_create(EXPR_INCR, $1, NULL) ; }
+incr_decr : identifier TOKEN_INCR { printf("PARSERBISON\n"); $$ = expr_create(EXPR_INCR, $1, NULL) ; }
 | identifier TOKEN_DECR { $$ = expr_create(EXPR_DECR, $1, NULL)           ; }
 ;
 

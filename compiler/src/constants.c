@@ -39,7 +39,6 @@ const char* EXPR_LOOKUP[] = {
      ">=",
      "==",
      "!=",
-     "",
      "++",
      "--",
      "ARRAY"

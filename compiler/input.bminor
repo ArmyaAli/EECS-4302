@@ -8,6 +8,8 @@
 //}
 
 f1: function integer () = {
-   a: boolean = 3;
-   b: char = a;
+   // a: boolean = 3;
+   // b: integer = a;
+   c: boolean = 100;
+   c++;
 }
