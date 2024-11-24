@@ -1,3 +1,3 @@
-y: string = "hi";
-x: integer = y;
-m: boolean = x * y;
+y: boolean = false;
+x: boolean = true;
+m: boolean = x == y;

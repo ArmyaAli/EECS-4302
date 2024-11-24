@@ -124,7 +124,7 @@ struct type *expr_typecheck(struct expr *e) {
     if( lt->kind!=TYPE_INTEGER || rt->kind!=TYPE_INTEGER ) {
       printf("===================================\n");
       printf("TYPE ERROR: << TYPE_MISTMATCH >>\n");
-      printf("\t Subtraction can not be performed on [(%s) %s + (%s) %s] \n", TYPE_LOOKUP[lt->kind], e->left->name, TYPE_LOOKUP[rt->kind], e->right->name);
+      printf("\t <Subtraction> can not be performed on [(%s) %s - (%s) %s] \n", TYPE_LOOKUP[lt->kind], e->left->name, TYPE_LOOKUP[rt->kind], e->right->name);
       printf("===================================\n");
     }
     ERROR_COUNTER ++;
@@ -134,7 +134,7 @@ struct type *expr_typecheck(struct expr *e) {
     if( lt->kind!=TYPE_INTEGER || rt->kind!=TYPE_INTEGER ) {
       printf("===================================\n");
       printf("TYPE ERROR: << TYPE_MISTMATCH >>\n");
-      printf("\t Multiplication can not be performed on [(%s) %s + (%s) %s] \n", TYPE_LOOKUP[lt->kind], e->left->name, TYPE_LOOKUP[rt->kind], e->right->name);
+      printf("\t <Multiplication> can not be performed on [(%s) %s * (%s) %s] \n", TYPE_LOOKUP[lt->kind], e->left->name, TYPE_LOOKUP[rt->kind], e->right->name);
       printf("===================================\n");
     }
     ERROR_COUNTER ++;
@@ -144,7 +144,7 @@ struct type *expr_typecheck(struct expr *e) {
     if( lt->kind!=TYPE_INTEGER || rt->kind!=TYPE_INTEGER ) {
       printf("===================================\n");
       printf("TYPE ERROR: << TYPE_MISTMATCH >>\n");
-      printf("\t Division can not be performed on [(%s) %s + (%s) %s] \n", TYPE_LOOKUP[lt->kind], e->left->name, TYPE_LOOKUP[rt->kind], e->right->name);
+      printf("\t <Division> can not be performed on [(%s) %s / (%s) %s] \n", TYPE_LOOKUP[lt->kind], e->left->name, TYPE_LOOKUP[rt->kind], e->right->name);
       printf("===================================\n");
     }
     ERROR_COUNTER ++;
@@ -180,8 +180,25 @@ struct type *expr_typecheck(struct expr *e) {
   case EXPR_GTE:
     break;
   case EXPR_EQ:
-    break;
   case EXPR_NEQ:
+    if(!type_equals(lt, rt)) {
+      printf("===================================\n");
+      printf("TYPE ERROR: << TYPE_MISTMATCH >>\n");
+      printf("\t <Equality Operation> can not be performed when the types of operators don't match\n");
+      printf("\t[(%s) %s == (%s) %s] \n", TYPE_LOOKUP[lt->kind], e->left->name, TYPE_LOOKUP[rt->kind], e->right->name);
+      printf("===================================\n");
+    }
+    if(
+      (lt->kind==TYPE_VOID || lt->kind==TYPE_ARRAY || lt->kind==TYPE_FUNCTION) 
+       || 
+      (rt->kind==TYPE_VOID || rt->kind==TYPE_ARRAY || rt->kind==TYPE_FUNCTION)
+      ) {
+      printf("===================================\n");
+      printf("TYPE ERROR: << INVALID TYPE >>\n");
+      printf("\t <Equality Operation> can not be performed when (%s) %s == (%s) %s \n", TYPE_LOOKUP[lt->kind], e->left->name, TYPE_LOOKUP[rt->kind], e->right->name);
+      printf("===================================\n");
+    }
+    result = type_create(TYPE_BOOLEAN,0,0);
     break;
   case EXPR_INCR:
     break;
