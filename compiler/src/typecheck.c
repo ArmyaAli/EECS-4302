@@ -98,7 +98,7 @@ struct type *expr_typecheck(struct expr *e) {
   struct type *rt = expr_typecheck(e->right);
   struct type *result;
 
-  printf("e->kind %s\n", EXPR_LOOKUP[e->kind]);
+  printf("EXPR_TYPECHECK: e->kind %s\n", EXPR_LOOKUP[e->kind]);
   if (e->kind == EXPR_DECR || e->kind == EXPR_INCR) {
     printf("HERE\n");
     result = type_copy(e->symbol->type);
@@ -171,7 +171,6 @@ struct type *expr_typecheck(struct expr *e) {
       } 
     }
 
-
     // switch (e->kind) {
     //   case EXPR_NAME:
     //     printf("EXPR_NAME %p -> %p -> %s\n", e, e->symbol, e->symbol->name);
@@ -192,8 +191,10 @@ struct type *expr_typecheck(struct expr *e) {
     }
     result = type_copy(e->symbol->type);
   case EXPR_CALL:
+    result = type_copy(e->left->symbol->type->subtype);
     break;
   case EXPR_ARG:
+
     break;
   case EXPR_SUBSCRIPT:
     break;
@@ -288,6 +289,7 @@ struct type *expr_typecheck(struct expr *e) {
     result = type_create(TYPE_BOOLEAN,0,0);
     break;
   case EXPR_ARR:
+
     break;
   }
   // types are no longer needed
@@ -338,8 +340,34 @@ void decl_typecheck( struct decl *d ) {
         struct type *t;
         t = expr_typecheck(d->value);
         if(!type_equals(d->type, t)) {
-          if (d->value->kind != EXPR_NAME) printf("TYPE_ERROR: Can not assign type of (%s) to (%s) in `%s: %s = %d;`\n", TYPE_LOOKUP[t->kind], TYPE_LOOKUP[d->type->kind], d->name, TYPE_LOOKUP[d->type->kind], d->value->literal_value);
-          else printf("TYPE_ERROR: Can not assign type of (%s) to (%s) in `%s: %s = %s;`\n", TYPE_LOOKUP[t->kind], TYPE_LOOKUP[d->type->kind], d->name, TYPE_LOOKUP[d->type->kind], d->value->name);
+          if(d->value->kind == EXPR_CALL) {
+            printf("TYPE_ERROR: Can not assign type of (%s) to (%s) in `%s: %s = %s;`\n", 
+                TYPE_LOOKUP[t->kind], 
+                TYPE_LOOKUP[d->type->kind], 
+                d->name, 
+                TYPE_LOOKUP[d->type->kind], 
+                d->value->left->name
+            );
+          }
+          else if (d->value->kind != EXPR_NAME) {
+            printf("TYPE_ERROR: Can not assign type of (%s) to (%s) in `%s: %s = %d;`\n", 
+                TYPE_LOOKUP[t->kind], 
+                TYPE_LOOKUP[d->type->kind], 
+                d->name, 
+                TYPE_LOOKUP[d->type->kind], 
+                d->value->literal_value
+            );
+
+          }
+          else {
+            printf("TYPE_ERROR: Can not assign type of (%s) to (%s) in `%s: %s = %s;`\n", 
+                TYPE_LOOKUP[t->kind], 
+                TYPE_LOOKUP[d->type->kind], 
+                d->name, 
+                TYPE_LOOKUP[d->type->kind], 
+                d->value->name
+            );
+          }
           ERROR_COUNTER ++;
         }
     }
