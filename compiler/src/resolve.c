@@ -22,6 +22,7 @@ void decl_resolve(struct decl *d) {
 
    scope_bind(d->name,d->symbol);
    stack_print(&SYMBOL_STACK);
+
 	if(d->code) {
     printf("Function Detected \n");
     current_stmt_type = FUNC;
@@ -82,9 +83,7 @@ void stmt_resolve(struct stmt *s) {
       case EXPR_INCR:
       case EXPR_DECR:
         printf("SYMBOL CREATED for %s\n", e->left->name);
-        symb = scope_lookup(e->left->name);
-        printf("%p s->type: %s\n",symb, TYPE_LOOKUP[symb->type->kind]);
-        e->left->symbol = symbol_copy(symb); // deep copy is needed since we have recurive struct types
+        symbol_create_helper(&e->left);
         break;
       default:
         printf("No expressions matched\n");
@@ -145,8 +144,8 @@ void expr_resolve(struct expr *e) {
     if(e->symbol && e->symbol->kind == SYMBOL_GLOBAL) {
         printf("=======> %s resolves to %s %s <=======\n", e->symbol->name, SCOPE_LOOKUP[e->symbol->kind], e->symbol->name);
     } else {
-        //printf("=======> %s resolves to %s %d <=======\n", e->symbol->name, SCOPE_LOOKUP[e->symbol->kind], e->symbol->which);
-        printf("============== %p ==============\n", e->symbol);
+        printf("=======> %s resolves to %s %d <=======\n", e->symbol->name, SCOPE_LOOKUP[e->symbol->kind], e->symbol->which);
+        //printf("============== %p ==============\n", e->symbol);
     }
   } else {
     expr_resolve( e->left );

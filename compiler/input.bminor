@@ -20,6 +20,6 @@ print "ali";
 }
 
 f2: function integer (x: integer, y: boolean) = { 
-  y: boolean = f1();
+  i: boolean = x;
 }
 

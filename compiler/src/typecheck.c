@@ -2,8 +2,6 @@
 #include "include/param_list.h"
 #include "include/messages.h"
 #include "include/constants.h"
-#include "include/global.h"
-#include "include/stack.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -147,43 +145,22 @@ struct type *expr_typecheck(struct expr *e) {
     result = type_create(TYPE_INTEGER, 0, 0);
     break;
   case EXPR_INCR:
-    // printf("EXPR_INCR_TYPECHECK\n");
-    // printf("%p\n", e->left);
-    // if(lt->kind!=TYPE_INTEGER) {
-    //   printf("\t <%s> can only be applied on an integer operator. ((%s) %s)\n",EXPR_LOOKUP[EXPR_INCR], TYPE_LOOKUP[lt->kind], e->left->name);
-    //   ERROR_COUNTER ++;
-    // }
-    // result = type_create(TYPE_BOOLEAN, 0, 0);
+     printf("EXPR_INCR_TYPECHECK\n");
+     printf("%p\n", e->left);
+     if(lt->kind!=TYPE_INTEGER) {
+       printf("\t <%s> can only be applied on an integer operator. ((%s) %s)\n",EXPR_LOOKUP[EXPR_INCR], TYPE_LOOKUP[lt->kind], e->left->name);
+       ERROR_COUNTER ++;
+     }
+     result = type_create(TYPE_BOOLEAN, 0, 0);
     break;
   case EXPR_DECR:
     break;
   case EXPR_NAME:
     printf("EXPR_NAME_TYPECHECK\n");
-    printf("e->left %p\n", e->left);
-    if (e->left && (e->left->kind == EXPR_DECR &&  e->left->kind == EXPR_INCR)) {
-      result = type_copy(e->left->symbol->type);
-    }
-    else {
-      if (e->kind == EXPR_NAME) {
-          printf("EXPR_NAME %p -> %p -> %s\n", e, e->symbol, e->symbol->name);
-          result = type_copy(e->symbol->type);
-          break;
-      } 
-    }
-
-    // switch (e->kind) {
-    //   case EXPR_NAME:
-    //     printf("EXPR_NAME %p -> %p -> %s\n", e, e->symbol, e->symbol->name);
-    //     result = type_copy(e->symbol->type);
-    //     break;
-    //   case EXPR_INCR:
-    //   case EXPR_DECR:
-    //     result = type_copy(e->left->symbol->type);
-    //     break;
-    //   default:
-    //     printf("No expressions matched\n");
-    //     break;
-    // }
+//    printf("e->left %p\n", e->left);
+//    printf("EXPR_NAME %p -> %p -> %s\n", e, e->symbol, e->symbol->name);
+    result = type_copy(e->symbol->type);
+    break;
   case EXPR_ASSIGN:
     if(!type_equals(lt, rt)) {
       printf(ERRORMSG_TYPE_ASSIGNMENT_ERROR, e->right->name, TYPE_LOOKUP[rt->kind], e->left->name, TYPE_LOOKUP[lt->kind]);
@@ -194,7 +171,7 @@ struct type *expr_typecheck(struct expr *e) {
     result = type_copy(e->left->symbol->type->subtype);
     break;
   case EXPR_ARG:
-
+    result = type_copy(e->symbol->type);
     break;
   case EXPR_SUBSCRIPT:
     break;
