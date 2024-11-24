@@ -53,15 +53,6 @@ void run_resolve(const char* filename) {
 
   // init our stack
   stack_init(&SYMBOL_STACK);
-  // struct hash_table* ht = hash_table_create(1,0);
-  //stack_push(&SYMBOL_STACK, *ht);
-  //stack_push(&SYMBOL_STACK, *ht);
-  //stack_push(&SYMBOL_STACK, *ht);
-
-  //stack_pop(&SYMBOL_STACK);
-  //stack_pop(&SYMBOL_STACK);
-  //stack_pop(&SYMBOL_STACK);
-  //stack_pop(&SYMBOL_STACK);
 
   //stack_print(&SYMBOL_STACK);
   // traverse AST
@@ -75,21 +66,11 @@ void run_typecheck(const char* filename) {
   run_parser(filename);
   run_resolve(filename);
 
-  //struct type* t = expr_typecheck(d1->next->next->value);
-  //struct decl* d1 = parser_result;
+  printf("===========================================\n");
   decl_typecheck(parser_result);
-  //printf("TYPE << %s >> \n", TYPE_LOOKUP[t->kind]);
+  printf("TOTAL_ERRORS: %d\n", ERROR_COUNTER);
+  printf("===========================================\n");
 
-  // struct decl* d1 = parser_result;
-  // struct type* t = expr_typecheck(d1->code->body->next->next->expr);
-  // printf("TYPE << %s >> \n", TYPE_LOOKUP[t->kind]);
-
-//  struct decl* d2 = parser_result->next;
-//   struct type* t1 = d1->code->body->decl->type;
-// //  struct type* t2 = d2->type;
-//   struct type* t3 = type_copy(t1);
-//   int output = type_equals(t1, t3);
-//   printf("output: %d\n", output);
   printf("running typechecker\n");
 }
 

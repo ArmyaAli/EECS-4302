@@ -2,10 +2,9 @@
 #include "include/param_list.h"
 #include "include/messages.h"
 #include "include/constants.h"
+#include "include/global.h"
 #include <stdlib.h>
 #include <string.h>
-
-int ERROR_COUNTER = 0;
 
 struct param_list *param_list_copy(struct param_list *params) {
     if (!params) return NULL;
@@ -164,10 +163,11 @@ struct type *expr_typecheck(struct expr *e) {
     }
   case EXPR_ASSIGN:
     if(!type_equals(lt, rt)) {
-      printf(ERRORMSG_TYPE_ASSIGNMENT_ERROR, e->right->name, TYPE_LOOKUP[rt->kind], e->left->name, TYPE_LOOKUP[lt->kind]);
+      printf("<< TYPE ERROR >>: Can not assign type of %s to %s\n", TYPE_LOOKUP[rt->kind], TYPE_LOOKUP[lt->kind]);
       ERROR_COUNTER ++;
     }
-    result = type_copy(e->symbol->type);
+    result = type_copy(lt);
+    break;
   case EXPR_CALL:
     result = type_copy(e->left->symbol->type->subtype);
     break;

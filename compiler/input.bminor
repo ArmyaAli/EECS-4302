@@ -1,25 +1,25 @@
 
-//x: boolean = true;
-//y: boolean = true;
+x: boolean = true;
+y: boolean = true;
+z: integer = y;
 
-//f: function void() = {
-  // z: char = 's';
-   //z1: integer = z;
-//}
+f2: function integer (x: integer, y: boolean) = {
 
-//f1: function integer () = {
-//   a: integer = false;
-//   b: boolean = 30;
-//   //c: boolean = 100;
-//   //c++;
-//}
+   val4: boolean = 3 == false;
+   val1: integer = 2 > true;
+   val1 = false;
+   val2: boolean = true < false;
+   val2: boolean = false == false;
+   val3: boolean = "hi" == false;
+   valMod: integer = (5 + 4 * (4^5)) % 9;
+   valModFalse: integer = (5 + 4 * (4^5)) % false;
+   valMod = val1 <= val2;
 
-//f1: function integer() = {
-//print "ali";
-////return 100;
-//}
-
-f2: function integer (x: integer, y: boolean) = { 
-  k: boolean = y;
+   for (i = 0; i < 5; i ++) {
+      if (i == (24 + 4)) {
+         x: integer = 32;
+         i = x;
+         x = i;
+      }
+   }
 }
-

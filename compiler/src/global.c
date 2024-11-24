@@ -8,3 +8,6 @@ struct decl* parser_result;
 
 // Data structures
 stack_t SYMBOL_STACK;
+
+int ERROR_COUNTER = 0;
+

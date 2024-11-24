@@ -15,5 +15,6 @@ extern int yylineno; // Line number of the last scanned text.
 extern int EXIT_CODE; 
 extern stack_t SYMBOL_STACK;
 extern struct decl* parser_result;
+extern int ERROR_COUNTER;
 
 #endif 
