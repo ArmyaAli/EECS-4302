@@ -20,7 +20,6 @@ void decl_resolve(struct decl *d) {
     }
 
    scope_bind(d->name,d->symbol);
-   stack_print(&SYMBOL_STACK);
 	if(d->code) {
     current_stmt_type = FUNC;
 		scope_enter();
