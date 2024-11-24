@@ -1,3 +1,13 @@
-x: integer = 3;
-y: integer = 4;
-z: boolean = y;
+
+//x: boolean = true;
+//y: boolean = true;
+
+//f: function void() = {
+  // z: char = 's';
+   //z1: integer = z;
+//}
+
+f1: function integer () = {
+   a: boolean = 3;
+   b: char = a;
+}

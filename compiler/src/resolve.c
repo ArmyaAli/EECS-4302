@@ -1,17 +1,29 @@
 #include "include/resolve.h"
 #include "include/scope.h"
 #include "include/constants.h"
+#include "include/typecheck.h"
 
 int current_stmt_type = -1;
 
 void decl_resolve(struct decl *d) {
   printf("DECL_RESOLVE: %p\n", d);
 	if(!d) return;
-	symbol_t kind = scope_level() > 1 ? SYMBOL_LOCAL : SYMBOL_GLOBAL;
-	d->symbol = symbol_create(kind,d->type,d->name);
-	expr_resolve(d->value);
-	scope_bind(d->name,d->symbol);
-  stack_print(&SYMBOL_STACK);
+  if(d->value) {
+    symbol_t kind = scope_level() > 1 ? SYMBOL_LOCAL : SYMBOL_GLOBAL;
+    d->symbol = symbol_create(kind,d->type,d->name);
+    expr_resolve(d->value);
+    scope_bind(d->name,d->symbol);
+    // printf("d.value.kind %d d.value.name %s\n", d->value->kind, d->value->name);
+    // printf("d->name: %s, type: %s\n", d->symbol->name, TYPE_LOOKUP[d->symbol->type->kind]);
+    if (d->value->kind == EXPR_NAME) {
+      printf("SYMBOL CREATED for %s\n", d->value->name);
+      struct symbol* s = scope_lookup(d->value->name);
+      printf("%p s->type: %s\n",s, TYPE_LOOKUP[s->type->kind]);
+      d->value->symbol = symbol_copy(s); // deep copy is needed since we have recurive struct types
+    }
+    
+    stack_print(&SYMBOL_STACK);
+  }
 	if(d->code) {
     printf("Function Detected \n");
     current_stmt_type = FUNC;
@@ -108,6 +120,8 @@ void expr_resolve(struct expr *e) {
   if(e->kind==EXPR_NAME) {
     printf("EXPR_RESOLVE_EXPR_NAME\n");
     e->symbol = scope_lookup(e->name);
+    // struct type* t = type_create(e->symbol->kind)
+    printf("+++ %p %s -> %d -> %d -> %s\n",e, e->symbol->name, e->symbol->which, e->symbol->kind, TYPE_LOOKUP[e->symbol->type->kind]);
     if(e->symbol->kind == SYMBOL_GLOBAL) {
         printf("=======> %s resolves to %s %s <=======\n", e->symbol->name, SCOPE_LOOKUP[e->symbol->kind], e->symbol->name);
     } else {

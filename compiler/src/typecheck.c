@@ -2,6 +2,8 @@
 #include "include/param_list.h"
 #include "include/messages.h"
 #include "include/constants.h"
+#include "include/global.h"
+#include "include/stack.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -139,6 +141,8 @@ struct type *expr_typecheck(struct expr *e) {
     result = type_create(TYPE_INTEGER, 0, 0);
     break;
   case EXPR_NAME:
+    printf("*********************\n");
+    // printf("EXPR_NAME e_symbol_pinter %p %p ---- %s -> %d -> %d -> %s\n", e->symbol, e, e->symbol->name, e->symbol->which, e->symbol->kind, TYPE_LOOKUP[e->symbol->type->kind]);
     result = type_copy(e->symbol->type);
     break;
   case EXPR_ASSIGN:
@@ -261,21 +265,54 @@ struct type *expr_typecheck(struct expr *e) {
   return result;
 }
 
-void stmt_typecheck(struct stmt *s) {}
+void stmt_typecheck(struct stmt *s) {
+	if (!s) return;
+	switch (s->kind) {
+		case STMT_BLOCK:
+    printf("******STMT_BLOCK_TYPECHECK******\n");
+      stmt_typecheck(s->body);
+			break;
+		case STMT_DECL:
+      printf("*******STMT_DECL_TYPECHECK********\n");
+      decl_typecheck(s->decl);
+			break;
+    case STMT_EXPR:
+      printf("********STMT_EXPR_TYPECHECK********\n");
+      break;
+    case STMT_IF_ELSE:
+      printf("********STMT_IF_ELSE_TYPECHECK********\n");
+      break;
+    case STMT_IF:
+      printf("********STMT_IF_TYPECHECK********\n");
+      break;
+    case STMT_FOR:
+      printf("********STMT_FOR_TYPECHECK********\n");
+      break;
+    case STMT_PRINT:
+      printf("********STMT_PRINT_TYPECHECK********\n");
+      break;
+    case STMT_RETURN:
+      printf("********STMT_RETURN_TYPECHECK********\n");
+      return;
+	}
+  stmt_typecheck(s->next); // if its a statement_list
+}
 
-void decl_typecheck(struct decl * d) {
-  if(!d) return;
-  if (d->value) {
-    struct type *t;
-    t = expr_typecheck(d->value);
-    struct expr* left = d->value->left;
-    struct expr* right = d->value->right;
-    if (!type_equals(t, d->symbol->type)) {
-      printf(ERRORMSG_DECL_ASSIGNMENT_ERROR, TYPE_LOOKUP[d->type->kind], TYPE_LOOKUP[t->kind]);
+
+void decl_typecheck( struct decl *d ) {
+    if (!d) return;
+    if(d->value) {
+        printf("********DECL_VALUE_TYPECHECK********\n");
+        struct type *t;
+        t = expr_typecheck(d->value);
+        if(!type_equals(d->type, t)) {
+          if (d->value->kind != EXPR_NAME) printf("TYPE_ERROR: Can not assign type of (%s) to (%s) in `%s: %s = %d;`\n", TYPE_LOOKUP[t->kind], TYPE_LOOKUP[d->type->kind], d->name, TYPE_LOOKUP[d->type->kind], d->value->literal_value);
+          else printf("TYPE_ERROR: Can not assign type of (%s) to (%s) in `%s: %s = %s;`\n", TYPE_LOOKUP[t->kind], TYPE_LOOKUP[d->type->kind], d->name, TYPE_LOOKUP[d->type->kind], d->value->name);
+        }
     }
-  }
-  if (d->code) {
-    stmt_typecheck(d->code);
-  }
-  decl_typecheck(d->next);
+    if(d->code) {
+        printf("********DECL_CODE_TYPECHECK********\n");
+        stmt_typecheck(d->code);
+    }
+    decl_typecheck(d->next);
 }
