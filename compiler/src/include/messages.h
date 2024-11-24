@@ -10,4 +10,6 @@ extern const char* USAGEMSG_TYPECHECKER;
 
 
 extern const char* ERRORMSG_PARAM_LIST_SIZE;
+extern const char* ERRORMSG_TYPE_ASSIGNMENT_ERROR;
+extern const char* ERRORMSG_DECL_ASSIGNMENT_ERROR;
 #endif

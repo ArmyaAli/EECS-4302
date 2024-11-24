@@ -11,10 +11,10 @@ struct param_list *param_list_copy(struct param_list *params) {
     if (!params) return NULL;
 
     struct param_list *copy = param_list_create(params->name, params->type, params->next);
-    copy->name = params->name ? strdup(params->name) : NULL; // Duplicate name if it exists
-    copy->type = type_copy(params->type);                   // Recursively copy the type
-    copy->symbol = params->symbol;                          // Assume symbol can be shared
-    copy->next = param_list_copy(params->next);             // Recursively copy the rest of the list
+    copy->name = params->name ? strdup(params->name) : NULL;
+    copy->type = type_copy(params->type);                   
+    copy->symbol = params->symbol;                          
+    copy->next = param_list_copy(params->next);             
     return copy;
 }
 
@@ -143,7 +143,7 @@ struct type *expr_typecheck(struct expr *e) {
     break;
   case EXPR_ASSIGN:
     if(!type_equals(lt, rt)) {
-      printf("TYPE ERROR: Can not assign type of (%s) %s to (%s) %s\n", e->right->name, TYPE_LOOKUP[rt->kind], e->left->name, TYPE_LOOKUP[lt->kind]);
+      printf(ERRORMSG_TYPE_ASSIGNMENT_ERROR, e->right->name, TYPE_LOOKUP[rt->kind], e->left->name, TYPE_LOOKUP[lt->kind]);
       ERROR_COUNTER ++;
     }
     result = type_copy(e->symbol->type);
@@ -263,15 +263,19 @@ struct type *expr_typecheck(struct expr *e) {
 
 void stmt_typecheck(struct stmt *s) {}
 
-//void decl_typecheck(struct decl * d) {
-//  if (d->value) {
-//    struct type *t;
-//    t = expr_typecheck(d->value);
-//    if (!type_equals(t, d->symbol->type)) {
-//      /* display an error */
-//    }
-//  }
-//  if (d->code) {
-//    stmt_typecheck(d->code);
-//  }
-//}
+void decl_typecheck(struct decl * d) {
+  if(!d) return;
+  if (d->value) {
+    struct type *t;
+    t = expr_typecheck(d->value);
+    struct expr* left = d->value->left;
+    struct expr* right = d->value->right;
+    if (!type_equals(t, d->symbol->type)) {
+      printf(ERRORMSG_DECL_ASSIGNMENT_ERROR, TYPE_LOOKUP[d->type->kind], TYPE_LOOKUP[t->kind]);
+    }
+  }
+  if (d->code) {
+    stmt_typecheck(d->code);
+  }
+  decl_typecheck(d->next);
+}

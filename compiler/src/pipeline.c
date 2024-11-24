@@ -75,9 +75,10 @@ void run_typecheck(const char* filename) {
   run_parser(filename);
   run_resolve(filename);
 
-  struct decl* d1 = parser_result;
-  struct type* t = expr_typecheck(d1->next->next->value);
-  printf("TYPE << %s >> \n", TYPE_LOOKUP[t->kind]);
+  //struct type* t = expr_typecheck(d1->next->next->value);
+  //struct decl* d1 = parser_result;
+  decl_typecheck(parser_result);
+  //printf("TYPE << %s >> \n", TYPE_LOOKUP[t->kind]);
 
   // struct decl* d1 = parser_result;
   // struct type* t = expr_typecheck(d1->code->body->next->next->expr);
