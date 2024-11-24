@@ -79,7 +79,9 @@ void run_typecheck(const char* filename) {
   struct type* t = expr_typecheck(d1->next->next->value);
   printf("TYPE << %s >> \n", TYPE_LOOKUP[t->kind]);
 
-
+  // struct decl* d1 = parser_result;
+  // struct type* t = expr_typecheck(d1->code->body->next->next->expr);
+  // printf("TYPE << %s >> \n", TYPE_LOOKUP[t->kind]);
 
 //  struct decl* d2 = parser_result->next;
 //   struct type* t1 = d1->code->body->decl->type;

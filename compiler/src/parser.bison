@@ -580,6 +580,7 @@ cond_expr : TOKEN_UNARY_NEGATE expr {$$ = expr_create(EXPR_NOT, $2, NULL)       
 ;
 
 term : term TOKEN_EXP term {$$ = expr_create(EXPR_EXP, $1, $3) ;}
+| term TOKEN_MOD term {$$ = expr_create(EXPR_MOD, $1, $3) ;}
 | term TOKEN_MUL factor { $$ = expr_create(EXPR_MUL, $1, $3)     ;}
 | term TOKEN_DIV factor { $$ = expr_create(EXPR_DIV, $1, $3)     ;}
 | function_call { $$ = $1                                        ;}
