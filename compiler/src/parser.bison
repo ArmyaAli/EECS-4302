@@ -565,7 +565,7 @@ expr : expr TOKEN_ADD term {$$ = expr_create(EXPR_ADD, $1, $3) ;}
 ;
 
 // captures only conditional expressions. Used to seperate regular expression with conditiaonl ones
-cond_expr : TOKEN_UNARY_NEGATE expr {$$ = expr_create(EXPR_NEQ, $2, NULL)                           ;}
+cond_expr : TOKEN_UNARY_NEGATE expr {$$ = expr_create(EXPR_NOT, $2, NULL)                           ;}
 | expr TOKEN_GT expr {$$ = expr_create(EXPR_GT, $1, $3)                                             ;}
 | expr TOKEN_LT expr {$$ = expr_create(EXPR_LT, $1, $3)                                             ;}
 | expr TOKEN_GE expr {$$ = expr_create(EXPR_GTE, $1, $3)                                            ;}

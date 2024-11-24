@@ -162,10 +162,37 @@ struct type *expr_typecheck(struct expr *e) {
   case EXPR_SUBSCRIPT:
     break;
   case EXPR_AND:
+    if( lt->kind!=TYPE_BOOLEAN || rt->kind!=TYPE_BOOLEAN ) {
+      printf("===================================\n");
+      printf("TYPE ERROR: << TYPE_MISTMATCH >>\n");
+      printf("\t <&&> can only be applied when both operators are of type boolean.\n");
+      printf("\t(%s) %s && (%s) %s \n", TYPE_LOOKUP[lt->kind], e->left->name, TYPE_LOOKUP[rt->kind], e->right->name);
+      printf("===================================\n");
+    }
+    ERROR_COUNTER ++;
+    result = type_create(TYPE_BOOLEAN, 0, 0);
     break;
   case EXPR_OR:
+    if( lt->kind!=TYPE_BOOLEAN || rt->kind!=TYPE_BOOLEAN ) {
+      printf("===================================\n");
+      printf("TYPE ERROR: << TYPE_MISTMATCH >>\n");
+      printf("\t <||> can only be applied when both operators are of type boolean.\n");
+      printf("\t(%s) %s || (%s) %s \n", TYPE_LOOKUP[lt->kind], e->left->name, TYPE_LOOKUP[rt->kind], e->right->name);
+      printf("===================================\n");
+    }
+    ERROR_COUNTER ++;
+    result = type_create(TYPE_BOOLEAN, 0, 0);
     break;
   case EXPR_NOT:
+    if( lt->kind!=TYPE_BOOLEAN) {
+      printf("===================================\n");
+      printf("TYPE ERROR: << TYPE_MISTMATCH >>\n");
+      printf("\t <!> can only be applied on a boolean operator. \n");
+      printf("\t!((%s) %s)\n", TYPE_LOOKUP[lt->kind], e->left->name);
+      printf("===================================\n");
+    }
+    ERROR_COUNTER ++;
+    result = type_create(TYPE_BOOLEAN, 0, 0);
     break;
   case EXPR_EXP:
     break;
@@ -187,6 +214,7 @@ struct type *expr_typecheck(struct expr *e) {
       printf("\t <Equality Operation> can not be performed when the types of operators don't match\n");
       printf("\t[(%s) %s == (%s) %s] \n", TYPE_LOOKUP[lt->kind], e->left->name, TYPE_LOOKUP[rt->kind], e->right->name);
       printf("===================================\n");
+      ERROR_COUNTER ++;
     }
     if(
       (lt->kind==TYPE_VOID || lt->kind==TYPE_ARRAY || lt->kind==TYPE_FUNCTION) 
@@ -197,6 +225,7 @@ struct type *expr_typecheck(struct expr *e) {
       printf("TYPE ERROR: << INVALID TYPE >>\n");
       printf("\t <Equality Operation> can not be performed when (%s) %s == (%s) %s \n", TYPE_LOOKUP[lt->kind], e->left->name, TYPE_LOOKUP[rt->kind], e->right->name);
       printf("===================================\n");
+      ERROR_COUNTER ++;
     }
     result = type_create(TYPE_BOOLEAN,0,0);
     break;
