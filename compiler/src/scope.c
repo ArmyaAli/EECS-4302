@@ -24,7 +24,6 @@ void scope_bind(const char *name, struct symbol *sym) {
   sym->which = hash_table_size(top);
   hash_table_insert(top, name, sym);
   int s = hash_table_size(top);
-  printf("Hashtable.size(): %d\n", s);
 }
 
 struct symbol *scope_lookup(const char *name) {

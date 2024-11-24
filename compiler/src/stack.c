@@ -34,15 +34,6 @@ struct hash_table stack_pop(stack_t *stack) {
       --stack->top;
       --stack->size;
 
-      printf("pop stack, stack->size: %d\n", stack->size);
-      char *key = NULL;
-      struct symbol* sym = NULL;
-      hash_table_firstkey(entry);
-      int next = hash_table_nextkey(entry, &key, (void*)&sym);
-      while(next) {
-        if(sym != NULL) symbol_destroy(sym);
-        next = hash_table_nextkey(entry, &key, (void*)&sym);
-      }
       //hash_table_delete(entry);
     } else {
       stack->top = 0;
@@ -54,8 +45,6 @@ struct hash_table stack_pop(stack_t *stack) {
 }
 
 struct hash_table* stack_peek(stack_t *stack) {
-//    printf("in stack_peek %p\n", stack);
- //   printf("%d\n", stack->top);
     return &stack->data[stack->top];
 }
 

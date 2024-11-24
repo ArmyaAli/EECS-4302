@@ -14,12 +14,12 @@
 //   //c++;
 //}
 
-f1: function integer() = {
-print "ali";
-//return 100;
-}
+//f1: function integer() = {
+//print "ali";
+////return 100;
+//}
 
 f2: function integer (x: integer, y: boolean) = { 
-  y: boolean = f1();
+  k: boolean = y;
 }
 

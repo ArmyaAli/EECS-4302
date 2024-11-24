@@ -12,4 +12,14 @@ extern const char* USAGEMSG_TYPECHECKER;
 extern const char* ERRORMSG_PARAM_LIST_SIZE;
 extern const char* ERRORMSG_TYPE_ASSIGNMENT_ERROR;
 extern const char* ERRORMSG_DECL_ASSIGNMENT_ERROR;
+
+extern const char* ERRORMSG_TYPE_EXPR_ADD_ERROR;
+extern const char* ERRORMSG_TYPE_EXPR_SUB_ERROR;
+extern const char* ERRORMSG_TYPE_EXPR_MUL_ERROR;
+extern const char* ERRORMSG_TYPE_EXPR_DIV_ERROR;
+
+extern const char* ERRORMSG_TYPE_EXPR_LOGICAL_AND_ERROR;
+extern const char* ERRORMSG_TYPE_EXPR_LOGICAL_OR_ERROR;
+extern const char* ERRORMSG_TYPE_EXPR_LOGICAL_NOT_ERROR;
+extern const char* ERRORMSG_TYPE_EXPR_LOGICAL_EXP_ERROR;
 #endif
