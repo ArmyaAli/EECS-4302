@@ -19,20 +19,23 @@ void decl_resolve(struct decl *d) {
       }
     }
 
-   scope_bind(d->name,d->symbol);
+
+  if(stack_size(&SYMBOL_STACK) > 0) scope_bind(d->name,d->symbol);
    stack_print(&SYMBOL_STACK);
 	if(d->code) {
-    current_stmt_type = FUNC;
-		scope_enter();
-		param_list_resolve(d->type->params);
-    current_stmt_type = -1;
-		stmt_resolve(d->code);
+    if(stack_size(&SYMBOL_STACK) > 0) {
+      current_stmt_type = FUNC;
+      scope_enter();
+      param_list_resolve(d->type->params);
+     // current_stmt_type = -1;
+      stmt_resolve(d->code);
 
-    // If we have a return statement, we should popoff stack till global scope 
-    // or exit scope as normal
-    if(current_stmt_type == RETURN_TYPE && 
-      stack_size(&SYMBOL_STACK) > 1) {
-      return;
+      // If we have a return statement, we should popoff stack till global scope 
+      // or exit scope as normal
+      if(current_stmt_type == RETURN_TYPE && 
+        stack_size(&SYMBOL_STACK) > 1) {
+        return;
+      }
     }
 	}
 	decl_resolve(d->next);
@@ -45,7 +48,6 @@ void stmt_resolve(struct stmt *s) {
 		case STMT_BLOCK:
       switch(current_stmt_type) {
         case FUNC:
-          printf("IN FUNC\n");
           stmt_resolve(s->body);
           scope_exit();
           break;
@@ -64,7 +66,6 @@ void stmt_resolve(struct stmt *s) {
 			break;
     case STMT_EXPR:
       struct expr* e = s->expr;
-
       struct symbol* symb = NULL;
       switch (e->kind) {
       case EXPR_NAME:
@@ -111,9 +112,8 @@ void stmt_resolve(struct stmt *s) {
     case STMT_RETURN:
       current_stmt_type = RETURN_TYPE;
       if(s->expr) expr_resolve(s->expr);
-      scope_exit();
-      printf("IN RETURN\n");
-      return;
+      if(stack_size(&SYMBOL_STACK) > 1) scope_exit();
+      break;
 	}
   stmt_resolve(s->next); // if its a statement_list
 }
