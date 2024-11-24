@@ -112,42 +112,30 @@ struct type *expr_typecheck(struct expr *e) {
     break;
   case EXPR_ADD:
     if( lt->kind!=TYPE_INTEGER || rt->kind!=TYPE_INTEGER ) {
-      printf("===================================\n");
-      printf("TYPE ERROR: << TYPE_MISTMATCH >>\n");
-      printf("\t Addition can not be performed on [(%s) %s + (%s) %s] \n", TYPE_LOOKUP[lt->kind], e->left->name, TYPE_LOOKUP[rt->kind], e->right->name);
-      printf("===================================\n");
+      printf("TYPE_ERROR: <%s> can not be performed on [(%s) %s + (%s) %s] \n", EXPR_LOOKUP[EXPR_ADD], TYPE_LOOKUP[lt->kind], e->left->name, TYPE_LOOKUP[rt->kind], e->right->name);
+      ERROR_COUNTER ++;
     }
-    ERROR_COUNTER ++;
     result = type_create(TYPE_INTEGER, 0, 0);
     break;
   case EXPR_SUB:
     if( lt->kind!=TYPE_INTEGER || rt->kind!=TYPE_INTEGER ) {
-      printf("===================================\n");
-      printf("TYPE ERROR: << TYPE_MISTMATCH >>\n");
-      printf("\t <Subtraction> can not be performed on [(%s) %s - (%s) %s] \n", TYPE_LOOKUP[lt->kind], e->left->name, TYPE_LOOKUP[rt->kind], e->right->name);
-      printf("===================================\n");
+      printf("TYPE_ERROR: <%s> can not be performed on [(%s) %s - (%s) %s] \n", EXPR_LOOKUP[EXPR_SUB], TYPE_LOOKUP[lt->kind], e->left->name, TYPE_LOOKUP[rt->kind], e->right->name);
+      ERROR_COUNTER ++;
     }
-    ERROR_COUNTER ++;
     result = type_create(TYPE_INTEGER, 0, 0);
     break;
   case EXPR_MUL:
     if( lt->kind!=TYPE_INTEGER || rt->kind!=TYPE_INTEGER ) {
-      printf("===================================\n");
-      printf("TYPE ERROR: << TYPE_MISTMATCH >>\n");
-      printf("\t <Multiplication> can not be performed on [(%s) %s * (%s) %s] \n", TYPE_LOOKUP[lt->kind], e->left->name, TYPE_LOOKUP[rt->kind], e->right->name);
-      printf("===================================\n");
+      printf("TYPE_ERROR: <%s> can not be performed on [(%s) %s * (%s) %s] \n", EXPR_LOOKUP[EXPR_MUL], TYPE_LOOKUP[lt->kind], e->left->name, TYPE_LOOKUP[rt->kind], e->right->name);
+      ERROR_COUNTER ++;
     }
-    ERROR_COUNTER ++;
     result = type_create(TYPE_INTEGER, 0, 0);
     break;
   case EXPR_DIV:
     if( lt->kind!=TYPE_INTEGER || rt->kind!=TYPE_INTEGER ) {
-      printf("===================================\n");
-      printf("TYPE ERROR: << TYPE_MISTMATCH >>\n");
-      printf("\t <Division> can not be performed on [(%s) %s / (%s) %s] \n", TYPE_LOOKUP[lt->kind], e->left->name, TYPE_LOOKUP[rt->kind], e->right->name);
-      printf("===================================\n");
+      printf("TYPE_ERROR: <%s> can not be performed on [(%s) %s / (%s) %s] \n", EXPR_LOOKUP[EXPR_DIV], TYPE_LOOKUP[lt->kind], e->left->name, TYPE_LOOKUP[rt->kind], e->right->name);
+      ERROR_COUNTER ++;
     }
-    ERROR_COUNTER ++;
     result = type_create(TYPE_INTEGER, 0, 0);
     break;
   case EXPR_NAME:
@@ -163,24 +151,16 @@ struct type *expr_typecheck(struct expr *e) {
     break;
   case EXPR_AND:
     if( lt->kind!=TYPE_BOOLEAN || rt->kind!=TYPE_BOOLEAN ) {
-      printf("===================================\n");
-      printf("TYPE ERROR: << TYPE_MISTMATCH >>\n");
-      printf("\t <&&> can only be applied when both operators are of type boolean.\n");
-      printf("\t(%s) %s && (%s) %s \n", TYPE_LOOKUP[lt->kind], e->left->name, TYPE_LOOKUP[rt->kind], e->right->name);
-      printf("===================================\n");
+      printf("TYPE_ERROR: <%s> can not be performed on [(%s) %s && (%s) %s] \n", EXPR_LOOKUP[EXPR_AND], TYPE_LOOKUP[lt->kind], e->left->name, TYPE_LOOKUP[rt->kind], e->right->name);
+      ERROR_COUNTER ++;
     }
-    ERROR_COUNTER ++;
     result = type_create(TYPE_BOOLEAN, 0, 0);
     break;
   case EXPR_OR:
     if( lt->kind!=TYPE_BOOLEAN || rt->kind!=TYPE_BOOLEAN ) {
-      printf("===================================\n");
-      printf("TYPE ERROR: << TYPE_MISTMATCH >>\n");
-      printf("\t <||> can only be applied when both operators are of type boolean.\n");
-      printf("\t(%s) %s || (%s) %s \n", TYPE_LOOKUP[lt->kind], e->left->name, TYPE_LOOKUP[rt->kind], e->right->name);
-      printf("===================================\n");
+      printf("TYPE_ERROR: <%s> can not be performed on [(%s) %s || (%s) %s] \n", EXPR_LOOKUP[EXPR_OR], TYPE_LOOKUP[lt->kind], e->left->name, TYPE_LOOKUP[rt->kind], e->right->name);
+      ERROR_COUNTER ++;
     }
-    ERROR_COUNTER ++;
     result = type_create(TYPE_BOOLEAN, 0, 0);
     break;
   case EXPR_NOT:
@@ -190,8 +170,8 @@ struct type *expr_typecheck(struct expr *e) {
       printf("\t <!> can only be applied on a boolean operator. \n");
       printf("\t!((%s) %s)\n", TYPE_LOOKUP[lt->kind], e->left->name);
       printf("===================================\n");
+      ERROR_COUNTER ++;
     }
-    ERROR_COUNTER ++;
     result = type_create(TYPE_BOOLEAN, 0, 0);
     break;
   case EXPR_EXP:
@@ -199,12 +179,32 @@ struct type *expr_typecheck(struct expr *e) {
   case EXPR_MOD:
     break;
   case EXPR_LT:
+    if( lt->kind!=TYPE_INTEGER || rt->kind!=TYPE_INTEGER ) {
+      printf("TYPE_ERROR: `%s` can not be performed on [(%s) %s < (%s) %s] \n", EXPR_LOOKUP[EXPR_LT], TYPE_LOOKUP[lt->kind], e->left->name, TYPE_LOOKUP[rt->kind], e->right->name);
+      ERROR_COUNTER ++;
+    }
+    result = type_create(TYPE_BOOLEAN, 0, 0);
     break;
   case EXPR_GT:
+    if( lt->kind!=TYPE_INTEGER || rt->kind!=TYPE_INTEGER ) {
+      printf("TYPE_ERROR: `%s` can not be performed on [(%s) %s > (%s) %s] \n", EXPR_LOOKUP[EXPR_GT], TYPE_LOOKUP[lt->kind], e->left->name, TYPE_LOOKUP[rt->kind], e->right->name);
+      ERROR_COUNTER ++;
+    }
+    result = type_create(TYPE_BOOLEAN, 0, 0);
     break;
   case EXPR_LTE:
+    if( lt->kind!=TYPE_INTEGER || rt->kind!=TYPE_INTEGER ) {
+      printf("TYPE_ERROR: `%s` can not be performed on [(%s) %s <= (%s) %s] \n", EXPR_LOOKUP[EXPR_LTE], TYPE_LOOKUP[lt->kind], e->left->name, TYPE_LOOKUP[rt->kind], e->right->name);
+      ERROR_COUNTER ++;
+    }
+    result = type_create(TYPE_BOOLEAN, 0, 0);
     break;
   case EXPR_GTE:
+    if( lt->kind!=TYPE_INTEGER || rt->kind!=TYPE_INTEGER ) {
+      printf("TYPE_ERROR: `%s` can not be performed on [(%s) %s >= (%s) %s] \n", EXPR_LOOKUP[EXPR_GTE], TYPE_LOOKUP[lt->kind], e->left->name, TYPE_LOOKUP[rt->kind], e->right->name);
+      ERROR_COUNTER ++;
+    }
+    result = type_create(TYPE_BOOLEAN, 0, 0);
     break;
   case EXPR_EQ:
   case EXPR_NEQ:

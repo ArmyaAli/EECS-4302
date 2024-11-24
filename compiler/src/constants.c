@@ -14,6 +14,38 @@ const char* TYPE_LOOKUP[] = {
 	"TYPE_FUNCTION",
 };
 
+const char* EXPR_LOOKUP[] = {
+     "ADDITION",
+     "SUBTRACTION",
+     "MULTIPLICATION",
+     "DIVISION",
+     "IDENTIFIER",
+     "ASSIGNMENT",
+     "INTEGER LITERAL",
+     "BOOLEAN LITERAL",
+     "CHARACTER LITERAL",
+     "STRING LITERAL",
+     "EXPR_CALL",
+     "EXPR_ARG",
+     "EXPR_SUBSCRIPT",
+     "&&",
+     "||",
+     "!",
+     "^",
+     "%%",
+     "<",
+     ">",
+     "<=",
+     ">=",
+     "==",
+     "!=",
+     "",
+     "++",
+     "--",
+     "ARRAY"
+};
+
+
 // program exit code constant
 // token.h token_t -> string map
 const char* TOKEN_LOOKUP[] = {
