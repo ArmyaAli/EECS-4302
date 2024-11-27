@@ -8,4 +8,6 @@ const char* scratch_name(int r);
 int label_create();
 const char* label_name(int label);
 
+const char *symbol_codegen(struct symbol *s);
+
 #endif 

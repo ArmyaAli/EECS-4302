@@ -1,6 +1,7 @@
-#include <register_helper.h>
 #include <stdio.h>
 #include <string.h>
+#include <register_helper.h>
+#include <symbol.h>
 
 #define NUM_SCRATCH_REGISTERS 8
 
@@ -50,4 +51,34 @@ const char* label_name(int label) {
     static char buffer[32];
     snprintf(buffer, sizeof(buffer), ".L%d", label);
     return buffer;
+}
+
+const char *symbol_codegen(struct symbol *s) {
+    char *result = NULL;
+
+    switch (s->kind) {
+        case SYMBOL_GLOBAL:
+            result = strdup(s->name);
+            break;
+
+        case SYMBOL_PARAM: {
+            int offset = -8 - (s->which * 8);
+            result = (char *)malloc(20); // Enough space for "-123(%rbp)"
+            snprintf(result, 20, "%d(%%rbp)", offset);
+            break;
+        }
+
+        case SYMBOL_LOCAL: {
+            int offset = -24 - (s->which * 8);
+            result = (char *)malloc(20); // Enough space for "-123(%rbp)"
+            snprintf(result, 20, "%d(%%rbp)", offset);
+            break;
+        }
+
+        default:
+            fprintf(stderr, "Error: Unknown symbol kind\n");
+            exit(1);
+    }
+
+    return result;
 }
