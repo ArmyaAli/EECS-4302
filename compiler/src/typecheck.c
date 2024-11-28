@@ -151,12 +151,17 @@ struct type *expr_typecheck(struct expr *e) {
     result = type_create(TYPE_BOOLEAN, 0, 0);
     break;
   case EXPR_NAME:
-    if (e->kind == EXPR_NAME) {
-      result = type_copy(e->symbol->type);
-      break;
-    } 
+    // if (!e->symbol) {
+    //   result = type_copy(e->symbol->type);
+    // }
+    // else {
+
+    // }
+    // printf("EXPR_NAME %s %p\n", e->name, e->symbol);
+    result = type_copy(e->symbol->type);
+    break;
   case EXPR_ASSIGN:
-    printf("EXPR_ASSIGN %s %d\n", e->left->name, lt->kind);
+    printf("EXPR_ASSING\n");
     if(!type_equals(lt, rt)) {
       printf("<< TYPE ERROR >>: Can not assign type of %s to %s for variable %s\n", TYPE_LOOKUP[rt->kind], TYPE_LOOKUP[lt->kind], e->left->name);
       ERROR_COUNTER ++;
@@ -277,14 +282,22 @@ void stmt_typecheck(struct stmt *s) {
       decl_typecheck(s->decl);
 			break;
     case STMT_EXPR:
-      printf("STMT_EXPR\n");
       expr_typecheck(s->expr);
       break;
     case STMT_IF_ELSE:
+      expr_typecheck(s->expr);
+      stmt_typecheck(s->body);
+      stmt_typecheck(s->else_body);
       break;
     case STMT_IF:
+      expr_typecheck(s->expr);
+      stmt_typecheck(s->body);
       break;
     case STMT_FOR:
+      // expr_typecheck(s->init_expr);
+      // expr_typecheck(s->expr);
+      // expr_typecheck(s->next_expr);
+      // stmt_typecheck(s->body);
       break;
     case STMT_PRINT:
       break;

@@ -38,4 +38,7 @@ caller: function void ( x: string) = {
    
    invalidIntrIncr: boolean = false;
    invalidIntrIncr ++;
+   if (invalidIntrIncr) {
+      
+   }
 }
