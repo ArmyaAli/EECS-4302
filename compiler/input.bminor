@@ -31,4 +31,11 @@ callee: function char ( x: string) = {
 
 caller: function void ( x: string) = {
    a: string = callee("hu");
+
+   intIncr: integer = 3;
+   intIncr ++;
+   intIncr --;
+   
+   invalidIntrIncr: boolean = false;
+   invalidIntrIncr ++;
 }
