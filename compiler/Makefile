@@ -28,8 +28,7 @@ OBJ_FILES=$(addprefix $(DIST)/, \
 	 pipeline.o \
 	 typecheck.o \
 	 scope.o \
-	 register_helper.c
-	 )
+	 register_helper.o)
 
 
 $(DIST)/bminor: $(OBJ_FILES)
