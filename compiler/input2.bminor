@@ -5,4 +5,6 @@ f: function char ( x: string) = {
 
 f1: function void ( x: string) = {
    a: char = f("hu");
+   new1: integer = 1;
+   new1 --;
 }

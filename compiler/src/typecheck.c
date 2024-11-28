@@ -95,11 +95,6 @@ struct type *expr_typecheck(struct expr *e) {
   struct type *rt = expr_typecheck(e->right);
   struct type *result;
 
-  if (e->kind == EXPR_DECR || e->kind == EXPR_INCR) {
-    result = type_copy(e->symbol->type);
-    return result;
-  }
-
   switch (e->kind) {
   case EXPR_INTEGER_LITERAL:
     result = type_create(TYPE_INTEGER, 0, 0);
@@ -142,25 +137,20 @@ struct type *expr_typecheck(struct expr *e) {
     result = type_create(TYPE_INTEGER, 0, 0);
     break;
   case EXPR_INCR:
-    // if(lt->kind!=TYPE_INTEGER) {
-    //   printf("\t <%s> can only be applied on an integer operator. ((%s) %s)\n",EXPR_LOOKUP[EXPR_INCR], TYPE_LOOKUP[lt->kind], e->left->name);
-    //   ERROR_COUNTER ++;
-    // }
-    // result = type_create(TYPE_BOOLEAN, 0, 0);
-    // NOTE: not working
+    if(lt->kind!=TYPE_INTEGER) {
+      printf("TYPE ERROR: `%s` can only be applied on an integer operator but was applied on ((%s) %s)\n",EXPR_LOOKUP[EXPR_INCR], TYPE_LOOKUP[lt->kind], e->left->name);
+      ERROR_COUNTER ++;
+    }
+    result = type_create(TYPE_BOOLEAN, 0, 0);
     break;
   case EXPR_DECR:
+    if(lt->kind!=TYPE_INTEGER) {
+      printf("TYPE ERROR: `%s` can only be applied on an integer operator but was applied on ((%s) %s)\n",EXPR_LOOKUP[EXPR_DECR], TYPE_LOOKUP[lt->kind], e->left->name);
+      ERROR_COUNTER ++;
+    }
+    result = type_create(TYPE_BOOLEAN, 0, 0);
     break;
   case EXPR_NAME:
-    // if (e->left && (e->left->kind == EXPR_DECR &&  e->left->kind == EXPR_INCR)) {
-    //   result = type_copy(e->left->symbol->type);
-    // }
-    // else {
-    //   if (e->kind == EXPR_NAME) {
-    //       result = type_copy(e->symbol->type);
-    //       break;
-    //   } 
-    // }
     if (e->kind == EXPR_NAME) {
       result = type_copy(e->symbol->type);
       break;
@@ -287,6 +277,7 @@ void stmt_typecheck(struct stmt *s) {
       decl_typecheck(s->decl);
 			break;
     case STMT_EXPR:
+      printf("STMT_EXPR\n");
       expr_typecheck(s->expr);
       break;
     case STMT_IF_ELSE:
