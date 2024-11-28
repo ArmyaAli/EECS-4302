@@ -1,12 +1,8 @@
-f: function void ( x: string) = {
-   a: char = 3;
+f: function char ( x: string) = {
+   a: integer = 3;
    c: integer = a;
-   return a;
-    for(i=0 ; i<5 ; i++) {
-      d: integer = 3;
-      e: array[] integer = {123, i, d};
-    }
-   print a, c, "\n";
-   k: boolean = 99;
-   m: integer = k;
+}
+
+f1: function void ( x: string) = {
+   a: char = f("hu");
 }
