@@ -23,3 +23,12 @@ f2: function integer (x: integer, y: boolean) = {
       }
    }
 }
+
+callee: function char ( x: string) = {
+   a: integer = 3;
+   c: integer = a;
+}
+
+caller: function void ( x: string) = {
+   a: string = callee("hu");
+}
