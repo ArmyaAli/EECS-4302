@@ -83,11 +83,9 @@ void stmt_resolve(struct stmt *s) {
       expr_resolve(s->expr);
       break;
     case STMT_IF_ELSE:
-      printf("STMT_IFELSE %p %p\n", s->expr->left, s->expr->right);
       //FUNC = 0;
       current_stmt_type = -1;
       if (!s->expr) expr_resolve(s->expr);
-      s->expr->symbol = symbol_copy(scope_lookup(s->expr->name));
       stmt_resolve(s->body);
       stmt_resolve(s->else_body);
       break;

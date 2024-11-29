@@ -6,7 +6,7 @@ f: function char ( t: boolean) = {
 f1: function void ( x: string) = {
    a: char = x;
 
-   if(x) {
+   if(true) {
       b: integer = 1;
 	}
    else {

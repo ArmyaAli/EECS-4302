@@ -278,19 +278,11 @@ void stmt_typecheck(struct stmt *s) {
       expr_typecheck(s->expr);
       break;
     case STMT_IF_ELSE:
-      if (s->expr->symbol->type->kind != TYPE_BOOLEAN) {
-        printf("TYPE ERROR: if-Condition must be a boolean expression.\n");
-        ERROR_COUNTER++;
-      }
       expr_typecheck(s->expr);
       stmt_typecheck(s->body);
       stmt_typecheck(s->else_body);
       break;
     case STMT_IF:
-      if (s->expr->symbol->type->kind != TYPE_BOOLEAN) {
-        printf("TYPE ERROR: if-else-Condition must be a boolean expression.\n");
-        ERROR_COUNTER++;
-      }
       expr_typecheck(s->expr);
       stmt_typecheck(s->body);
       break;
