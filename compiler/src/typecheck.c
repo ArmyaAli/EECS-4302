@@ -151,13 +151,6 @@ struct type *expr_typecheck(struct expr *e) {
     result = type_create(TYPE_BOOLEAN, 0, 0);
     break;
   case EXPR_NAME:
-    // if (!e->symbol) {
-    //   result = type_copy(e->symbol->type);
-    // }
-    // else {
-
-    // }
-    // printf("EXPR_NAME %s %p\n", e->name, e->symbol);
     result = type_copy(e->symbol->type);
     break;
   case EXPR_ASSIGN:
@@ -276,40 +269,40 @@ void stmt_typecheck(struct stmt *s) {
 	if (!s) return;
 	switch (s->kind) {
 		case STMT_BLOCK:
-      printf("TYPECHECK_STMT_BLOCK\n");
       stmt_typecheck(s->body);
 			break;
 		case STMT_DECL:
-      printf("TYPECHECK_STMT_DECL\n");
       decl_typecheck(s->decl);
 			break;
     case STMT_EXPR:
-      printf("TYPECHECK_STMT_EXPR\n");
       expr_typecheck(s->expr);
       break;
     case STMT_IF_ELSE:
-      printf("TYPECHECK_STMT_IF_ELSE\n");
+      if (s->expr->symbol->type->kind != TYPE_BOOLEAN) {
+        printf("TYPE ERROR: if-Condition must be a boolean expression.\n");
+        ERROR_COUNTER++;
+      }
       expr_typecheck(s->expr);
       stmt_typecheck(s->body);
       stmt_typecheck(s->else_body);
       break;
     case STMT_IF:
-      printf("TYPECHECK_STMT_IF\n");
+      if (s->expr->symbol->type->kind != TYPE_BOOLEAN) {
+        printf("TYPE ERROR: if-else-Condition must be a boolean expression.\n");
+        ERROR_COUNTER++;
+      }
       expr_typecheck(s->expr);
       stmt_typecheck(s->body);
       break;
     case STMT_FOR:
-      printf("TYPECHECK_STMT_FOR\n");
       expr_typecheck(s->init_expr);
       expr_typecheck(s->expr);
       expr_typecheck(s->next_expr);
       stmt_typecheck(s->body);
       break;
     case STMT_PRINT:
-      printf("TYPECHECK_STMT_PRINT\n");
       break;
     case STMT_RETURN:
-      printf("TYPECHECK_STMT_RETURN\n");
       return;
 	}
   stmt_typecheck(s->next); // if its a statement_list
@@ -330,6 +323,7 @@ void decl_typecheck( struct decl *d ) {
                 TYPE_LOOKUP[d->type->kind], 
                 d->value->left->name
             );
+            expr_typecheck(d->value->right);
           }
           else if (d->value->kind != EXPR_NAME) {
             printf("TYPE_ERROR: Can not assign type of (%s) to (%s) in `%s: %s = %d;`\n", 

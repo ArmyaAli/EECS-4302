@@ -41,4 +41,8 @@ caller: function void ( x: string) = {
    if (invalidIntrIncr) {
       
    }
+
+   for (i = true; i < "stir"; i ++) {
+      insideFor: integer = true;
+   }
 }

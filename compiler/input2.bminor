@@ -1,10 +1,19 @@
-f: function char ( x: string) = {
+f: function char ( t: boolean) = {
    a: integer = 3;
    c: integer = a;
 }
 
 f1: function void ( x: string) = {
-   a: char = f("hu");
-   new1: integer = 1;
-   new1 --;
+   a: char = x;
+
+   if(x) {
+      b: integer = 1;
+	}
+   else {
+      n: integer = true;
+   }
+
+   //for (i = 3; i < 5; i ++) {
+     // insideFor: boolean = true;
+   //}
 }

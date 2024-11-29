@@ -68,7 +68,12 @@ void run_typecheck(const char* filename) {
 
   printf("===========================================\n");
   decl_typecheck(parser_result);
-  printf("TOTAL_ERRORS: %d\n", ERROR_COUNTER);
+  if (ERROR_COUNTER != 0) {
+    printf("TOTAL_ERRORS: %d\n", ERROR_COUNTER);
+  }
+  else {
+    printf("Program compiled with no compilation error :)\n");
+  }
   printf("===========================================\n");
 
   printf("running typechecker\n");
