@@ -1,15 +1,15 @@
-// #ifndef REGISTER_HELPER_H
-// #define REGISTER_HELPER_H
+#ifndef REGISTER_HELPER_H
+#define REGISTER_HELPER_H
 
-// #include <symbol.h>
+#include "symbol.h"
 
-// int scratch_alloc();
-// void scratch_free(int r);
-// const char* scratch_name(int r);
+int scratch_alloc();
+void scratch_free(int r);
+const char* scratch_name(int r);
 
-// int label_create();
-// const char* label_name(int label);
+int label_create();
+const char* label_name(int label);
 
-// const char *symbol_codegen(struct symbol *s);
+const char *symbol_codegen(struct symbol *s);
 
-// #endif 
+#endif 
