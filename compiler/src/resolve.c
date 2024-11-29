@@ -83,6 +83,7 @@ void stmt_resolve(struct stmt *s) {
       expr_resolve(s->expr);
       break;
     case STMT_IF_ELSE:
+      printf("STMT_IFELSE %p %p\n", s->expr->left, s->expr->right);
       //FUNC = 0;
       current_stmt_type = -1;
       if (!s->expr) expr_resolve(s->expr);
@@ -101,6 +102,10 @@ void stmt_resolve(struct stmt *s) {
       struct symbol* symbol = symbol_create(SYMBOL_LOCAL, type_create(TYPE_INTEGER, NULL, NULL), init_expr->name);
       scope_enter();
       scope_bind(init_expr->name, symbol);
+
+      // perform a deep copy
+      init_expr->symbol = symbol_copy(symbol);
+
       expr_resolve(init_expr_value);
       expr_resolve(s->expr);
       expr_resolve(s->next_expr);
@@ -120,6 +125,7 @@ void stmt_resolve(struct stmt *s) {
 
 void expr_resolve(struct expr *e) {
   if(!e) return;
+    // printf("e_left %p e_right %p\n", e->left, e->right);
   if(e->kind==EXPR_NAME) {
     e->symbol = scope_lookup(e->name);
     if(e->symbol && e->symbol->kind == SYMBOL_GLOBAL) {
@@ -140,6 +146,9 @@ void param_list_resolve(struct param_list *p) {
     // create a symbol for hashtable
     p->symbol = symbol_create(SYMBOL_PARAM, p->type,p->name);
     scope_bind(p->name, p->symbol);
+
+    struct symbol * s = scope_lookup(p->name);
+    p->symbol = symbol_copy(s);
 
     param_list_resolve(p->next);
 }

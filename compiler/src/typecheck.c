@@ -276,32 +276,40 @@ void stmt_typecheck(struct stmt *s) {
 	if (!s) return;
 	switch (s->kind) {
 		case STMT_BLOCK:
+      printf("TYPECHECK_STMT_BLOCK\n");
       stmt_typecheck(s->body);
 			break;
 		case STMT_DECL:
+      printf("TYPECHECK_STMT_DECL\n");
       decl_typecheck(s->decl);
 			break;
     case STMT_EXPR:
+      printf("TYPECHECK_STMT_EXPR\n");
       expr_typecheck(s->expr);
       break;
     case STMT_IF_ELSE:
+      printf("TYPECHECK_STMT_IF_ELSE\n");
       expr_typecheck(s->expr);
       stmt_typecheck(s->body);
       stmt_typecheck(s->else_body);
       break;
     case STMT_IF:
+      printf("TYPECHECK_STMT_IF\n");
       expr_typecheck(s->expr);
       stmt_typecheck(s->body);
       break;
     case STMT_FOR:
-      // expr_typecheck(s->init_expr);
-      // expr_typecheck(s->expr);
-      // expr_typecheck(s->next_expr);
-      // stmt_typecheck(s->body);
+      printf("TYPECHECK_STMT_FOR\n");
+      expr_typecheck(s->init_expr);
+      expr_typecheck(s->expr);
+      expr_typecheck(s->next_expr);
+      stmt_typecheck(s->body);
       break;
     case STMT_PRINT:
+      printf("TYPECHECK_STMT_PRINT\n");
       break;
     case STMT_RETURN:
+      printf("TYPECHECK_STMT_RETURN\n");
       return;
 	}
   stmt_typecheck(s->next); // if its a statement_list
