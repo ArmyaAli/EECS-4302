@@ -6,28 +6,28 @@ int current_stmt_type = -1;
 
 void decl_resolve(struct decl *d) {
 	if(!d) return;
-    symbol_t kind = scope_level() > 1 ? SYMBOL_LOCAL : SYMBOL_GLOBAL;
-    d->symbol = symbol_create(kind,d->type,d->name);
 
+  symbol_t kind = scope_level() > 1 ? SYMBOL_LOCAL : SYMBOL_GLOBAL;
+  d->symbol = symbol_create(kind,d->type,d->name);
 
-    if(d->value) {
-      symbol_create_helper(&d->value);
-      if(d->value->kind == EXPR_CALL) {
-        expr_resolve(d->value->left);
-      } else {
-        expr_resolve(d->value);
-      }
+  if(d->value) {
+    symbol_create_helper(&d->value);
+    if(d->value->kind == EXPR_CALL) {
+      expr_resolve(d->value->left);
+    } else {
+      expr_resolve(d->value);
     }
+  }
 
 
   if(stack_size(&SYMBOL_STACK) > 0) scope_bind(d->name,d->symbol);
-  // stack_print(&SYMBOL_STACK);
+   //stack_print(&SYMBOL_STACK);
+
 	if(d->code) {
     if(stack_size(&SYMBOL_STACK) > 0) {
       current_stmt_type = FUNC;
       scope_enter();
       param_list_resolve(d->type->params);
-     // current_stmt_type = -1;
       stmt_resolve(d->code);
 
       // If we have a return statement, we should popoff stack till global scope 
@@ -46,34 +46,45 @@ void stmt_resolve(struct stmt *s) {
 	if (!s) return;
 	switch (s->kind) {
 		case STMT_BLOCK:
+      printf("STMT BLOCK\n current stmt_type: %d\n", current_stmt_type);
       switch(current_stmt_type) {
         case FUNC:
+          current_stmt_type = BLOCK;
+          printf("in FUNC case\n");
           stmt_resolve(s->body);
           scope_exit();
           break;
         case FOR:
+          current_stmt_type = BLOCK;
+          printf("in FOR case\n");
           stmt_resolve(s->body);
           scope_exit();
           break;
-        default:
+        case BLOCK:
+          printf("in default case\n");
           scope_enter();
           stmt_resolve(s->body);
           scope_exit();
       }
 			break;
 		case STMT_DECL:
+      printf("STMT DECL\n");
       decl_resolve(s->decl);
 			break;
     case STMT_EXPR:
+      printf("STMT EXPR\n");
       struct expr* e = s->expr;
       struct symbol* symb = NULL;
       switch (e->kind) {
       case EXPR_NAME:
+      printf("STMT NAME\n");
         symb = scope_lookup(e->name);
         e->symbol = symbol_copy(symb); // deep copy is needed since we have recurive struct types
         break;
       case EXPR_INCR:
+        printf("STMT INCR\n");
       case EXPR_DECR:
+        printf("STMT DECR\n");
         symb = scope_lookup(e->left->name);
         e->left->symbol = symbol_copy(symb); // deep copy is needed since we have recurive struct types
         break;
@@ -83,6 +94,7 @@ void stmt_resolve(struct stmt *s) {
       expr_resolve(s->expr);
       break;
     case STMT_IF_ELSE:
+      printf("STMT IF ELSE\n");
       //FUNC = 0;
       current_stmt_type = -1;
       if (!s->expr) expr_resolve(s->expr);
@@ -90,11 +102,13 @@ void stmt_resolve(struct stmt *s) {
       stmt_resolve(s->else_body);
       break;
     case STMT_IF:
+      printf("STMT IF\n");
       current_stmt_type = -1;
       expr_resolve(s->expr);
       stmt_resolve(s->body);
       break;
     case STMT_FOR:
+      printf("STMT FOR\n");
       current_stmt_type = FOR;
       struct expr* init_expr = s->init_expr->left;
       struct expr* init_expr_value = s->init_expr->right;
@@ -111,10 +125,11 @@ void stmt_resolve(struct stmt *s) {
       stmt_resolve(s->body);
       break;
     case STMT_PRINT:
+      printf("STMT PRINT\n");
       expr_resolve(s->expr);
       break;
     case STMT_RETURN:
-      current_stmt_type = RETURN_TYPE;
+      printf("STMT RETURN\n");
       if(s->expr) expr_resolve(s->expr);
       if(stack_size(&SYMBOL_STACK) > 1) scope_exit();
       break;
@@ -124,17 +139,22 @@ void stmt_resolve(struct stmt *s) {
 
 void expr_resolve(struct expr *e) {
   if(!e) return;
-    // printf("e_left %p e_right %p\n", e->left, e->right);
   if(e->kind==EXPR_NAME) {
-    e->symbol = scope_lookup(e->name);
+    printf("e_left %p e_right %p\n", e->left, e->right);
+    e->symbol = scope_lookup_current(e->name);
+    if(!e->symbol) {
+      e->symbol = scope_lookup(e->name);
+    }
+
     if(e->symbol && e->symbol->kind == SYMBOL_GLOBAL) {
         printf("=======> %s resolves to %s %s <=======\n", e->symbol->name, SCOPE_LOOKUP[e->symbol->kind], e->symbol->name);
     } else {
         printf("=======> %s resolves to %s %d <=======\n", e->symbol->name, SCOPE_LOOKUP[e->symbol->kind], e->symbol->which);
     }
+
   } else {
-    expr_resolve( e->left );
-    expr_resolve( e->right );
+    expr_resolve(e->left);
+    expr_resolve(e->right);
   }
 }
 

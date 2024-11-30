@@ -10,6 +10,7 @@
 typedef enum curr_stmt_type {
   FUNC,
   FOR,
+  BLOCK,
   RETURN_TYPE
 } curr_stmt_t;
 

@@ -21,8 +21,8 @@ int scope_level() {
 
 void scope_bind(const char *name, struct symbol *sym) {
   struct hash_table* top = stack_peek(&SYMBOL_STACK);
-    sym->which = hash_table_size(top);
-    hash_table_insert(top, name, sym);
+  sym->which = hash_table_size(top);
+  hash_table_insert(top, name, sym);
 }
 
 struct symbol *scope_lookup(const char *name) {
@@ -35,5 +35,8 @@ struct symbol *scope_lookup(const char *name) {
 }
 
 struct symbol *scope_lookup_current(const char *name) {
+  struct hash_table* top = stack_peek(&SYMBOL_STACK);
+  struct symbol* sym = (struct symbol*)hash_table_lookup(top, name);
+  if(sym != NULL) return sym;
   return NULL;
 }
