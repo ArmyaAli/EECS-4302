@@ -22,6 +22,7 @@ int main(int argc, char *argv[]) {
     else if (strcmp(option, "-parse") == 0) run_parser(filename); 
     else if (strcmp(option, "-resolve") == 0) run_resolve(filename); 
     else if (strcmp(option, "-typecheck") == 0) run_typecheck(filename); 
+    else if (strcmp(option, "-codegen") == 0) run_codegen(filename); 
     else {
         fprintf(stderr, "Unknown option: %s\n", option);
         exit(1);

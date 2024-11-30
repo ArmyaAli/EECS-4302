@@ -5,5 +5,6 @@ void run_scan(const char* filename); // Line number of the last scanned text.
 void run_parser(const char *);
 void run_resolve(const char *);
 void run_typecheck(const char *);
+void run_codegen(const char *);
 
 #endif

@@ -7,7 +7,6 @@
 #include "include/stack.h"
 #include "include/resolve.h"
 #include "include/pipeline.h"
-#include "include/type.h"
 #include "include/token.h"
 #include "include/typecheck.h"
 
@@ -79,3 +78,8 @@ void run_typecheck(const char* filename) {
   printf("running typechecker\n");
 }
 
+void run_codegen(const char* filename) {
+//  run_parser(filename);
+//  run_resolve(filename);
+  printf("running codegen\n");
+}
