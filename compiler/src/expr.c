@@ -15,7 +15,7 @@ struct expr *expr_create(expr_t kind, struct expr *left, struct expr *right) {
 struct expr * expr_create_name( const char *n ) { 
 
   struct expr* identifier_expr =  expr_create(EXPR_NAME, NULL, NULL);
-  identifier_expr->name = n;
+  identifier_expr->name = strdup(n);
   return identifier_expr;
 }
 
@@ -43,7 +43,6 @@ struct expr * expr_create_char_literal( char c ) {
 /* Used to create string literal expression */
 struct expr * expr_create_string_literal( const char *str ) { 
   struct expr* str_literal_expr =  expr_create(EXPR_STRING_LITERAL, NULL, NULL);
-  str_literal_expr->string_literal = malloc(sizeof(char)*strlen(str));
-  strcpy(str_literal_expr->string_literal, str);
+  str_literal_expr->string_literal = strdup(str);
   return str_literal_expr;
 }
