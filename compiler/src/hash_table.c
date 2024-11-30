@@ -140,11 +140,14 @@ int hash_table_insert(struct hash_table *h, const char *key, const void *value)
 	index = hash % h->bucket_count;
 	e = h->buckets[index];
 
-	while(e) {
-		if(hash == e->hash && !strcmp(key, e->key))
-			return 0;
-		e = e->next;
-	}
+//NOTE(Ali): If key exists, we will overrite that. For markers.
+//	while(e) {
+//		if(hash == e->hash && !strcmp(key, e->key)) {
+//      printf("bob\n");
+//    }
+//			return 0;
+//		e = e->next;
+//	}
 
 	e = (struct entry *) malloc(sizeof(struct entry));
 	if(!e)
