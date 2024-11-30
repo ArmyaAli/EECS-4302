@@ -6,8 +6,7 @@
 
 
 void process_string_literal() {
-  int len = strlen(yytext);
-  char* copy = malloc(len * sizeof(char));
+  char* copy = strdup(yytext);
   strcpy(copy, yytext);
   strip_qoutes(copy);
   special_char_to_byte(copy);
