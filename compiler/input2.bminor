@@ -1,4 +1,16 @@
-f: function void ( x: integer, y: integer ) = {
-	z: integer = 10;
-	return x + y + z;
+bob: string = "bob";
+m: string = "alik";
+
+f1: function void (x: integer, y: string, k: string, k1: integer, k3: string) = {
+	x: string = "alix";
+	z:boolean = "ali3" != "ali4";
+	lz:boolean = "ali3" == "ali4";
+	return 0;
+}
+
+main: function void (x: integer, y: string) = {
+	x: string = "ali1";
+	y: string = "adnan";
+	f1("jesus", 10, "moses", "bob3" , "mohammad");
+	return 0;
 }
