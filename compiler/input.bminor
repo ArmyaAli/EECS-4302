@@ -1,1 +1,3 @@
-a: integer = 3 + 8;
+a: integer;
+x: boolean;
+c: integer = x <= 10;

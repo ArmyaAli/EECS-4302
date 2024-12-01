@@ -47,16 +47,15 @@ void expr_codegen(struct expr *e) {
       e->reg = e->left->reg;
       scratch_free(e->right->reg);
       break;
-    case EXPR_MUL:
+    case EXPR_MUL: // to be discussed later
       printf("\tCODE_GEN_MUL\n");
       expr_codegen(e->left);
       expr_codegen(e->right);
-      printf("MUL %s, %s\n", scratch_name(e->left->reg),
-            scratch_name(e->right->reg));
+      printf("IMUL %s \n", scratch_name(e->left->reg));
       e->reg = e->right->reg;
       scratch_free(e->left->reg);
       break;
-    case EXPR_DIV:
+    case EXPR_DIV: // to be discussed later
       printf("\tCODE_GEN_DIV\n");
       expr_codegen(e->left);
       expr_codegen(e->right);
@@ -66,11 +65,6 @@ void expr_codegen(struct expr *e) {
       scratch_free(e->left->reg);
       break;
     case EXPR_ASSIGN:
-      printf("\tCODE_GEN_ASSIGN\n");
-      expr_codegen(e->left);
-      printf("MOVQ %s, %s\n", scratch_name(e->left->reg),
-            symbol_codegen(e->right->symbol));
-      e->reg = e->left->reg;
       break;
     case EXPR_CALL:
       break;
@@ -78,15 +72,22 @@ void expr_codegen(struct expr *e) {
       break;
     case EXPR_SUBSCRIPT:
       break;
-    case EXPR_AND:break;
+    case EXPR_AND:
+      printf("\tCODE_GEN_EXPR_AND\n");
+      break;
     case EXPR_OR:break;
     case EXPR_NOT:break;
     case EXPR_EXP:break;
     case EXPR_MOD:break;
-    case EXPR_LT:break;
-    case EXPR_GT:break;
-    case EXPR_LTE:break;
-    case EXPR_GTE:break;
+    case EXPR_LT:
+    case EXPR_GT:
+    case EXPR_LTE:
+    case EXPR_GTE:
+      printf("\tCODE_GEN_EXPR_GT\n");
+      expr_codegen(e->left);
+      expr_codegen(e->right);
+      printf("CMPQ %s, %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
+      break;
     case EXPR_EQ:break;
     case EXPR_NEQ:break;
     case EXPR_INCR:break;
