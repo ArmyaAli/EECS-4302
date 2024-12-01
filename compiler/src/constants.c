@@ -1,3 +1,14 @@
+const char* SCRATCH_LOOKUP[8] = {
+    "rax", 
+    "rcx", 
+    "rdx", 
+    "r8", 
+    "r9", 
+    "r10", 
+    "r11", 
+    "r12"
+};
+
 const char* SCOPE_LOOKUP[] = {
   "local",
   "param",

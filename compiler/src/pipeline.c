@@ -9,6 +9,8 @@
 #include "include/pipeline.h"
 #include "include/token.h"
 #include "include/typecheck.h"
+#include "include/codegen.h"
+#include "include/codegen_helper.h"
 
 void run_scan(const char *filename) {
     // Open the file for reading
@@ -79,7 +81,15 @@ void run_typecheck(const char* filename) {
 }
 
 void run_codegen(const char* filename) {
-//  run_parser(filename);
-//  run_resolve(filename);
+  run_parser(filename);
+  run_resolve(filename);
+  struct symbol* sym = parser_result->symbol;
+  struct symbol* sym2 = parser_result->type->params->symbol;
+  struct symbol* sym3 = parser_result->code->body->decl->symbol;
+
+  printf("sym: %d\n", sym->kind);
+  const char* res = symbol_codegen(sym2);
+  printf("res: %s\n", res);
+  decl_codegen(parser_result);
   printf("running codegen\n");
 }

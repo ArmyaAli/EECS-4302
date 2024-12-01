@@ -8,5 +8,6 @@ extern const char* TOKEN_LOOKUP[];
 extern const char* SCOPE_LOOKUP[];
 extern const char* TYPE_LOOKUP[];
 extern const char* EXPR_LOOKUP[];
+extern const char* SCRATCH_LOOKUP[];
 
 #endif 

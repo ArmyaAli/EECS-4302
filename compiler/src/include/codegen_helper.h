@@ -1,5 +1,5 @@
-#ifndef REGISTER_HELPER_H
-#define REGISTER_HELPER_H
+#ifndef CODEGEN_HELPER_H
+#define CODEGEN_HELPER_H
 
 #include "symbol.h"
 
