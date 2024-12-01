@@ -1,2 +1,1 @@
-x: integer = 10;
-y: integer = 5;
+a: integer = 3 + 8;

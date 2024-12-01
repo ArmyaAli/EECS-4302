@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "include/constants.h"
+
 #define SCRATCH_REGISTERS 8
 
 int label_counter = 0;
@@ -18,7 +19,7 @@ int scratch_alloc() {
             return i;                   
         }
     }
-    return -1;  // No free registers
+    return -1;  
 }
 
 void scratch_free(int r) {
@@ -54,7 +55,7 @@ const char *symbol_codegen(struct symbol *s) {
         case SYMBOL_LOCAL: 
         case SYMBOL_PARAM: 
             offset = - (s->which * byte_offset) - byte_offset;
-            result = (char *)malloc(16); // Enough space for "-123(%rbp)"
+            result = (char *)malloc(32); // Enough space for "-123(%rbp)"
             sprintf(result, "%d(%%rbp)", offset);
             break;
         default:
