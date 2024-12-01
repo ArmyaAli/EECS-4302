@@ -1,0 +1,4 @@
+// sample expression of pg 184
+a: integer;
+b: integer;
+c: integer = (a + 3) - b;

@@ -66,6 +66,12 @@ void expr_codegen(struct expr *e) {
       break;
 
     case EXPR_ASSIGN:
+      printf("\tCODE_GEN_EXPR_ASSIGN\n");
+      expr_codegen(e->left);
+      // printf("left %s\n", e->left->name);
+      expr_codegen(e->right);
+      // printf("right %s\n", e->right->left->name);
+      // printf("right %s\n", e->right->right->literal_value);
       break;
     case EXPR_CALL:
       break;
@@ -144,8 +150,9 @@ void decl_codegen(struct decl *d) {
     } else {
       expr_codegen(d->value);
     }
+    printf("MOVQ %%%s, %s\n", scratch_name(d->value->reg), symbol_codegen(d->symbol));
   }
-
+  
 	if(d->code) {
       stmt_codegen(d->code);
     }
