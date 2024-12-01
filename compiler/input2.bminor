@@ -1,19 +1,4 @@
-f: function char ( t: boolean) = {
-   a: integer = 3;
-   c: integer = a;
-}
-
-f1: function void ( x: string) = {
-   a: char = x;
-
-   if(true) {
-      b: integer = 1;
-	}
-   else {
-      n: integer = true;
-   }
-
-   //for (i = 3; i < 5; i ++) {
-     // insideFor: boolean = true;
-   //}
+f: function void ( x: integer, y: integer ) = {
+	z: integer = 10;
+	return x + y + z;
 }
