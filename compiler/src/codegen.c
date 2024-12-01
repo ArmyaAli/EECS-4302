@@ -68,10 +68,8 @@ void expr_codegen(struct expr *e) {
     case EXPR_ASSIGN:
       printf("\tCODE_GEN_EXPR_ASSIGN\n");
       expr_codegen(e->left);
-      // printf("left %s\n", e->left->name);
       expr_codegen(e->right);
-      // printf("right %s\n", e->right->left->name);
-      // printf("right %s\n", e->right->right->literal_value);
+      printf("MOVQ %%%s, %s\n", scratch_name(e->right->reg), symbol_codegen(e->left->symbol));
       break;
     case EXPR_CALL:
       break;
@@ -114,37 +112,44 @@ void expr_codegen(struct expr *e) {
 }
 
 void stmt_codegen(struct stmt *s) {
-  printf("\tSTMT_CODEGEN\n");
   if (!s) return;
 	switch (s->kind) {
 		case STMT_BLOCK:
+      printf("\tSTMT_BLOCK\n");
       stmt_codegen(s->body);
 			break;
 		case STMT_DECL:
+      printf("\tSTMT_DECL\n");
       decl_codegen(s->decl);
 			break;
     case STMT_EXPR:
+      printf("\tSTMT_EXPR\n");
       expr_codegen(s->expr);
       break;
     case STMT_IF_ELSE:
+      printf("STMT_IF_ELSE\n");
       break;
     case STMT_IF:
+      printf("STMT_IF\n");
       break;
     case STMT_FOR:
+      printf("STMT_FOR\n");
       break;
     case STMT_PRINT:
+      printf("STMT_PRINT\n");
       break;
     case STMT_RETURN:
+      printf("STMT_RETURN\n");
       return;
 	}
   stmt_codegen(s->next);
 }
 
 void decl_codegen(struct decl *d) {
-  printf("\tDECL_CODEGEN\n");
 	if(!d) return;
 
   if(d->value) {
+    printf("\tDECL_VALUE\n");
     if(d->value->kind == EXPR_CALL) {
       expr_codegen(d->value->left);
     } else {
@@ -152,9 +157,10 @@ void decl_codegen(struct decl *d) {
     }
     printf("MOVQ %%%s, %s\n", scratch_name(d->value->reg), symbol_codegen(d->symbol));
   }
-  
+
 	if(d->code) {
+      printf("\tDECL_FUNC\n");
       stmt_codegen(d->code);
-    }
+  }
 	decl_codegen(d->next);
 }

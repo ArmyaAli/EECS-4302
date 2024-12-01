@@ -1,4 +1,5 @@
 #include "include/symbol.h"
+#include "include/expr.h"
 #include "include/codegen_helper.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -43,7 +44,7 @@ const char* label_name(int label) {
   return labelstr;
 }
 
-const char *symbol_codegen(struct symbol *s) {
+const char *symbol_codegen(struct symbol* s) {
     char *result = NULL;
     int offset = 0;
     int byte_offset = 8;
@@ -52,8 +53,8 @@ const char *symbol_codegen(struct symbol *s) {
         case SYMBOL_GLOBAL:
             result = strdup(s->name);
             break;
-        case SYMBOL_LOCAL: 
-        case SYMBOL_PARAM: 
+        case SYMBOL_LOCAL:
+        case SYMBOL_PARAM:
             offset = - (s->which * byte_offset) - byte_offset;
             result = (char *)malloc(32); // Enough space for "-123(%rbp)"
             sprintf(result, "%d(%%rbp)", offset);
