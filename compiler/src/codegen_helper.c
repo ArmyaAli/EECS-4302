@@ -37,7 +37,6 @@ int label_create() {
     return label_counter++; // Increment and return the current counter value
 }
 
-// NOTE(Ali): Dangling pointer, we have to look at this one again
 char* label_name(int label) {
   char* labelstr = (char*)malloc(sizeof(char) * 32);
   sprintf(labelstr, ".L%d", label);

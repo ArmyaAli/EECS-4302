@@ -10,5 +10,8 @@
 void expr_codegen(struct expr *e);
 void stmt_codegen(struct stmt *s);
 void decl_codegen(struct decl *d);
+void expr_gen_first_pass(struct expr* e);
+void first_pass(struct decl *d);
+void second_pass(struct decl *d);
 
 #endif

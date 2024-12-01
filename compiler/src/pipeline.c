@@ -12,6 +12,8 @@
 #include "include/codegen.h"
 #include "include/codegen_helper.h"
 
+
+struct hash_table* label_to_str;
 void run_scan(const char *filename) {
     // Open the file for reading
     yyin = fopen(filename, "r");
@@ -80,17 +82,27 @@ void run_typecheck(const char* filename) {
   printf("running typechecker\n");
 }
 
+// First pass on AST handles all global decls and string literals
+// Second pass will handle global functions and .text section (.text section is the function body)
+// Step 1: Generate label .file
+// Step 2: Generate data label
+//  - First pass of AST
+//  - Generate next label avalible, starts @ 0
+//  - For string literals, generate .string label with string literal
+// Step 3: Generate .text, this will be second Pass
+//  - Second pass handles the following cases: 
+//    - Handles functiosn on the global scope, creates a .global label with the function name of the respective function
+//    - Alongside it will generate the .text section 
 void run_codegen(const char* filename) {
+  // Allocate our hash table for labels
+  label_to_str = hash_table_create(1, 0);
   run_parser(filename);
   run_resolve(filename);
-  //struct symbol* sym2 = parser_result->type->params->symbol;
-  //struct symbol* sym3 = parser_result->code->body->decl->symbol;
-
-  //printf("sym: %d\n", sym->kind);
-  //const char* res = symbol_codegen(sym2);
-  //printf("res: %s\n", res);
-  printf("===============\n");
-  decl_codegen(parser_result);
-  printf("===============\n");
-  printf("running codegen\n");
+  // Step 1
+  printf(".file\t\"%s\"\n", filename);
+  // Step 2
+  // Generate the .data label
+  printf(".data\n");
+  // Perform first pass on AST
+  first_pass(parser_result);
 }

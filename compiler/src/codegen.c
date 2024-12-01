@@ -2,7 +2,7 @@
 #include "include/codegen_helper.h"
 #include <stdio.h>
 
-struct hash_table* label_to_str;
+extern struct hash_table* label_to_str;
 
 void expr_codegen(struct expr *e) {
   if (!e) return;
@@ -119,20 +119,54 @@ void expr_codegen(struct expr *e) {
   }
 }
 
-void stmt_codegen(struct stmt *s) {
+//void stmt_codegen(struct stmt *s) {
+//  if (!s) return;
+//  switch (s->kind) {
+//  	case STMT_BLOCK:
+//      printf("\tSTMT_BLOCK\n");
+//      stmt_codegen(s->body);
+//  		break;
+//  	case STMT_DECL:
+//      printf("\tSTMT_DECL\n");
+//      decl_codegen(s->decl);
+//  		break;
+//    case STMT_EXPR:
+//      printf("\tSTMT_EXPR\n");
+//      expr_codegen(s->expr);
+//      break;
+//    case STMT_IF_ELSE:
+//      printf("STMT_IF_ELSE\n");
+//      break;
+//    case STMT_IF:
+//      printf("STMT_IF\n");
+//      break;
+//    case STMT_FOR:
+//      printf("STMT_FOR\n");
+//      break;
+//    case STMT_PRINT:
+//      printf("STMT_PRINT\n");
+//      break;
+//    case STMT_RETURN:
+//      printf("STMT_RETURN\n");
+//      return;
+//  }
+//  stmt_codegen(s->next);
+//}
+
+void stmt_codegen_first_pass(struct stmt *s) {
   if (!s) return;
-	switch (s->kind) {
-		case STMT_BLOCK:
+  switch (s->kind) {
+  	case STMT_BLOCK:
       printf("\tSTMT_BLOCK\n");
-      stmt_codegen(s->body);
-			break;
-		case STMT_DECL:
+      stmt_codegen_first_pass(s->body);
+  		break;
+  	case STMT_DECL:
       printf("\tSTMT_DECL\n");
-      decl_codegen(s->decl);
-			break;
+      first_pass(s->decl);
+  		break;
     case STMT_EXPR:
       printf("\tSTMT_EXPR\n");
-      expr_codegen(s->expr);
+      expr_gen_first_pass(s->expr->right);
       break;
     case STMT_IF_ELSE:
       printf("STMT_IF_ELSE\n");
@@ -149,27 +183,83 @@ void stmt_codegen(struct stmt *s) {
     case STMT_RETURN:
       printf("STMT_RETURN\n");
       return;
-	}
-  stmt_codegen(s->next);
+  }
+  stmt_codegen_first_pass(s->next);
 }
 
-void decl_codegen(struct decl *d) {
-  label_to_str = hash_table_create(1, 0);
+
+// STRING_LITERAL DONE
+// EXPR_ASSIGN DONE
+// EXPR_ARG DONE
+// EXPR_CALL DONE
+// EXPR_ARR DO LATER
+// EXPR_EQ DONE
+// EXPR_NEQ DONE
+void expr_gen_first_pass(struct expr* e) {
+    // Handle string literals
+    if(!e) return;
+    if(e->kind == EXPR_STRING_LITERAL) {
+      printf("\tCODE_GEN_STRING\n");
+      char* label = label_name(label_create());
+      hash_table_insert(label_to_str, label, e->string_literal);
+
+      printf("%s:\n", label);
+      printf("\t .string \"%s\"\n", e->string_literal);
+
+      e->reg = scratch_alloc();
+    } else if(e->kind == EXPR_ASSIGN) {
+      expr_gen_first_pass(e->right);
+    } else if(e->kind == EXPR_EQ || e->kind == EXPR_NEQ) {
+      expr_gen_first_pass(e->left);
+      expr_gen_first_pass(e->right);
+    } else if(e->kind == EXPR_ARG) {
+      expr_gen_first_pass(e->left);
+      expr_gen_first_pass(e->right);
+    } else if(e->kind == EXPR_INTEGER_LITERAL) {
+      expr_gen_first_pass(e->right);
+    } 
+}
+
+void first_pass(struct decl *d) {
 	if(!d) return;
 
   if(d->value) {
-    printf("\tDECL_VALUE\n");
+    //printf("\tDECL_VALUE\n");
     if(d->value->kind == EXPR_CALL) {
-      expr_codegen(d->value->left);
+       printf("EXPR_CALL\n");
+      expr_gen_first_pass(d->value->right);
     } else {
-      expr_codegen(d->value);
+      expr_gen_first_pass(d->value);
     }
-    printf("MOVQ %%%s, %s\n", scratch_name(d->value->reg), symbol_codegen(d->symbol));
   }
 
 	if(d->code) {
-      printf("\tDECL_FUNC\n");
-      stmt_codegen(d->code);
+      //printf("\tDECL_FUNC\n");
+      stmt_codegen_first_pass(d->code);
   }
-	decl_codegen(d->next);
+	first_pass(d->next);
 }
+
+void second_pass(struct decl *d) {
+  printf("second pass\n");
+}
+//void decl_codegen(struct decl *d) {
+//  label_to_str = hash_table_create(1, 0);
+//	if(!d) return;
+//
+//  if(d->value) {
+//    printf("\tDECL_VALUE\n");
+//    if(d->value->kind == EXPR_CALL) {
+//      expr_codegen(d->value->left);
+//    } else {
+//      expr_codegen(d->value);
+//    }
+//    printf("MOVQ %%%s, %s\n", scratch_name(d->value->reg), symbol_codegen(d->symbol));
+//  }
+//
+//	if(d->code) {
+//      printf("\tDECL_FUNC\n");
+//      stmt_codegen(d->code);
+//  }
+//	decl_codegen(d->next);
+//}
