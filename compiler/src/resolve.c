@@ -21,7 +21,7 @@ void decl_resolve(struct decl *d) {
 
 
   if(stack_size(&SYMBOL_STACK) > 0) scope_bind(d->name,d->symbol);
-   stack_print(&SYMBOL_STACK);
+  //  stack_print(&SYMBOL_STACK);
 
 	if(d->code) {
     if(stack_size(&SYMBOL_STACK) > 0) {

@@ -89,6 +89,8 @@ void run_codegen(const char* filename) {
   //printf("sym: %d\n", sym->kind);
   //const char* res = symbol_codegen(sym2);
   //printf("res: %s\n", res);
+  printf("===============\n");
   decl_codegen(parser_result);
+  printf("===============\n");
   printf("running codegen\n");
 }
