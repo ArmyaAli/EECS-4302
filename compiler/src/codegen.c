@@ -9,33 +9,33 @@ void expr_codegen(struct expr *e) {
     case EXPR_NAME:
       printf("\tCODE_GEN_EXPRNAME\n");
       e->reg = scratch_alloc();
-      printf("MOVQ %s, %s\n", symbol_codegen(e->symbol), scratch_name(e->reg));
+      printf("MOVQ %%%s, %%%s\n", symbol_codegen(e->symbol), scratch_name(e->reg));
       break;
     case EXPR_INTEGER_LITERAL:
       printf("\tCODE_GEN_INT\n");
       e->reg = scratch_alloc();
-      printf("MOVQ $%d, %s\n", e->literal_value, scratch_name(e->reg));
+      printf("MOVQ $%d, %%%s\n", e->literal_value, scratch_name(e->reg));
       break;
     case EXPR_STRING_LITERAL:
       printf("\tCODE_GEN_STRING\n");
       e->reg = scratch_alloc();
-      printf("MOVQ $%s, %s\n", e->string_literal, scratch_name(e->reg));
+      printf("MOVQ $%s, %%%s\n", e->string_literal, scratch_name(e->reg));
       break;
     case EXPR_CHAR_LITERAL:
       printf("\tCODE_GEN_CHAR\n");
       e->reg = scratch_alloc();
-      printf("MOVQ $%c, %s\n", e->literal_value, scratch_name(e->reg));
+      printf("MOVQ $%c, %%%s\n", e->literal_value, scratch_name(e->reg));
       break;
     case EXPR_BOOLEAN_LITERAL:
       printf("\tCODE_GEN_BOOLEAN\n");
       e->reg = scratch_alloc();
-      printf("MOVQ $%s, %s\n", e->literal_value == 0 ? "False" : "True", scratch_name(e->reg));
+      printf("MOVQ $%s, %%%s\n", e->literal_value == 0 ? "False" : "True", scratch_name(e->reg));
       break;
     case EXPR_ADD:
       printf("\tCODE_GEN_ADD\n");
       expr_codegen(e->left);
       expr_codegen(e->right);
-      printf("ADDQ %s, %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
+      printf("ADDQ %%%s, %%%s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
       e->reg = e->right->reg;
       scratch_free(e->left->reg);
       break;
@@ -43,7 +43,7 @@ void expr_codegen(struct expr *e) {
       printf("\tCODE_GEN_SUB\n");
       expr_codegen(e->left);
       expr_codegen(e->right);
-      printf("SUBQ %s, %s\n", scratch_name(e->right->reg), scratch_name(e->left->reg));
+      printf("SUBQ %%%s, %%%s\n", scratch_name(e->right->reg), scratch_name(e->left->reg));
       e->reg = e->left->reg;
       scratch_free(e->right->reg);
       break;
@@ -51,19 +51,20 @@ void expr_codegen(struct expr *e) {
       printf("\tCODE_GEN_MUL\n");
       expr_codegen(e->left);
       expr_codegen(e->right);
-      printf("IMUL %s \n", scratch_name(e->left->reg));
+      printf("IMUL %%%s \n", scratch_name(e->left->reg));
       e->reg = e->right->reg;
       scratch_free(e->left->reg);
       break;
     case EXPR_DIV: // to be discussed later
       printf("\tCODE_GEN_DIV\n");
-      expr_codegen(e->left);
-      expr_codegen(e->right);
-      printf("DIV %s, %s\n", scratch_name(e->left->reg),
-            scratch_name(e->right->reg));
-      e->reg = e->right->reg;
-      scratch_free(e->left->reg);
+      // expr_codegen(e->left);
+      // expr_codegen(e->right);
+      // printf("DIV %s, %s\n", scratch_name(e->left->reg),
+      //       scratch_name(e->right->reg));
+      // e->reg = e->right->reg;
+      // scratch_free(e->left->reg);
       break;
+
     case EXPR_ASSIGN:
       break;
     case EXPR_CALL:
@@ -72,6 +73,7 @@ void expr_codegen(struct expr *e) {
       break;
     case EXPR_SUBSCRIPT:
       break;
+    
     case EXPR_AND:
       printf("\tCODE_GEN_EXPR_AND\n");
       break;
@@ -79,6 +81,7 @@ void expr_codegen(struct expr *e) {
     case EXPR_NOT:break;
     case EXPR_EXP:break;
     case EXPR_MOD:break;
+
     case EXPR_LT:
     case EXPR_GT:
     case EXPR_LTE:
@@ -86,12 +89,20 @@ void expr_codegen(struct expr *e) {
       printf("\tCODE_GEN_EXPR_GT\n");
       expr_codegen(e->left);
       expr_codegen(e->right);
-      printf("CMPQ %s, %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
+      printf("CMPQ %%%s, %%%s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
       break;
+
     case EXPR_EQ:break;
     case EXPR_NEQ:break;
-    case EXPR_INCR:break;
-    case EXPR_DECR:break;
+    case EXPR_INCR:
+      printf("\tCODE_GEN_EXPR_INCR\n");
+      printf("INCQ %%%s\n", scratch_name(e->left->reg));
+      break;
+    case EXPR_DECR:
+      printf("\tCODE_GEN_EXPR_DECR\n");
+      printf("DECQ %%%s\n", scratch_name(e->left->reg));
+      break;
+
     case EXPR_ARR:break;
   }
 }
@@ -101,10 +112,13 @@ void stmt_codegen(struct stmt *s) {
   if (!s) return;
 	switch (s->kind) {
 		case STMT_BLOCK:
+      stmt_codegen(s->body);
 			break;
 		case STMT_DECL:
+      decl_codegen(s->decl);
 			break;
     case STMT_EXPR:
+      expr_codegen(s->expr);
       break;
     case STMT_IF_ELSE:
       break;
@@ -132,21 +146,8 @@ void decl_codegen(struct decl *d) {
     }
   }
 
-
 	if(d->code) {
-    //if(stack_size(&SYMBOL_STACK) > 0) {
-    //  current_stmt_type = FUNC;
-     // scope_enter();
-     // param_list_codegen(d->type->params);
       stmt_codegen(d->code);
-
-      // If we have a return statement, we should popoff stack till global scope 
-      // or exit scope as normal
-     // if(current_stmt_type == RETURN_TYPE && 
-     //   stack_size(&SYMBOL_STACK) > 1) {
-     //   return;
-     // }
     }
 	decl_codegen(d->next);
 }
-
