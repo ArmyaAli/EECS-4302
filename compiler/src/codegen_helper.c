@@ -38,13 +38,13 @@ int label_create() {
 }
 
 // NOTE(Ali): Dangling pointer, we have to look at this one again
-const char* label_name(int label) {
+char* label_name(int label) {
   char* labelstr = (char*)malloc(sizeof(char) * 32);
   sprintf(labelstr, ".L%d", label);
   return labelstr;
 }
 
-const char *symbol_codegen(struct symbol* s) {
+char *symbol_codegen(struct symbol* s) {
     char *result = NULL;
     int offset = 0;
     int byte_offset = 8;

@@ -2,6 +2,8 @@
 #include "include/codegen_helper.h"
 #include <stdio.h>
 
+struct hash_table* label_to_str;
+
 void expr_codegen(struct expr *e) {
   if (!e) return;
 
@@ -18,8 +20,15 @@ void expr_codegen(struct expr *e) {
       break;
     case EXPR_STRING_LITERAL:
       printf("\tCODE_GEN_STRING\n");
+
+      char* label = label_name(label_create());
+      hash_table_insert(label_to_str, e->string_literal, label);
+
+      printf("%s\n", label);
+      printf("\t .string \"%s\"\n", e->string_literal);
+
       e->reg = scratch_alloc();
-      printf("MOVQ $%s, %%%s\n", e->string_literal, scratch_name(e->reg));
+      printf("MOVQ $%s, %%%s\n", label, scratch_name(e->reg));
       break;
     case EXPR_CHAR_LITERAL:
       printf("\tCODE_GEN_CHAR\n");
@@ -67,7 +76,6 @@ void expr_codegen(struct expr *e) {
 
     case EXPR_ASSIGN:
       printf("\tCODE_GEN_EXPR_ASSIGN\n");
-      expr_codegen(e->left);
       expr_codegen(e->right);
       printf("MOVQ %%%s, %s\n", scratch_name(e->right->reg), symbol_codegen(e->left->symbol));
       break;
@@ -146,6 +154,7 @@ void stmt_codegen(struct stmt *s) {
 }
 
 void decl_codegen(struct decl *d) {
+  label_to_str = hash_table_create(1, 0);
 	if(!d) return;
 
   if(d->value) {

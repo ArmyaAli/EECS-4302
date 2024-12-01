@@ -5,6 +5,7 @@
 #include "stmt.h"
 #include "decl.h"
 #include "symbol.h"
+#include "hash_table.h"
 
 void expr_codegen(struct expr *e);
 void stmt_codegen(struct stmt *s);
