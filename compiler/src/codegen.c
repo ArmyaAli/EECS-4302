@@ -11,7 +11,7 @@ void expr_codegen(struct expr *e) {
     case EXPR_NAME:
       printf("\tCODE_GEN_EXPRNAME\n");
       e->reg = scratch_alloc();
-      printf("MOVQ %%%s, %%%s\n", symbol_codegen(e->symbol), scratch_name(e->reg));
+      printf("MOVQ %s, %%%s\n", symbol_codegen(e->symbol), scratch_name(e->reg));
       break;
     case EXPR_INTEGER_LITERAL:
       printf("\tCODE_GEN_INT\n");
