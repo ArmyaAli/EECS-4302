@@ -4,13 +4,40 @@
 
 extern struct hash_table* label_to_str;
 
+typedef struct frame {
+  char reg[5];
+  char var_name[10];
+  int offset;
+} frame_t;
+
+frame_t stack[1000];
+int sp = 0;
+
+extern struct hash_table* label_to_str;
+
 void expr_codegen(struct expr *e) {
   if (!e) return;
 
   switch (e->kind) {
     case EXPR_NAME:
       printf("\tCODE_GEN_EXPRNAME\n");
-      e->reg = scratch_alloc();
+
+      int should_add = 1;
+      for(int i = 0; i < sp; ++i) {
+        if(strcmp(e->name, stack[i].var_name) == 0) {
+          should_add = 0;
+        }
+      }
+
+      if(should_add) e->reg = scratch_alloc();
+
+      frame_t f;
+      strcpy(f.reg, scratch_name(e->reg));
+      strcpy(f.var_name, e->name);
+      f.offset = (8 * e->symbol->which) + 8;
+      stack[sp] = f;
+      ++sp;
+
       printf("MOVQ %s, %%%s\n", symbol_codegen(e->symbol), scratch_name(e->reg));
       break;
     case EXPR_INTEGER_LITERAL:
