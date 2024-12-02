@@ -12,5 +12,20 @@ main: function void (x: integer, y: string) = {
 	x: string = "ali1";
 	y: string = "adnan";
 	f1("jesus", 10, "moses", "bob3" , "mohammad");
-	return 0;
+	if ("abc" != "asd") {
+		newStr1: string = "ifStr1";
+	}
+	
+	if ("321" == "123") {
+		newStr2: string = "ifStr2";
+	}
+	else {
+		elseStr2: string = "elseStr2";
+	}
+
+	for (i = "a"; i < 32; i ++) {
+		forbody: string = "forBody1";
+	}
+	print "hello1", "hello2", "hello3";
+	return "returnString";
 }

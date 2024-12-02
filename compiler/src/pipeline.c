@@ -97,12 +97,21 @@ void run_codegen(const char* filename) {
   // Allocate our hash table for labels
   label_to_str = hash_table_create(1, 0);
   run_parser(filename);
+  printf("--------------------------------\n");
   run_resolve(filename);
+  printf("--------------------------------\n");
   // Step 1
   printf(".file\t\"%s\"\n", filename);
+
   // Step 2
   // Generate the .data label
   printf(".data\n");
   // Perform first pass on AST
   first_pass(parser_result);
+
+  printf("--------------------------------\n");
+  
+  // Step 3
+  printf(".text\n");
+  second_pass(parser_result);
 }

@@ -20,15 +20,7 @@ void expr_codegen(struct expr *e) {
       break;
     case EXPR_STRING_LITERAL:
       printf("\tCODE_GEN_STRING\n");
-
-      char* label = label_name(label_create());
-      hash_table_insert(label_to_str, e->string_literal, label);
-
-      printf("%s\n", label);
-      printf("\t .string \"%s\"\n", e->string_literal);
-
       e->reg = scratch_alloc();
-      printf("MOVQ $%s, %%%s\n", label, scratch_name(e->reg));
       break;
     case EXPR_CHAR_LITERAL:
       printf("\tCODE_GEN_CHAR\n");
@@ -119,74 +111,98 @@ void expr_codegen(struct expr *e) {
   }
 }
 
-//void stmt_codegen(struct stmt *s) {
-//  if (!s) return;
-//  switch (s->kind) {
-//  	case STMT_BLOCK:
-//      printf("\tSTMT_BLOCK\n");
-//      stmt_codegen(s->body);
-//  		break;
-//  	case STMT_DECL:
-//      printf("\tSTMT_DECL\n");
-//      decl_codegen(s->decl);
-//  		break;
-//    case STMT_EXPR:
-//      printf("\tSTMT_EXPR\n");
-//      expr_codegen(s->expr);
-//      break;
-//    case STMT_IF_ELSE:
-//      printf("STMT_IF_ELSE\n");
-//      break;
-//    case STMT_IF:
-//      printf("STMT_IF\n");
-//      break;
-//    case STMT_FOR:
-//      printf("STMT_FOR\n");
-//      break;
-//    case STMT_PRINT:
-//      printf("STMT_PRINT\n");
-//      break;
-//    case STMT_RETURN:
-//      printf("STMT_RETURN\n");
-//      return;
-//  }
-//  stmt_codegen(s->next);
-//}
+void stmt_codegen(struct stmt *s) {
+ if (!s) return;
+ switch (s->kind) {
+ 	case STMT_BLOCK:
+     printf("\tSTMT_BLOCK\n");
+     stmt_codegen(s->body);
+ 		break;
+ 	case STMT_DECL:
+     printf("\tSTMT_DECL\n");
+     decl_codegen(s->decl);
+ 		break;
+   case STMT_EXPR:
+     printf("\tSTMT_EXPR\n");
+     expr_codegen(s->expr);
+     break;
+   case STMT_IF_ELSE:
+     printf("STMT_IF_ELSE\n");
+     break;
+   case STMT_IF:
+     printf("STMT_IF\n");
+     break;
+   case STMT_FOR:
+     printf("STMT_FOR\n");
+     break;
+   case STMT_PRINT:
+     printf("STMT_PRINT\n");
+     break;
+   case STMT_RETURN:
+     printf("STMT_RETURN\n");
+     return;
+ }
+ stmt_codegen(s->next);
+}
+
+void decl_codegen(struct decl *d) {
+	if(!d) return;
+
+ if(d->value) {
+   printf("\tDECL_VALUE\n");
+   if(d->value->kind == EXPR_CALL) {
+     expr_codegen(d->value->left);
+   } else {
+     expr_codegen(d->value);
+   }
+   printf("MOVQ %%%s, %s\n", scratch_name(d->value->reg), symbol_codegen(d->symbol));
+ }
+
+	if(d->code) {
+     printf("\tDECL_FUNC\n");
+     stmt_codegen(d->code);
+ }
+	decl_codegen(d->next);
+}
+
+void second_pass(struct decl *d) {
+  printf("second pass\n");
+  decl_codegen(d);
+}
 
 void stmt_codegen_first_pass(struct stmt *s) {
   if (!s) return;
   switch (s->kind) {
   	case STMT_BLOCK:
-      printf("\tSTMT_BLOCK\n");
       stmt_codegen_first_pass(s->body);
   		break;
   	case STMT_DECL:
-      printf("\tSTMT_DECL\n");
       first_pass(s->decl);
   		break;
     case STMT_EXPR:
-      printf("\tSTMT_EXPR\n");
       expr_gen_first_pass(s->expr->right);
       break;
     case STMT_IF_ELSE:
-      printf("STMT_IF_ELSE\n");
+      expr_gen_first_pass(s->expr);
+      stmt_codegen_first_pass(s->body);
+      stmt_codegen_first_pass(s->else_body);
       break;
     case STMT_IF:
-      printf("STMT_IF\n");
+      expr_gen_first_pass(s->expr);
+      stmt_codegen_first_pass(s->body);
       break;
     case STMT_FOR:
-      printf("STMT_FOR\n");
+      stmt_codegen_first_pass(s->body);
       break;
     case STMT_PRINT:
-      printf("STMT_PRINT\n");
+      expr_gen_first_pass(s->expr);
       break;
     case STMT_RETURN:
-      printf("STMT_RETURN\n");
+      expr_gen_first_pass(s->expr);
       return;
   }
   stmt_codegen_first_pass(s->next);
 }
-
 
 // STRING_LITERAL DONE
 // EXPR_ASSIGN DONE
@@ -199,7 +215,6 @@ void expr_gen_first_pass(struct expr* e) {
     // Handle string literals
     if(!e) return;
     if(e->kind == EXPR_STRING_LITERAL) {
-      printf("\tCODE_GEN_STRING\n");
       char* label = label_name(label_create());
       hash_table_insert(label_to_str, label, e->string_literal);
 
@@ -224,9 +239,7 @@ void first_pass(struct decl *d) {
 	if(!d) return;
 
   if(d->value) {
-    //printf("\tDECL_VALUE\n");
     if(d->value->kind == EXPR_CALL) {
-      printf("EXPR_CALL\n");
       expr_gen_first_pass(d->value->right);
     } else {
       expr_gen_first_pass(d->value);
@@ -244,32 +257,7 @@ void first_pass(struct decl *d) {
   }
 
 	if(d->code) {
-      //printf("\tDECL_FUNC\n");
       stmt_codegen_first_pass(d->code);
   }
 	first_pass(d->next);
 }
-
-void second_pass(struct decl *d) {
-  printf("second pass\n");
-}
-//void decl_codegen(struct decl *d) {
-//  label_to_str = hash_table_create(1, 0);
-//	if(!d) return;
-//
-//  if(d->value) {
-//    printf("\tDECL_VALUE\n");
-//    if(d->value->kind == EXPR_CALL) {
-//      expr_codegen(d->value->left);
-//    } else {
-//      expr_codegen(d->value);
-//    }
-//    printf("MOVQ %%%s, %s\n", scratch_name(d->value->reg), symbol_codegen(d->symbol));
-//  }
-//
-//	if(d->code) {
-//      printf("\tDECL_FUNC\n");
-//      stmt_codegen(d->code);
-//  }
-//	decl_codegen(d->next);
-//}
