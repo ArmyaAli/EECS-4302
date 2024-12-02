@@ -226,10 +226,20 @@ void first_pass(struct decl *d) {
   if(d->value) {
     //printf("\tDECL_VALUE\n");
     if(d->value->kind == EXPR_CALL) {
-       printf("EXPR_CALL\n");
+      printf("EXPR_CALL\n");
       expr_gen_first_pass(d->value->right);
     } else {
       expr_gen_first_pass(d->value);
+    }
+
+    if(d->value->kind == EXPR_INTEGER_LITERAL) {
+      printf("%s:\t.quad\t%d\n", d->symbol->name, d->value->literal_value);
+    }
+    if(d->value->kind == EXPR_CHAR_LITERAL) {
+      printf("%s:\t.quad\t%c\n", d->symbol->name, d->value->literal_value);
+    }
+    if(d->value->kind == EXPR_BOOLEAN_LITERAL) {
+      printf("%s:\t.quad\t%s\n", d->symbol->name, d->value->literal_value == 1 ? "true" : "false");
     }
   }
 
