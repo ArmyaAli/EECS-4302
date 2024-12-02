@@ -1,5 +1,8 @@
 bob: string = "bob";
 m: string = "alik";
+m1: integer = 23;
+m2: boolean = true;
+m3: char = 'a';
 
 f1: function void (x: integer, y: string, k: string, k1: integer, k3: string) = {
 	x: string = "alix";
