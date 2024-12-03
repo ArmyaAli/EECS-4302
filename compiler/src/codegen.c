@@ -31,20 +31,20 @@ void expr_codegen(struct expr *e) {
       }
 
       // allocate a new register only if previous allocations haven't been made
-      if(should_add) e->reg = scratch_alloc();
-
-      frame_t f;
-      strcpy(f.reg, scratch_name(e->reg));
-      strcpy(f.var_name, e->name);
-      f.offset = (8 * e->symbol->which) + 8;
-      stack[sp] = f;
-      ++sp;
-
-      if (e->symbol->kind == SYMBOL_GLOBAL) {
-        printf("LEAQ %s, %%%s\n", symbol_codegen(e->symbol), scratch_name(e->reg));
-      }
-      else {
-        printf("MOVQ %s, %%%s\n", symbol_codegen(e->symbol), scratch_name(e->reg));
+      if(should_add) {
+        e->reg = scratch_alloc();
+        frame_t f;
+        strcpy(f.reg, scratch_name(e->reg));
+        strcpy(f.var_name, e->name);
+        f.offset = (8 * e->symbol->which) + 8;
+        stack[sp] = f;
+        ++sp;
+        if (e->symbol->kind == SYMBOL_GLOBAL) {
+          printf("LEAQ %s, %%%s\n", symbol_codegen(e->symbol), scratch_name(e->reg));
+        }
+        else {
+          printf("MOVQ %s, %%%s\n", symbol_codegen(e->symbol), scratch_name(e->reg));
+        }
       }
       break;
     case EXPR_INTEGER_LITERAL:
@@ -86,7 +86,7 @@ void expr_codegen(struct expr *e) {
       printf("\tCODE_GEN_MUL\n");
       expr_codegen(e->left);
       expr_codegen(e->right);
-      printf("IMUL %%%s \n", scratch_name(e->left->reg));
+      printf("IMUL %%%s \n", scratch_name(e->right->reg));
       e->reg = e->right->reg;
       scratch_free(e->left->reg);
       break;
