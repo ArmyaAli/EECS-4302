@@ -4,5 +4,9 @@ b: boolean;
 c: boolean;
 
 f: function void () = {
-    c = ((!a) && (!b));
+    // c = ((!a) || (!b));
+
+    for (i = 0; i < 5; i++) {
+        
+    }
 }
