@@ -1,0 +1,8 @@
+// sample expression of pg 184
+a: boolean;
+b: boolean;
+c: boolean;
+
+f: function void () = {
+    c = ((!a) && (!b));
+}

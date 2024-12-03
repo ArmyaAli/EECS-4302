@@ -103,6 +103,8 @@ void expr_codegen(struct expr *e) {
     case EXPR_ASSIGN:
       printf("\tCODE_GEN_EXPR_ASSIGN\n");
       expr_codegen(e->right);
+
+      printf("assign right side type: %d\n", e->right->kind);
       printf("MOVQ %%%s, %s\n", scratch_name(e->right->reg), symbol_codegen(e->left->symbol));
       break;
     case EXPR_CALL:
@@ -114,9 +116,36 @@ void expr_codegen(struct expr *e) {
     
     case EXPR_AND:
       printf("\tCODE_GEN_EXPR_AND\n");
+      expr_codegen(e->left);
+      expr_codegen(e->right);
+
+      if (e->left->kind == EXPR_NOT) {
+        printf("ANDQ %%%s, %%%s\n", scratch_name(e->left->left->reg), scratch_name(e->right->reg));
+        e->reg = e->right->left->reg;
+        scratch_free(e->left->reg);
+      }
+      else if (e->right->kind == EXPR_NOT) {
+        printf("ANDQ %%%s, %%%s\n", scratch_name(e->left->reg), scratch_name(e->right->left->reg));
+        e->reg = e->right->left->reg;
+        scratch_free(e->left->reg);
+      }
+      else if (e->left->kind == EXPR_NOT && e->right->kind == EXPR_NOT) {
+        printf("ANDQ %%%s, %%%s\n", scratch_name(e->left->left->reg), scratch_name(e->right->left->reg));
+        e->reg = e->right->left->reg;
+        scratch_free(e->left->reg);
+      }
+      else {
+        printf("ANDQ %%%s, %%%s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
+        e->reg = e->right->reg;
+        scratch_free(e->left->reg);
+      }
       break;
     case EXPR_OR:break;
-    case EXPR_NOT:break;
+    case EXPR_NOT:
+      printf("\tCODE_GEN_EXPR_NOT\n");
+      expr_codegen(e->left);
+      printf("NOTQ %%%s\n", scratch_name(e->left->reg));
+      break;
     case EXPR_EXP:break;
     case EXPR_MOD:break;
 
