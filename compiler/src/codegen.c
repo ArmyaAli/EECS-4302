@@ -10,7 +10,7 @@ typedef struct frame {
   int offset;
 } frame_t;
 
-frame_t stack[1000];
+frame_t stack[1000]; // will store variables that have registers
 int sp = 0;
 
 extern struct hash_table* label_to_str;
@@ -26,9 +26,11 @@ void expr_codegen(struct expr *e) {
       for(int i = 0; i < sp; ++i) {
         if(strcmp(e->name, stack[i].var_name) == 0) {
           should_add = 0;
+          break;
         }
       }
 
+      // allocate a new register only if previous allocations haven't been made
       if(should_add) e->reg = scratch_alloc();
 
       frame_t f;
@@ -38,7 +40,12 @@ void expr_codegen(struct expr *e) {
       stack[sp] = f;
       ++sp;
 
-      printf("MOVQ %s, %%%s\n", symbol_codegen(e->symbol), scratch_name(e->reg));
+      if (e->symbol->kind == SYMBOL_GLOBAL) {
+        printf("LEAQ %s, %%%s\n", symbol_codegen(e->symbol), scratch_name(e->reg));
+      }
+      else {
+        printf("MOVQ %s, %%%s\n", symbol_codegen(e->symbol), scratch_name(e->reg));
+      }
       break;
     case EXPR_INTEGER_LITERAL:
       printf("\tCODE_GEN_INT\n");
