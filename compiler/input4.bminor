@@ -6,7 +6,8 @@ c: boolean;
 f: function void () = {
     // c = ((!a) || (!b));
 
-    for (i = 0; i <= 5; i++) {
+    for (i = 0 + 32; i <= 5; i++) {
 
     }
 }
+

@@ -84,13 +84,13 @@ void stmt_resolve(struct stmt *s) {
       break;
     case STMT_IF_ELSE:
       //FUNC = 0;
-      current_stmt_type = -1;
-      if (!s->expr) expr_resolve(s->expr);
+      current_stmt_type = BLOCK;
+      expr_resolve(s->expr);
       stmt_resolve(s->body);
       stmt_resolve(s->else_body);
       break;
     case STMT_IF:
-      current_stmt_type = -1;
+      current_stmt_type = BLOCK;
       expr_resolve(s->expr);
       stmt_resolve(s->body);
       break;

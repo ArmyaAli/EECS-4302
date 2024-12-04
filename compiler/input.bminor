@@ -1,5 +1,6 @@
 f: function void ( x: integer, y: integer ) = {
-	z: integer = 10;
+    z: integer = "hi";
     z++;
     z--;
+    z = z + 1;
 }

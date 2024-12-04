@@ -1,6 +1,8 @@
+a: integer; // -24(%rbp)
+b: integer; // -32(%rbp)
+c: integer;
+
 f: function void ( x: integer, y: integer ) = {
-    // c = b*(b+a)
-    a: integer; // -24(%rbp)
-    b: integer; // -32(%rbp)
-    c: integer = b * (b + a);
+    //c = b*(b+a);
+    c = a + b + b;
 }

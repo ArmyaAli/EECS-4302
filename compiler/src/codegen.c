@@ -108,6 +108,8 @@ void expr_codegen(struct expr *e) {
     case EXPR_CALL:
       break;
     case EXPR_ARG:
+      expr_codegen(e->left);
+      expr_codegen(e->right);
       break;
     case EXPR_SUBSCRIPT:
       break;
@@ -214,61 +216,54 @@ void stmt_codegen(struct stmt *s) {
      break;
    case STMT_IF_ELSE:
      printf("STMT_IF_ELSE\n");
+     expr_codegen(s->expr);
+     if (s->expr->kind == EXPR_GT) {
+      char* label_if = label_name(label_create());
+      printf("\tJG %s\n", label_if);
+      printf("%s: \n", label_if);
+      stmt_codegen(s->body);
+
+      char* label_if_else = label_name(label_create());
+      printf("%s: \n", label_if_else);
+      stmt_codegen(s->else_body);
+     }
      break;
    case STMT_IF:
      printf("STMT_IF\n");
      break;
    case STMT_FOR:
      printf("STMT_FOR\n");
-     /* The reason we didn't call recursive expr_codegen functions is because that would print additional instructions that we don't want */
-     if (s->init_expr) {
-      printf("\tMOVQ $%d, %%%s\n", s->init_expr->literal_value, scratch_name(s->init_expr->reg));
-     }
-     
-     // next_expr, i.e., i ++
-     if (s->next_expr) {
-      printf("loop:  ");
-      if (s->next_expr->kind == EXPR_INCR) {
-        printf("\tINCQ %%%s\n", scratch_name(s->next_expr->left->reg));
-      } else if (s->next_expr->kind == EXPR_DECR) {
-        printf("\tDECQ %%%s\n", scratch_name(s->next_expr->left->reg));
-      }
-     }
-
-     // expr, i.e., i < 5
-     if (s->expr) {
-       printf("\tCMPQ $%d, %%%s\n", s->expr->right->literal_value, scratch_name(s->expr->left->reg));
-     }
-
-     if (!s->expr) {
-      printf("\tJMP  loop\n");
-     }
-     else {
-        if (s->expr->kind == EXPR_LT) {
-          printf("\tJL  loop\n");
-        } else if (s->expr->kind == EXPR_LTE) {
-          printf("\tJLE  loop\n");
-        } else if (s->expr->kind == EXPR_GT) {
-          printf("\tJG  loop\n");
-        } else if (s->expr->kind == EXPR_GTE) {
-          printf("\tJGE  loop\n");
-        } else if (s->expr->kind == EXPR_EQ) {
-          printf("\tJE  loop\n");
-        } else if (s->expr->kind == EXPR_NEQ) {
-          printf("\tJNE  loop\n");
-        }   
-      }
       /* This alternative will print additional instructions that doesn't match the instructions as defined in pg. 158 of the textbook */
-      //  expr_codegen(s->init_expr);
-      //  printf("loop:\t");
-      //  expr_codegen(s->next_expr);
-      //  expr_codegen(s->expr);
+       expr_codegen(s->init_expr);
+       printf("loop:\t");
+       expr_codegen(s->next_expr);
+       expr_codegen(s->expr);
+
+      if (!s->expr) {
+        printf("\tJMP  loop\n");
+      } else {
+          if (s->expr->kind == EXPR_LT) {
+            printf("\tJL  loop\n");
+          } else if (s->expr->kind == EXPR_LTE) {
+            printf("\tJLE  loop\n");
+          } else if (s->expr->kind == EXPR_GT) {
+            printf("\tJG  loop\n");
+          } else if (s->expr->kind == EXPR_GTE) {
+            printf("\tJGE  loop\n");
+          } else if (s->expr->kind == EXPR_EQ) {
+            printf("\tJE  loop\n");
+          } else if (s->expr->kind == EXPR_NEQ) {
+            printf("\tJNE  loop\n");
+          }   
+        }
      break;
    case STMT_PRINT:
      printf("STMT_PRINT\n");
+     expr_codegen(s->expr);
      break;
    case STMT_RETURN:
      printf("STMT_RETURN\n");
+     expr_codegen(s->expr);
      return;
  }
  stmt_codegen(s->next);
@@ -280,7 +275,7 @@ void decl_codegen(struct decl *d) {
  if(d->value) {
    printf("DECL_VALUE\n");
    if(d->value->kind == EXPR_CALL) {
-     expr_codegen(d->value->left);
+     expr_codegen(d->value->right);
    } else {
      expr_codegen(d->value);
    }
