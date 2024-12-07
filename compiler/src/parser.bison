@@ -110,11 +110,26 @@ declaration : function_declaration { $$ = $1; }
 
 // Variable declaration can be either initialized or uninitialized
 var_declaration : identifier TOKEN_TYPE_ASSIGNMENT type_specifier TOKEN_SEMICOLON 
-    { 
+    {
+        printf("TYPE: %d\n", $3->kind);
+        struct expr* e = NULL;
+        if ($3->kind == TYPE_INTEGER) {
+            e = expr_create_integer_literal(0);
+        }
+        else if ($3->kind == TYPE_STRING) {
+            printf("typestr detected\n");
+            e = expr_create_string_literal("ab");
+        }
+        else if ($3->kind == TYPE_BOOLEAN) {
+            e = expr_create_boolean_literal(0);
+        }
+        else if ($3->kind == TYPE_CHARACTER) {
+            e = expr_create_char_literal(0);
+        }
         $$ = decl_create (
             $1->name,
             $3,
-            NULL,
+            e,
             NULL,
             NULL
         );

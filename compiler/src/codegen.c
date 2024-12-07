@@ -378,8 +378,11 @@ void first_pass(struct decl *d) {
     if(d->value->kind == EXPR_BOOLEAN_LITERAL) {
       printf("%s:\t.quad\t%s\n", d->symbol->name, d->value->literal_value == 1 ? "true" : "false");
     }
+    if(d->value->kind == EXPR_STRING_LITERAL) {
+      printf("%s:\t.quad\t\"%s\"\n", d->symbol->name, d->value->string_literal);
+    }
   }
-
+  
 	if(d->code) {
       stmt_codegen_first_pass(d->code);
   }
