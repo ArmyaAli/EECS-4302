@@ -118,7 +118,7 @@ var_declaration : identifier TOKEN_TYPE_ASSIGNMENT type_specifier TOKEN_SEMICOLO
         }
         else if ($3->kind == TYPE_STRING) {
             printf("typestr detected\n");
-            e = expr_create_string_literal("ab");
+            e = expr_create_string_literal("");
         }
         else if ($3->kind == TYPE_BOOLEAN) {
             e = expr_create_boolean_literal(0);
@@ -136,7 +136,8 @@ var_declaration : identifier TOKEN_TYPE_ASSIGNMENT type_specifier TOKEN_SEMICOLO
     }
     ;
 | identifier TOKEN_TYPE_ASSIGNMENT type_specifier TOKEN_ASSIGNMENT expr TOKEN_SEMICOLON 
-    { 
+    {
+        printf("decl_expr: %d\n", $5->literal_value);
         $$ = decl_create (
             $1->name,
             $3,
@@ -558,7 +559,7 @@ incr_decr : identifier TOKEN_INCR { printf("PARSERBISON\n"); $$ = expr_create(EX
 | identifier TOKEN_DECR { $$ = expr_create(EXPR_DECR, $1, NULL)           ; }
 ;
 
-arg_list : arg_list TOKEN_COMMA arg_list { $$ = expr_create(EXPR_ARG, $1, $3) ; }
+arg_list : expr TOKEN_COMMA arg_list { $$ = expr_create(EXPR_ARG, $1, $3) ; }
 | expr { $$ = $1                                                                 ; }
 | { $$ = 0                                                                       ; }
 ;

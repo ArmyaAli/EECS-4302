@@ -1,5 +1,7 @@
 #include "include/codegen.h"
 #include "include/codegen_helper.h"
+#include "include/library.h"
+#include "include/typecheck.h"
 #include <stdio.h>
 
 extern struct hash_table* label_to_str;
@@ -259,7 +261,19 @@ void stmt_codegen(struct stmt *s) {
      break;
    case STMT_PRINT:
      printf("STMT_PRINT\n");
-     expr_codegen(s->expr);
+     
+     /* Use library.c instructions to print instead of generating code for the arg, list passed in print */
+     struct expr* current = s->expr;
+     while (current) {
+      struct type* t = expr_typecheck(current);
+      printf("TYPE IS: %d\n",  t->kind);
+      if (t->kind == TYPE_INTEGER) print_integer(current->literal_value);
+      if (t->kind == TYPE_BOOLEAN) print_boolean(current->literal_value);
+      if (t->kind == TYPE_CHARACTER) print_character(current->literal_value);
+      if (t->kind == TYPE_STRING) print_character((char*) current->string_literal);
+      current = current->right;
+     }
+
      break;
    case STMT_RETURN:
      printf("STMT_RETURN\n");
@@ -379,10 +393,10 @@ void first_pass(struct decl *d) {
       printf("%s:\t.quad\t%s\n", d->symbol->name, d->value->literal_value == 1 ? "true" : "false");
     }
     if(d->value->kind == EXPR_STRING_LITERAL) {
-      printf("%s:\t.quad\t\"%s\"\n", d->symbol->name, d->value->string_literal);
+      printf("%s:\t.string\t\"%s\"\n", d->symbol->name, d->value->string_literal);
     }
   }
-  
+
 	if(d->code) {
       stmt_codegen_first_pass(d->code);
   }
