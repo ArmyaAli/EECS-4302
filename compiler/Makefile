@@ -30,6 +30,8 @@ OBJ_FILES=$(addprefix $(DIST)/, \
 	 scope.o \
 	 codegen.o \
 	 codegen_helper.o \
+	 first_pass.o \
+	 second_pass.o \
 	 write_stream.o)
 
 
@@ -48,8 +50,11 @@ $(SRC)/parser.c $(INC)/token.h: $(SRC)/parser.bison
 clean:
 	rm -f $(INC)/token.h $(SRC)/scanner.c $(SRC)/parser.c $(SRC)/parser.output $(DIST)/*.o $(DIST)/bminor
 
-assembly: 
+asm: 
 	as asm -o asm.o
 	ld -o asm.out asm.o
 	chmod 744 asm.out
 
+
+codegen: asm
+	./asm.out
