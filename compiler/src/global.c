@@ -13,3 +13,7 @@ int ERROR_COUNTER = 0;
 
 // assembler output buffer
 char* asm_output;
+int asm_output_offset = 0;
+
+frame_t stack[1000]; // will store variables that have registers
+int sp = 0;

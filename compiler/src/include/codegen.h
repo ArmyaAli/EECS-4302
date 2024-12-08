@@ -7,12 +7,20 @@
 #include "symbol.h"
 #include "hash_table.h"
 
-void expr_codegen(struct expr *e);
-void stmt_codegen(struct stmt *s);
-void decl_codegen(struct decl *d);
-void expr_gen_first_pass(struct expr* e);
+typedef struct frame {
+  char reg[5];
+  char var_name[10];
+  int offset;
+} frame_t;
+
 void first_pass(struct decl *d);
+void expr_codegen_first_pass(struct expr* e);
+void stmt_codegen_first_pass(struct stmt *s);
+
 void second_pass(struct decl *d);
+void expr_codegen_second_pass(struct expr* e);
+void stmt_codegen_second_pass(struct stmt *s);
+
 
 void init_asm_output();
 void destroy_asm_output();

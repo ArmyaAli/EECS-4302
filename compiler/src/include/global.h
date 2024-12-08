@@ -2,6 +2,7 @@
 #define GLOBAL_H
 
 #include "stack.h"
+#include "codegen.h"
 #include <stdio.h>
 
 // flex
