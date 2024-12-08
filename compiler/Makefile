@@ -49,5 +49,7 @@ clean:
 	rm -f $(INC)/token.h $(SRC)/scanner.c $(SRC)/parser.c $(SRC)/parser.output $(DIST)/*.o $(DIST)/bminor
 
 assembly: 
-	as asm -o asm.out
+	as asm -o asm.o
+	ld -o asm.out asm.o
+	chmod 744 asm.out
 
