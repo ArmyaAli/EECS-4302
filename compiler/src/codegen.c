@@ -1,10 +1,11 @@
 #include "include/codegen.h"
 #include "include/codegen_helper.h"
-#include "include/library.h"
-#include "include/typecheck.h"
 #include <stdio.h>
+#include <stdlib.h>
 
 extern struct hash_table* label_to_str;
+extern char* asm_output;
+int asm_output_offset = 0;
 
 typedef struct frame {
   char reg[5];
@@ -43,9 +44,11 @@ void expr_codegen(struct expr *e) {
         ++sp;
         if (e->symbol->kind == SYMBOL_GLOBAL) {
           printf("\tLEAQ %s, %%%s\n", symbol_codegen(e->symbol), scratch_name(e->reg));
+          asm_output_offset += sprintf(asm_output + asm_output_offset, "\tLEAQ %s, %%%s\n", symbol_codegen(e->symbol), scratch_name(e->reg));
         }
         else {
           printf("\tMOVQ %s, %%%s\n", symbol_codegen(e->symbol), scratch_name(e->reg));
+          asm_output_offset += sprintf(asm_output + asm_output_offset, "\tMOVQ %s, %%%s\n", symbol_codegen(e->symbol), scratch_name(e->reg));
         }
       }
       break;
@@ -53,6 +56,7 @@ void expr_codegen(struct expr *e) {
       printf("CODE_GEN_INT\n");
       e->reg = scratch_alloc();
       printf("\tMOVQ $%d, %%%s\n", e->literal_value, scratch_name(e->reg));
+      asm_output_offset += sprintf(asm_output + asm_output_offset, "\tMOVQ $%d, %%%s\n", e->literal_value, scratch_name(e->reg));
       break;
     case EXPR_STRING_LITERAL:
       printf("CODE_GEN_STRING\n");
@@ -62,17 +66,20 @@ void expr_codegen(struct expr *e) {
       printf("CODE_GEN_CHAR\n");
       e->reg = scratch_alloc();
       printf("\tMOVQ $%c, %%%s\n", e->literal_value, scratch_name(e->reg));
+      asm_output_offset += sprintf(asm_output + asm_output_offset, "\tMOVQ $%c, %%%s\n", e->literal_value, scratch_name(e->reg));
       break;
     case EXPR_BOOLEAN_LITERAL:
       printf("CODE_GEN_BOOLEAN\n");
       e->reg = scratch_alloc();
       printf("\tMOVQ $%s, %%%s\n", e->literal_value == 0 ? "False" : "True", scratch_name(e->reg));
+      asm_output_offset += sprintf(asm_output + asm_output_offset, "\tMOVQ $%s, %%%s\n", e->literal_value == 0 ? "False" : "True", scratch_name(e->reg));
       break;
     case EXPR_ADD:
       printf("CODE_GEN_ADD\n");
       expr_codegen(e->left);
       expr_codegen(e->right);
       printf("\tADDQ %%%s, %%%s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
+      printf(asm_output + asm_output_offset, "\tADDQ %%%s, %%%s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
       e->reg = e->right->reg;
       scratch_free(e->left->reg);
       break;
@@ -81,6 +88,7 @@ void expr_codegen(struct expr *e) {
       expr_codegen(e->left);
       expr_codegen(e->right);
       printf("\tSUBQ %%%s, %%%s\n", scratch_name(e->right->reg), scratch_name(e->left->reg));
+      asm_output_offset += sprintf(asm_output + asm_output_offset, "\tSUBQ %%%s, %%%s\n", scratch_name(e->right->reg), scratch_name(e->left->reg));
       e->reg = e->left->reg;
       scratch_free(e->right->reg);
       break;
@@ -90,9 +98,12 @@ void expr_codegen(struct expr *e) {
       expr_codegen(e->right);
 
       printf("\tMOVQ %%%s, %%rax\n", scratch_name(e->left->reg));
+      asm_output_offset += sprintf(asm_output + asm_output_offset, "\tMOVQ %%%s, %%rax\n", scratch_name(e->left->reg));
       printf("\tIMULQ %%%s\n", scratch_name(e->right->reg));
+      sprintf(asm_output + asm_output_offset, "\tIMULQ %%%s\n", scratch_name(e->right->reg));
       e->reg = scratch_alloc();
       printf("\tMOVQ %%rax, %%%s\n", scratch_name(e->reg));
+      sprintf(asm_output + asm_output_offset, "\tMOVQ %%rax, %%%s\n", scratch_name(e->reg));
 
       scratch_free(e->left->reg);
       scratch_free(e->right->reg);
@@ -104,11 +115,15 @@ void expr_codegen(struct expr *e) {
       expr_codegen(e->right);
 
       printf("\tMOVQ %%%s, %%rax\n", scratch_name(e->left->reg));
+      asm_output_offset += sprintf(asm_output + asm_output_offset, "\tMOVQ %%%s, %%rax\n", scratch_name(e->left->reg));
       printf("\tCQO\n");
+      sprintf(asm_output + asm_output_offset, "\tCQO\n");
       printf("\tIDIVQ %%%s\n", scratch_name(e->right->reg));
+      sprintf(asm_output + asm_output_offset, "\tIDIVQ %%%s\n", scratch_name(e->right->reg));
 
       e->reg = scratch_alloc();
       printf("\tMOVQ %%rax, %%%s\n", scratch_name(e->reg));
+      sprintf(asm_output + asm_output_offset, "\tMOVQ %%rax, %%%s\n", scratch_name(e->reg));
 
       scratch_free(e->left->reg);
       scratch_free(e->right->reg);
@@ -120,11 +135,14 @@ void expr_codegen(struct expr *e) {
       expr_codegen(e->right);
 
       printf("\tMOVQ %%%s, %%rax\n", scratch_name(e->left->reg));
+      asm_output_offset += sprintf(asm_output + asm_output_offset, "\tMOVQ %%%s, %%rax\n", scratch_name(e->left->reg));
       printf("\tCQO\n");
+      asm_output_offset += sprintf(asm_output + asm_output_offset, "\tCQO\n");
       printf("\tIDIVQ %%%s\n", scratch_name(e->right->reg));
 
       e->reg = scratch_alloc();
       printf("\tMOVQ %%rdx, %%%s\n", scratch_name(e->reg));
+      asm_output_offset += sprintf(asm_output + asm_output_offset, "\tMOVQ %%rdx, %%%s\n", scratch_name(e->reg));
 
       // Free the used registers
       scratch_free(e->left->reg);
@@ -135,6 +153,7 @@ void expr_codegen(struct expr *e) {
       printf("CODE_GEN_EXPR_ASSIGN\n");
       expr_codegen(e->right);
       printf("\tMOVQ %%%s, %s\n", scratch_name(e->right->reg), symbol_codegen(e->left->symbol));
+      asm_output_offset += sprintf(asm_output + asm_output_offset, "\tMOVQ %%%s, %s\n", scratch_name(e->right->reg), symbol_codegen(e->left->symbol));
       break;
     case EXPR_CALL:
       break;
@@ -152,21 +171,25 @@ void expr_codegen(struct expr *e) {
 
       if (e->left->kind == EXPR_NOT) {
         printf("\tANDQ %%%s, %%%s\n", scratch_name(e->left->left->reg), scratch_name(e->right->reg));
+        asm_output_offset += sprintf(asm_output + asm_output_offset, "\tANDQ %%%s, %%%s\n", scratch_name(e->left->left->reg), scratch_name(e->right->reg));
         e->reg = e->right->left->reg;
         scratch_free(e->left->reg);
       }
       else if (e->right->kind == EXPR_NOT) {
         printf("\tANDQ %%%s, %%%s\n", scratch_name(e->left->reg), scratch_name(e->right->left->reg));
+        asm_output_offset += sprintf(asm_output + asm_output_offset, "\tANDQ %%%s, %%%s\n", scratch_name(e->left->reg), scratch_name(e->right->left->reg));
         e->reg = e->right->left->reg;
         scratch_free(e->left->reg);
       }
       else if (e->left->kind == EXPR_NOT && e->right->kind == EXPR_NOT) {
         printf("\tANDQ %%%s, %%%s\n", scratch_name(e->left->left->reg), scratch_name(e->right->left->reg));
+        asm_output_offset += sprintf(asm_output + asm_output_offset, "\tANDQ %%%s, %%%s\n", scratch_name(e->left->left->reg), scratch_name(e->right->left->reg));
         e->reg = e->right->left->reg;
         scratch_free(e->left->reg);
       }
       else {
         printf("\tANDQ %%%s, %%%s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
+        asm_output_offset += sprintf(asm_output + asm_output_offset, "\tANDQ %%%s, %%%s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
         e->reg = e->right->reg;
         scratch_free(e->left->reg);
       }
@@ -178,21 +201,25 @@ void expr_codegen(struct expr *e) {
 
       if (e->left->kind == EXPR_NOT) {
         printf("\tORQ %%%s, %%%s\n", scratch_name(e->left->left->reg), scratch_name(e->right->reg));
+        asm_output_offset += sprintf(asm_output + asm_output_offset, "\tORQ %%%s, %%%s\n", scratch_name(e->left->left->reg), scratch_name(e->right->reg));
         e->reg = e->right->left->reg;
         scratch_free(e->left->reg);
       }
       else if (e->right->kind == EXPR_NOT) {
         printf("\tORQ %%%s, %%%s\n", scratch_name(e->left->reg), scratch_name(e->right->left->reg));
+        asm_output_offset += sprintf(asm_output + asm_output_offset, "\tORQ %%%s, %%%s\n", scratch_name(e->left->reg), scratch_name(e->right->left->reg));
         e->reg = e->right->left->reg;
         scratch_free(e->left->reg);
       }
       else if (e->left->kind == EXPR_NOT && e->right->kind == EXPR_NOT) {
         printf("\tORQ %%%s, %%%s\n", scratch_name(e->left->left->reg), scratch_name(e->right->left->reg));
+        asm_output_offset += sprintf(asm_output + asm_output_offset, "\tORQ %%%s, %%%s\n", scratch_name(e->left->left->reg), scratch_name(e->right->left->reg));
         e->reg = e->right->left->reg;
         scratch_free(e->left->reg);
       }
       else {
         printf("\tORQ %%%s, %%%s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
+        asm_output_offset += sprintf(asm_output + asm_output_offset, "\tORQ %%%s, %%%s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
         e->reg = e->right->reg;
         scratch_free(e->left->reg);
       }
@@ -201,6 +228,7 @@ void expr_codegen(struct expr *e) {
       printf("CODE_GEN_EXPR_NOT\n");
       expr_codegen(e->left);
       printf("\tNOTQ %%%s\n", scratch_name(e->left->reg));
+      asm_output_offset += sprintf(asm_output + asm_output_offset, "\tNOTQ %%%s\n", scratch_name(e->left->reg));
       break;
     case EXPR_EXP:break;
 
@@ -212,6 +240,7 @@ void expr_codegen(struct expr *e) {
       expr_codegen(e->left);
       expr_codegen(e->right);
       printf("\tCMPQ %%%s, %%%s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
+      printf(asm_output + asm_output_offset, "\tCMPQ %%%s, %%%s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
       break;
 
     case EXPR_EQ:break;
@@ -219,10 +248,12 @@ void expr_codegen(struct expr *e) {
     case EXPR_INCR:
       // printf("\tCODE_GEN_EXPR_INCR\n"); // commented to match the instruction syntax for loop
       printf("\tINCQ %%%s\n", scratch_name(e->left->reg));
+      printf(asm_output + asm_output_offset, "\tINCQ %%%s\n", scratch_name(e->left->reg));
       break;
     case EXPR_DECR:
       // printf("\tCODE_GEN_EXPR_INCR\n"); // commented to match the instruction syntax for loop
       printf("\tDECQ %%%s\n", scratch_name(e->left->reg));
+      printf(asm_output + asm_output_offset, "\tDECQ %%%s\n", scratch_name(e->left->reg));
       break;
 
     case EXPR_ARR:break;
@@ -251,10 +282,13 @@ void stmt_codegen(struct stmt *s) {
       char* label_if = label_name(label_create());
       printf("\tJG %s\n", label_if);
       printf("%s: \n", label_if);
+      asm_output_offset += sprintf(asm_output + asm_output_offset, "\tJG %s\n", label_if);
+      asm_output_offset += sprintf(asm_output + asm_output_offset, "%s: \n", label_if);
       stmt_codegen(s->body);
 
       char* label_if_else = label_name(label_create());
       printf("%s: \n", label_if_else);
+      asm_output_offset += sprintf(asm_output + asm_output_offset, "%s: \n", label_if_else);
       stmt_codegen(s->else_body);
      }
      break;
@@ -266,24 +300,32 @@ void stmt_codegen(struct stmt *s) {
       /* This alternative will print additional instructions that doesn't match the instructions as defined in pg. 158 of the textbook */
        expr_codegen(s->init_expr);
        printf("loop:\t");
+       asm_output_offset += sprintf(asm_output + asm_output_offset, "loop:\t");
        expr_codegen(s->next_expr);
        expr_codegen(s->expr);
 
       if (!s->expr) {
         printf("\tJMP  loop\n");
+        asm_output_offset += sprintf(asm_output + asm_output_offset, "\tJMP  loop\n");
       } else {
           if (s->expr->kind == EXPR_LT) {
             printf("\tJL  loop\n");
+            asm_output_offset += sprintf(asm_output + asm_output_offset, "\tJL  loop\n");
           } else if (s->expr->kind == EXPR_LTE) {
             printf("\tJLE  loop\n");
+            asm_output_offset += sprintf(asm_output + asm_output_offset, "\tJLE  loop\n");
           } else if (s->expr->kind == EXPR_GT) {
             printf("\tJG  loop\n");
+            asm_output_offset += sprintf(asm_output + asm_output_offset, "\tJG  loop\n");
           } else if (s->expr->kind == EXPR_GTE) {
             printf("\tJGE  loop\n");
+            asm_output_offset += sprintf(asm_output + asm_output_offset, "\tJGE  loop\n");
           } else if (s->expr->kind == EXPR_EQ) {
             printf("\tJE  loop\n");
+            asm_output_offset += sprintf(asm_output + asm_output_offset, "\tJE  loop\n");
           } else if (s->expr->kind == EXPR_NEQ) {
             printf("\tJNE  loop\n");
+            asm_output_offset += sprintf(asm_output + asm_output_offset, "\tJNE  loop\n");
           }   
         }
      break;
@@ -322,11 +364,13 @@ void decl_codegen(struct decl *d) {
      expr_codegen(d->value);
    }
    printf("\tMOVQ %%%s, %s\n", scratch_name(d->value->reg), symbol_codegen(d->symbol));
+   asm_output_offset += sprintf(asm_output + asm_output_offset, "\tMOVQ %%%s, %s\n", scratch_name(d->value->reg), symbol_codegen(d->symbol));
  }
 
 	if(d->code) {
     printf("DECL_FUNC\n");
     printf(".global %s\n", d->name);
+    asm_output_offset += sprintf(asm_output + asm_output_offset, ".global %s\n", d->name);
     stmt_codegen(d->code);
  }
 	decl_codegen(d->next);
@@ -411,15 +455,19 @@ void first_pass(struct decl *d) {
 
     if(d->value->kind == EXPR_INTEGER_LITERAL) {
       printf("%s:\t.quad\t%d\n", d->symbol->name, d->value->literal_value);
+      asm_output_offset += sprintf(asm_output + asm_output_offset, "%s:\t.quad\t%d\n", d->symbol->name, d->value->literal_value);
     }
     if(d->value->kind == EXPR_CHAR_LITERAL) {
       printf("%s:\t.quad\t%c\n", d->symbol->name, d->value->literal_value);
+      asm_output_offset += sprintf(asm_output + asm_output_offset, "%s:\t.quad\t%c\n", d->symbol->name, d->value->literal_value);
     }
     if(d->value->kind == EXPR_BOOLEAN_LITERAL) {
       printf("%s:\t.quad\t%s\n", d->symbol->name, d->value->literal_value == 1 ? "true" : "false");
+      asm_output_offset += sprintf(asm_output + asm_output_offset, "%s:\t.quad\t%s\n", d->symbol->name, d->value->literal_value == 1 ? "true" : "false");
     }
     if(d->value->kind == EXPR_STRING_LITERAL) {
       printf("%s:\t.string\t\"%s\"\n", d->symbol->name, d->value->string_literal);
+      asm_output_offset += sprintf(asm_output + asm_output_offset, "%s:\t.string\t\"%s\"\n", d->symbol->name, d->value->string_literal);
     }
   }
 
@@ -427,4 +475,13 @@ void first_pass(struct decl *d) {
     stmt_codegen_first_pass(d->code);
   }
 	first_pass(d->next);
+}
+
+// Allocate 1 MegaByte to assembler output file by default
+void init_asm_output() {
+  asm_output = (char*)malloc(sizeof(char) * 1024 * 1000);
+}
+
+void destroy_asm_output() {
+  free(asm_output);
 }

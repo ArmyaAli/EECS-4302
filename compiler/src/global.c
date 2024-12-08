@@ -11,3 +11,5 @@ stack_t SYMBOL_STACK;
 
 int ERROR_COUNTER = 0;
 
+// assembler output buffer
+char* asm_output;

@@ -10,8 +10,12 @@
 #include "include/token.h"
 #include "include/typecheck.h"
 #include "include/codegen.h"
+#include "include/write_stream.h"
 #include "include/codegen_helper.h"
 
+
+extern char* asm_output;
+extern int asm_output_offset;
 
 struct hash_table* label_to_str;
 void run_scan(const char *filename) {
@@ -100,18 +104,24 @@ void run_codegen(const char* filename) {
   printf("--------------------------------\n");
   run_resolve(filename);
   printf("--------------------------------\n");
+  init_asm_output();
   // Step 1
   printf(".file\t\"%s\"\n", filename);
+  asm_output_offset = sprintf(asm_output, ".file\t\"%s\"\n", filename);
 
   // Step 2
   // Generate the .data label
   printf(".data\n");
+  asm_output_offset += sprintf(asm_output + asm_output_offset, ".data\n");
   // Perform first pass on AST
   first_pass(parser_result);
 
   printf("--------------------------------\n");
-  
-  // Step 3
+  //
+  //// Step 3
   printf(".section .text\n");
+  asm_output_offset += sprintf(asm_output + asm_output_offset, ".section .text\n");
   second_pass(parser_result);
+  file_write(asm_output);
+  destroy_asm_output(asm_output);
 }

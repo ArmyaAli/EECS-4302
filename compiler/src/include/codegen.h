@@ -14,4 +14,7 @@ void expr_gen_first_pass(struct expr* e);
 void first_pass(struct decl *d);
 void second_pass(struct decl *d);
 
+void init_asm_output();
+void destroy_asm_output();
+
 #endif

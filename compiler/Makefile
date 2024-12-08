@@ -29,7 +29,8 @@ OBJ_FILES=$(addprefix $(DIST)/, \
 	 typecheck.o \
 	 scope.o \
 	 codegen.o \
-	 codegen_helper.o)
+	 codegen_helper.o \
+	 write_stream.o)
 
 
 $(DIST)/bminor: $(OBJ_FILES)
@@ -46,3 +47,7 @@ $(SRC)/parser.c $(INC)/token.h: $(SRC)/parser.bison
 
 clean:
 	rm -f $(INC)/token.h $(SRC)/scanner.c $(SRC)/parser.c $(SRC)/parser.output $(DIST)/*.o $(DIST)/bminor
+
+assembly: 
+	as asm -o asm.out
+
