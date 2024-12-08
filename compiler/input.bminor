@@ -1,6 +1,10 @@
-f: function void ( x: integer, y: integer ) = {
-    z: integer = "hi";
-    z++;
-    z--;
-    z = z + 1;
+ali: string = "jesus";
+main: function integer (x: integer, y: string) = {
+    x = 5;
+    if (x > 0) {
+        print "true\n";
+    } else {
+        print "false\n";
+    }
+    return 0;
 }
