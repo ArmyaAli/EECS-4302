@@ -115,13 +115,14 @@ void run_codegen(const char* filename) {
   asm_output_offset += sprintf(asm_output + asm_output_offset, ".data\n");
   // Perform first pass on AST
   first_pass(parser_result);
-
   printf("--------------------------------\n");
   //
   //// Step 3
   printf(".section .text\n");
   asm_output_offset += sprintf(asm_output + asm_output_offset, ".section .text\n");
+
   second_pass(parser_result);
+  // Genereate asm file
   file_write(asm_output);
   destroy_asm_output(asm_output);
 }

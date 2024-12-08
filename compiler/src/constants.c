@@ -1,12 +1,13 @@
-const char* SCRATCH_LOOKUP[16] = {
+const char* SCRATCH_LOOKUP[17] = {
+    "rbp", // base pointer
+    "rsp", // stack pointer
+    "rip", // instruc pointer
     "rax",
     "rbx",
     "rcx",
     "rdx",
     "rsi",
     "rdi",
-    "rbp",
-    "rsp", 
     "r8", 
     "r9", 
     "r10", 

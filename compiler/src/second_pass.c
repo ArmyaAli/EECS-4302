@@ -1,12 +1,15 @@
 #include "include/codegen.h"
 #include "include/codegen_helper.h"
+#include "include/constants.h"
 #include <stdio.h>
 
 extern char* asm_output;
 extern int asm_output_offset;
 
+
 extern frame_t stack[];
 extern int sp;
+extern struct hash_table* label_to_str;
 
 void second_pass(struct decl *d) {
   printf("second pass\n");
@@ -23,12 +26,19 @@ void second_pass(struct decl *d) {
     asm_output_offset += sprintf(asm_output + asm_output_offset, "\tMOVQ %%%s, %s\n", scratch_name(d->value->reg), symbol_codegen(d->symbol));
   }
  
+  // This should generate the function prologue
+  // First setup stack base pointer
  	if(d->code) {
      printf("DECL_FUNC\n");
-     printf(".global %s\n", d->name);
-     asm_output_offset += sprintf(asm_output + asm_output_offset, ".global %s\n", d->name);
+     printf("%s:\n", d->name);
+     printf("\tPUSHQ %%%s \n", SCRATCH_LOOKUP[0]);
+     printf("\tMOVEQ %%%s, %%%s\n", SCRATCH_LOOKUP[0], SCRATCH_LOOKUP[1]);
+     asm_output_offset += sprintf(asm_output + asm_output_offset, "%s:\n", d->name);
+     asm_output_offset += sprintf(asm_output + asm_output_offset, "\tPUSHQ %%%s \n", SCRATCH_LOOKUP[0]);
+     asm_output_offset += sprintf(asm_output + asm_output_offset, "\tMOVEQ %%%s, %%%s\n", SCRATCH_LOOKUP[0], SCRATCH_LOOKUP[1]);
      stmt_codegen_second_pass(d->code);
   }
+
  	second_pass(d->next);
 }
 
@@ -74,7 +84,7 @@ void expr_codegen_second_pass(struct expr *e) {
       break;
     case EXPR_STRING_LITERAL:
       printf("CODE_GEN_STRING\n");
-      e->reg = scratch_alloc();
+      //e->reg = scratch_alloc();
       break;
     case EXPR_CHAR_LITERAL:
       printf("CODE_GEN_CHAR\n");
@@ -254,7 +264,7 @@ void expr_codegen_second_pass(struct expr *e) {
       expr_codegen_second_pass(e->left);
       expr_codegen_second_pass(e->right);
       printf("\tCMPQ %%%s, %%%s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
-      printf(asm_output + asm_output_offset, "\tCMPQ %%%s, %%%s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
+      asm_output_offset += sprintf(asm_output + asm_output_offset, "\tCMPQ %%%s, %%%s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
       break;
 
     case EXPR_EQ:break;
@@ -291,10 +301,14 @@ void stmt_codegen_second_pass(struct stmt *s) {
    case STMT_IF_ELSE:
      printf("STMT_IF_ELSE\n");
      expr_codegen_second_pass(s->expr);
+
      if (s->expr->kind == EXPR_GT) {
       char* label_if = label_name(label_create());
       printf("\tJG %s\n", label_if);
       printf("%s: \n", label_if);
+
+      // Here we have to generate 2 branches.
+      // Also need to load the string label and put it into memory
       asm_output_offset += sprintf(asm_output + asm_output_offset, "\tJG %s\n", label_if);
       asm_output_offset += sprintf(asm_output + asm_output_offset, "%s: \n", label_if);
       stmt_codegen_second_pass(s->body);
@@ -360,6 +374,7 @@ void stmt_codegen_second_pass(struct stmt *s) {
      break;
    case STMT_RETURN:
      printf("STMT_RETURN\n");
+     //printf("RET\n");
      expr_codegen_second_pass(s->expr);
      return;
  }

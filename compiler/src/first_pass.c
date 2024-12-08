@@ -2,10 +2,14 @@
 #include "include/codegen_helper.h"
 
 extern struct hash_table* label_to_str;
+
 extern char* asm_output;
 extern int asm_output_offset;
+
 extern frame_t stack[];
 extern int sp;
+
+int extern_label = 0;
 
 
 void first_pass(struct decl *d) {
@@ -38,6 +42,8 @@ void first_pass(struct decl *d) {
 
   // Here we will generate function prologue
 	if(d->code) {
+    printf(".global %s\n", d->name);
+    asm_output_offset += sprintf(asm_output + asm_output_offset, ".global %s\n", d->name);
     stmt_codegen_first_pass(d->code);
   }
 	first_pass(d->next);
@@ -68,6 +74,11 @@ void stmt_codegen_first_pass(struct stmt *s) {
       stmt_codegen_first_pass(s->body);
       break;
     case STMT_PRINT:
+      if(!extern_label) {
+        printf(".extern printf\n");
+        asm_output_offset += sprintf(asm_output + asm_output_offset, "extern printf\n");
+      }
+      extern_label = 1;
       expr_codegen_first_pass(s->expr);
       break;
     case STMT_RETURN:
@@ -91,7 +102,6 @@ void expr_codegen_first_pass(struct expr* e) {
     if(e->kind == EXPR_STRING_LITERAL) {
       char* label = label_name(label_create());
       hash_table_insert(label_to_str, label, e->string_literal);
-
       e->reg = scratch_alloc();
     } else if(e->kind == EXPR_ASSIGN) {
       expr_codegen_first_pass(e->right);

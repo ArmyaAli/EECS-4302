@@ -14,7 +14,7 @@ int scratch_registers[SCRATCH_REGISTERS];
 
 // Allocate a scratch register
 int scratch_alloc() {
-    for (int i = 0; i < SCRATCH_REGISTERS; i++) {
+    for (int i = 3; i < SCRATCH_REGISTERS; i++) {
         if (scratch_registers[i] == 0) { 
             scratch_registers[i] = 1; 
             return i;                   
