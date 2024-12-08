@@ -112,6 +112,6 @@ void run_codegen(const char* filename) {
   printf("--------------------------------\n");
   
   // Step 3
-  printf(".text\n");
+  printf(".section .text\n");
   second_pass(parser_result);
 }

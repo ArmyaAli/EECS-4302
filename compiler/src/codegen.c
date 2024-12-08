@@ -84,22 +84,51 @@ void expr_codegen(struct expr *e) {
       e->reg = e->left->reg;
       scratch_free(e->right->reg);
       break;
-    case EXPR_MUL: // to be discussed later
+    case EXPR_MUL:
       printf("CODE_GEN_MUL\n");
       expr_codegen(e->left);
       expr_codegen(e->right);
-      printf("\tIMUL %%%s \n", scratch_name(e->right->reg));
-      e->reg = e->right->reg;
+
+      printf("\tMOVQ %%%s, %%rax\n", scratch_name(e->left->reg));
+      printf("\tIMULQ %%%s\n", scratch_name(e->right->reg));
+      e->reg = scratch_alloc();
+      printf("\tMOVQ %%rax, %%%s\n", scratch_name(e->reg));
+
       scratch_free(e->left->reg);
+      scratch_free(e->right->reg);
       break;
-    case EXPR_DIV: // to be discussed later
+
+    case EXPR_DIV:
       printf("CODE_GEN_DIV\n");
-      // expr_codegen(e->left);
-      // expr_codegen(e->right);
-      // printf("DIV %s, %s\n", scratch_name(e->left->reg),
-      //       scratch_name(e->right->reg));
-      // e->reg = e->right->reg;
-      // scratch_free(e->left->reg);
+      expr_codegen(e->left);
+      expr_codegen(e->right);
+
+      printf("\tMOVQ %%%s, %%rax\n", scratch_name(e->left->reg));
+      printf("\tCQO\n");
+      printf("\tIDIVQ %%%s\n", scratch_name(e->right->reg));
+
+      e->reg = scratch_alloc();
+      printf("\tMOVQ %%rax, %%%s\n", scratch_name(e->reg));
+
+      scratch_free(e->left->reg);
+      scratch_free(e->right->reg);
+      break;
+
+    case EXPR_MOD:
+      printf("CODE_GEN_MOD\n");
+      expr_codegen(e->left);
+      expr_codegen(e->right);
+
+      printf("\tMOVQ %%%s, %%rax\n", scratch_name(e->left->reg));
+      printf("\tCQO\n");
+      printf("\tIDIVQ %%%s\n", scratch_name(e->right->reg));
+
+      e->reg = scratch_alloc();
+      printf("\tMOVQ %%rdx, %%%s\n", scratch_name(e->reg));
+
+      // Free the used registers
+      scratch_free(e->left->reg);
+      scratch_free(e->right->reg);
       break;
 
     case EXPR_ASSIGN:
@@ -174,7 +203,6 @@ void expr_codegen(struct expr *e) {
       printf("\tNOTQ %%%s\n", scratch_name(e->left->reg));
       break;
     case EXPR_EXP:break;
-    case EXPR_MOD:break;
 
     case EXPR_LT:
     case EXPR_GT:
@@ -261,18 +289,18 @@ void stmt_codegen(struct stmt *s) {
      break;
    case STMT_PRINT:
      printf("STMT_PRINT\n");
-     
+
      /* Use library.c instructions to print instead of generating code for the arg, list passed in print */
-     struct expr* current = s->expr;
-     while (current) {
-      struct type* t = expr_typecheck(current);
-      printf("TYPE IS: %d\n",  t->kind);
-      if (t->kind == TYPE_INTEGER) print_integer(current->literal_value);
-      if (t->kind == TYPE_BOOLEAN) print_boolean(current->literal_value);
-      if (t->kind == TYPE_CHARACTER) print_character(current->literal_value);
-      if (t->kind == TYPE_STRING) print_character((char*) current->string_literal);
-      current = current->right;
-     }
+    //  struct expr* current = s->expr;
+    //  while (current) {
+    //   struct type* t = expr_typecheck(current);
+    //   printf("TYPE IS: %d\n",  t->kind);
+    //   if (t->kind == TYPE_INTEGER) print_integer(current->literal_value);
+    //   if (t->kind == TYPE_BOOLEAN) print_boolean(current->literal_value);
+    //   if (t->kind == TYPE_CHARACTER) print_character(current->literal_value);
+    //   if (t->kind == TYPE_STRING) print_character((char*) current->string_literal);
+    //   current = current->right;
+    //  }
 
      break;
    case STMT_RETURN:
@@ -297,8 +325,9 @@ void decl_codegen(struct decl *d) {
  }
 
 	if(d->code) {
-     printf("DECL_FUNC\n");
-     stmt_codegen(d->code);
+    printf("DECL_FUNC\n");
+    printf(".global %s\n", d->name);
+    stmt_codegen(d->code);
  }
 	decl_codegen(d->next);
 }
@@ -356,9 +385,6 @@ void expr_gen_first_pass(struct expr* e) {
       char* label = label_name(label_create());
       hash_table_insert(label_to_str, label, e->string_literal);
 
-      printf("%s:\n", label);
-      printf("\t .string \"%s\"\n", e->string_literal);
-
       e->reg = scratch_alloc();
     } else if(e->kind == EXPR_ASSIGN) {
       expr_gen_first_pass(e->right);
@@ -398,7 +424,7 @@ void first_pass(struct decl *d) {
   }
 
 	if(d->code) {
-      stmt_codegen_first_pass(d->code);
+    stmt_codegen_first_pass(d->code);
   }
 	first_pass(d->next);
 }
