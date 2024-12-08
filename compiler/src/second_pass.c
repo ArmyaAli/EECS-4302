@@ -1,6 +1,7 @@
 #include "include/codegen.h"
 #include "include/codegen_helper.h"
 #include "include/constants.h"
+#include "include/typecheck.h"
 #include <stdio.h>
 
 extern char* asm_output;
@@ -29,6 +30,8 @@ void second_pass(struct decl *d) {
   // This should generate the function prologue
   // First setup stack base pointer
  	if(d->code) {
+     printf(".global %s\n", d->name);
+     asm_output_offset += sprintf(asm_output + asm_output_offset, ".global %s\n", d->name);
      printf("DECL_FUNC\n");
      printf("%s:\n", d->name);
      printf("\tPUSHQ %%%s \n", SCRATCH_LOOKUP[0]);
@@ -304,18 +307,31 @@ void stmt_codegen_second_pass(struct stmt *s) {
 
      if (s->expr->kind == EXPR_GT) {
       char* label_if = label_name(label_create());
-      printf("\tJG %s\n", label_if);
+      printf("\tJLE %s\n", label_if);
       printf("%s: \n", label_if);
 
       // Here we have to generate 2 branches.
       // Also need to load the string label and put it into memory
-      asm_output_offset += sprintf(asm_output + asm_output_offset, "\tJG %s\n", label_if);
+      asm_output_offset += sprintf(asm_output + asm_output_offset, "\tJLE %s\n", label_if);
       asm_output_offset += sprintf(asm_output + asm_output_offset, "%s: \n", label_if);
+
       stmt_codegen_second_pass(s->body);
+      printf("ali\n");
+
+      char* key;
+      char* val;
+      hash_table_firstkey(label_to_str);
+      while(hash_table_nextkey(label_to_str, &key, (void*)(&val))) {
+        printf("key: %s, value: %s\n", key, val);
+      }
+      //printf("\tLEAQ(%rip) $%d, %%%s\n", e->literal_value, scratch_name(e->reg));
+      //
 
       char* label_if_else = label_name(label_create());
       printf("%s: \n", label_if_else);
       asm_output_offset += sprintf(asm_output + asm_output_offset, "%s: \n", label_if_else);
+
+
       stmt_codegen_second_pass(s->else_body);
      }
      break;
@@ -360,16 +376,28 @@ void stmt_codegen_second_pass(struct stmt *s) {
      printf("STMT_PRINT\n");
 
      /* Use library.c instructions to print instead of generating code for the arg, list passed in print */
-    //  struct expr* current = s->expr;
-    //  while (current) {
-    //   struct type* t = expr_typecheck(current);
-    //   printf("TYPE IS: %d\n",  t->kind);
-    //   if (t->kind == TYPE_INTEGER) print_integer(current->literal_value);
-    //   if (t->kind == TYPE_BOOLEAN) print_boolean(current->literal_value);
-    //   if (t->kind == TYPE_CHARACTER) print_character(current->literal_value);
-    //   if (t->kind == TYPE_STRING) print_character((char*) current->string_literal);
-    //   current = current->right;
-    //  }
+     struct expr* current = s->expr;
+     while (current) {
+      struct type* t = expr_typecheck(current);
+      printf("TYPE IS: %d\n",  t->kind);
+      if (t->kind == TYPE_INTEGER) { 
+        printf("CALL print_integer\n"); 
+        asm_output_offset += sprintf(asm_output + asm_output_offset, "CALL print_integer\n"); 
+      }
+      if (t->kind == TYPE_BOOLEAN) { 
+        printf("CALL print_boolean\n"); 
+        asm_output_offset += sprintf(asm_output + asm_output_offset, "CALL print_boolean\n"); 
+      }
+      if (t->kind == TYPE_CHARACTER) { 
+        printf("CALL print_character\n"); 
+        asm_output_offset += sprintf(asm_output + asm_output_offset, "CALL print_character\n"); 
+      }
+      if (t->kind == TYPE_STRING) { 
+        printf("CALL print_string\n"); 
+        asm_output_offset += sprintf(asm_output + asm_output_offset, "CALL print_string\n"); 
+      }
+      current = current->right;
+     }
 
      break;
    case STMT_RETURN:

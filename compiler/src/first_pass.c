@@ -42,8 +42,6 @@ void first_pass(struct decl *d) {
 
   // Here we will generate function prologue
 	if(d->code) {
-    printf(".global %s\n", d->name);
-    asm_output_offset += sprintf(asm_output + asm_output_offset, ".global %s\n", d->name);
     stmt_codegen_first_pass(d->code);
   }
 	first_pass(d->next);
@@ -101,6 +99,7 @@ void expr_codegen_first_pass(struct expr* e) {
     if(!e) return;
     if(e->kind == EXPR_STRING_LITERAL) {
       char* label = label_name(label_create());
+      //printf("%s: .string \"%s\"\n", label, e->string_literal);
       hash_table_insert(label_to_str, label, e->string_literal);
       e->reg = scratch_alloc();
     } else if(e->kind == EXPR_ASSIGN) {
