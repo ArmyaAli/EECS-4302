@@ -50,11 +50,6 @@ $(SRC)/parser.c $(INC)/token.h: $(SRC)/parser.bison
 clean:
 	rm -f $(INC)/token.h $(SRC)/scanner.c $(SRC)/parser.c $(SRC)/parser.output $(DIST)/*.o $(DIST)/bminor
 
-asm: 
-	as asm -o asm.o
-	ld -o asm.out asm.o
-	chmod 744 asm.out
-
-
-codegen: asm
-	./asm.out
+codegen: 
+	gcc -g $(ARG1) src/library.c -o $(ARG1).out
+	./$(ARG1).out
