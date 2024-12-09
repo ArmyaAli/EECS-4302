@@ -20,10 +20,11 @@ struct param_list *param_list_copy(struct param_list *params) {
 // Function to copy a type structure
 struct type *type_copy(struct type *t) {
     if (!t) return NULL;
-    // Recursively copy the subtype and params
-    struct type *subtype_copy = type_copy(t->subtype);
+
+    struct type *subtype_copy = (struct type*) malloc(sizeof(struct type));
+    subtype_copy = type_copy(t->subtype);
+
     struct param_list *params_copy = param_list_copy(t->params);
-    // Create a new type and populate fields
     struct type *new_type = type_create(t->kind, subtype_copy, params_copy);
     new_type->array_size = t->array_size;
     return new_type;
@@ -97,18 +98,23 @@ struct type *expr_typecheck(struct expr *e) {
 
   switch (e->kind) {
   case EXPR_INTEGER_LITERAL:
+    printf("EXPR_INTEGER_LITERAL\n");
     result = type_create(TYPE_INTEGER, 0, 0);
     break;
   case EXPR_STRING_LITERAL:
+    printf("EXPR_STRING_LITERAL\n");
     result = type_create(TYPE_STRING, 0, 0);
     break;
   case EXPR_BOOLEAN_LITERAL:
+    printf("EXPR_BOOLEAN_LITERAL\n");
     result = type_create(TYPE_BOOLEAN, 0, 0);
     break;
   case EXPR_CHAR_LITERAL:
+    printf("EXPR_CHAR_LITERAL\n");
     result = type_create(TYPE_CHARACTER, 0, 0);
     break;
   case EXPR_ADD:
+    printf("EXPR_ADD\n");
     if( lt->kind!=TYPE_INTEGER || rt->kind!=TYPE_INTEGER ) {
       printf(ERRORMSG_TYPE_EXPR_ADD_ERROR, EXPR_LOOKUP[EXPR_ADD], TYPE_LOOKUP[lt->kind], e->left->name, TYPE_LOOKUP[rt->kind], e->right->name);
       ERROR_COUNTER ++;
@@ -116,6 +122,7 @@ struct type *expr_typecheck(struct expr *e) {
     result = type_create(TYPE_INTEGER, 0, 0);
     break;
   case EXPR_SUB:
+    printf("EXPR_SUB\n");
     if( lt->kind!=TYPE_INTEGER || rt->kind!=TYPE_INTEGER ) {
       printf(ERRORMSG_TYPE_EXPR_SUB_ERROR, EXPR_LOOKUP[EXPR_SUB], TYPE_LOOKUP[lt->kind], e->left->name, TYPE_LOOKUP[rt->kind], e->right->name);
       ERROR_COUNTER ++;
@@ -123,6 +130,7 @@ struct type *expr_typecheck(struct expr *e) {
     result = type_create(TYPE_INTEGER, 0, 0);
     break;
   case EXPR_MUL:
+    printf("EXPR_MUL\n");
     if( lt->kind!=TYPE_INTEGER || rt->kind!=TYPE_INTEGER ) {
       printf(ERRORMSG_TYPE_EXPR_MUL_ERROR, EXPR_LOOKUP[EXPR_MUL], TYPE_LOOKUP[lt->kind], e->left->name, TYPE_LOOKUP[rt->kind], e->right->name);
       ERROR_COUNTER ++;
@@ -130,6 +138,7 @@ struct type *expr_typecheck(struct expr *e) {
     result = type_create(TYPE_INTEGER, 0, 0);
     break;
   case EXPR_DIV:
+    printf("EXPR_DIV\n");
     if( lt->kind!=TYPE_INTEGER || rt->kind!=TYPE_INTEGER ) {
       printf(ERRORMSG_TYPE_EXPR_DIV_ERROR, EXPR_LOOKUP[EXPR_DIV], TYPE_LOOKUP[lt->kind], e->left->name, TYPE_LOOKUP[rt->kind], e->right->name);
       ERROR_COUNTER ++;
@@ -137,6 +146,7 @@ struct type *expr_typecheck(struct expr *e) {
     result = type_create(TYPE_INTEGER, 0, 0);
     break;
   case EXPR_INCR:
+    printf("EXPR_INCR\n");
     if(lt->kind!=TYPE_INTEGER) {
       printf("TYPE ERROR: `%s` can only be applied on an integer operator but was applied on ((%s) %s)\n",EXPR_LOOKUP[EXPR_INCR], TYPE_LOOKUP[lt->kind], e->left->name);
       ERROR_COUNTER ++;
@@ -144,31 +154,37 @@ struct type *expr_typecheck(struct expr *e) {
     result = type_create(TYPE_BOOLEAN, 0, 0);
     break;
   case EXPR_DECR:
+    printf("EXPR_DECR\n");
     if(lt->kind!=TYPE_INTEGER) {
       printf("TYPE ERROR: `%s` can only be applied on an integer operator but was applied on ((%s) %s)\n",EXPR_LOOKUP[EXPR_DECR], TYPE_LOOKUP[lt->kind], e->left->name);
       ERROR_COUNTER ++;
     }
     result = type_create(TYPE_BOOLEAN, 0, 0);
     break;
+  case EXPR_CALL:
+    printf("EXPR_CALL\n");
+    result = type_copy(e->left->symbol->type->subtype);
+    break;
   case EXPR_NAME:
-    result = type_copy(e->symbol->type);
+    // printf("EXPR_NAME %p %s %p\n", e, e->nae);
+    if (e->symbol) result = type_copy(e->symbol->type);
     break;
   case EXPR_ASSIGN:
-    printf("EXPR_ASSING\n");
+    printf("EXPR_ASSIGN %p %p\n", lt, rt);
     if(!type_equals(lt, rt)) {
       printf("<< TYPE ERROR >>: Can not assign type of %s to %s for variable %s\n", TYPE_LOOKUP[rt->kind], TYPE_LOOKUP[lt->kind], e->left->name);
       ERROR_COUNTER ++;
     }
     result = type_copy(lt);
     break;
-  case EXPR_CALL:
-    result = type_copy(e->left->symbol->type->subtype);
-    break;
   case EXPR_ARG:
+    printf("EXPR_ARG\n");
     break;
   case EXPR_SUBSCRIPT:
+    printf("EXPR_SUBSCRIPT %s\n", e->name);
     break;
   case EXPR_AND:
+    printf("EXPR_AND\n");
     if( lt->kind!=TYPE_BOOLEAN || rt->kind!=TYPE_BOOLEAN ) {
       printf(ERRORMSG_TYPE_EXPR_LOGICAL_AND_ERROR, EXPR_LOOKUP[EXPR_AND], TYPE_LOOKUP[lt->kind], e->left->name, TYPE_LOOKUP[rt->kind], e->right->name);
       ERROR_COUNTER ++;
@@ -176,6 +192,7 @@ struct type *expr_typecheck(struct expr *e) {
     result = type_create(TYPE_BOOLEAN, 0, 0);
     break;
   case EXPR_OR:
+    printf("EXPR_OR\n");
     if( lt->kind!=TYPE_BOOLEAN || rt->kind!=TYPE_BOOLEAN ) {
       printf(ERRORMSG_TYPE_EXPR_LOGICAL_OR_ERROR, EXPR_LOOKUP[EXPR_OR], TYPE_LOOKUP[lt->kind], e->left->name, TYPE_LOOKUP[rt->kind], e->right->name);
       ERROR_COUNTER ++;
@@ -183,6 +200,7 @@ struct type *expr_typecheck(struct expr *e) {
     result = type_create(TYPE_BOOLEAN, 0, 0);
     break;
   case EXPR_NOT:
+    printf("EXPR_NOT\n");
     if( lt->kind!=TYPE_BOOLEAN) {
       printf(ERRORMSG_TYPE_EXPR_LOGICAL_NOT_ERROR, TYPE_LOOKUP[lt->kind], e->left->name);
       ERROR_COUNTER ++;
@@ -190,6 +208,7 @@ struct type *expr_typecheck(struct expr *e) {
     result = type_create(TYPE_BOOLEAN, 0, 0);
     break;
   case EXPR_EXP:
+    printf("EXPR_EXP\n");
     if( lt->kind!=TYPE_INTEGER || rt->kind!=TYPE_INTEGER ) {
       printf(ERRORMSG_TYPE_EXPR_LOGICAL_EXP_ERROR, EXPR_LOOKUP[EXPR_EXP], TYPE_LOOKUP[lt->kind], e->left->name, TYPE_LOOKUP[rt->kind], e->right->name);
       ERROR_COUNTER ++;
@@ -197,6 +216,7 @@ struct type *expr_typecheck(struct expr *e) {
     result = type_create(TYPE_INTEGER, 0, 0);
     break;
   case EXPR_MOD:
+    printf("EXPR_MOD\n");
     printf("%p %p\n", e->left, e->right);
     if( lt->kind!=TYPE_INTEGER || rt->kind!=TYPE_INTEGER ) {
       printf("TYPE_ERROR: `%s` can not be performed on [(%s) %% (%s)] \n", EXPR_LOOKUP[EXPR_MOD], TYPE_LOOKUP[lt->kind], TYPE_LOOKUP[rt->kind]);
@@ -205,6 +225,7 @@ struct type *expr_typecheck(struct expr *e) {
     result = type_create(TYPE_INTEGER, 0, 0);
     break;
   case EXPR_LT:
+    printf("EXPR_LT\n");
     if( lt->kind!=TYPE_INTEGER || rt->kind!=TYPE_INTEGER ) {
       printf("TYPE_ERROR: `%s` can not be performed on [(%s) < (%s)] \n", EXPR_LOOKUP[EXPR_LT], TYPE_LOOKUP[lt->kind], TYPE_LOOKUP[rt->kind]);
       ERROR_COUNTER ++;
@@ -212,13 +233,15 @@ struct type *expr_typecheck(struct expr *e) {
     result = type_create(TYPE_BOOLEAN, 0, 0);
     break;
   case EXPR_GT:
-    if( lt->kind!=TYPE_INTEGER || rt->kind!=TYPE_INTEGER ) {
+    printf("EXPR_GT %s %d %p %p\n", e->left->name, rt->kind, lt, rt);
+    if( lt->kind !=TYPE_INTEGER || rt->kind!=TYPE_INTEGER ) {
       printf("TYPE_ERROR: `%s` can not be performed on [(%s) > (%s)] \n", EXPR_LOOKUP[EXPR_GT], TYPE_LOOKUP[lt->kind], TYPE_LOOKUP[rt->kind]);
       ERROR_COUNTER ++;
     }
     result = type_create(TYPE_BOOLEAN, 0, 0);
     break;
   case EXPR_LTE:
+    printf("EXPR_LTE\n");
     if( lt->kind!=TYPE_INTEGER || rt->kind!=TYPE_INTEGER ) {
       printf("TYPE_ERROR: `%s` can not be performed on [(%s) <= (%s)] \n", EXPR_LOOKUP[EXPR_LTE], TYPE_LOOKUP[lt->kind], TYPE_LOOKUP[rt->kind]);
       ERROR_COUNTER ++;
@@ -226,6 +249,7 @@ struct type *expr_typecheck(struct expr *e) {
     result = type_create(TYPE_BOOLEAN, 0, 0);
     break;
   case EXPR_GTE:
+    printf("EXPR_GTE\n");
     if( lt->kind!=TYPE_INTEGER || rt->kind!=TYPE_INTEGER ) {
       printf("TYPE_ERROR: `%s` can not be performed on [(%s) %s >= (%s) %s] \n", EXPR_LOOKUP[EXPR_GTE], TYPE_LOOKUP[lt->kind], e->left->name, TYPE_LOOKUP[rt->kind], e->right->name);
       ERROR_COUNTER ++;
@@ -234,6 +258,7 @@ struct type *expr_typecheck(struct expr *e) {
     break;
   case EXPR_EQ:
   case EXPR_NEQ:
+    printf("EXPR_NEQ || EXPR_EQ\n");
     if(!type_equals(lt, rt)) {
       printf("===================================\n");
       printf("TYPE ERROR: << TYPE_MISTMATCH >>\n");
@@ -256,7 +281,21 @@ struct type *expr_typecheck(struct expr *e) {
     result = type_create(TYPE_BOOLEAN,0,0);
     break;
   case EXPR_ARR:
-
+    printf("EXPR_ARR %s\n", e->name);
+    // printf("%d %d\n", e->left->literal_value, e->right->literal_value);
+    struct expr* curr = e->left;
+    while (curr) {
+      struct type* temp1 = expr_typecheck(curr);
+      struct type* temp2 = expr_typecheck(e->right);
+      if (!type_equals(temp1, temp2)) {
+        printf("TYPE ERROR: All array elements must have the same type\n");
+        ERROR_COUNTER ++;
+      }
+      curr = curr->right;
+    }
+    /* if all types are the same, then return the type of array to be any of the type of its elements */
+    struct type* t = expr_typecheck(e->left);
+    result = type_create(t->kind, 0, 0);
     break;
   }
   // types are no longer needed
@@ -269,32 +308,40 @@ void stmt_typecheck(struct stmt *s) {
 	if (!s) return;
 	switch (s->kind) {
 		case STMT_BLOCK:
+      printf("STMT_BLOCK\n");
       stmt_typecheck(s->body);
 			break;
 		case STMT_DECL:
+      printf("STMT_DECL\n");
       decl_typecheck(s->decl);
 			break;
     case STMT_EXPR:
+      printf("STMT_EXPR\n");
       expr_typecheck(s->expr);
       break;
     case STMT_IF_ELSE:
+      printf("STMT_IF_ELSE\n");
       expr_typecheck(s->expr);
       stmt_typecheck(s->body);
       stmt_typecheck(s->else_body);
       break;
     case STMT_IF:
+      printf("STMT_IF\n");
       expr_typecheck(s->expr);
       stmt_typecheck(s->body);
       break;
     case STMT_FOR:
+      printf("STMT_FOR\n");
       expr_typecheck(s->init_expr);
       expr_typecheck(s->expr);
       expr_typecheck(s->next_expr);
       stmt_typecheck(s->body);
       break;
     case STMT_PRINT:
+      printf("STMT_PRINT\n");
       break;
     case STMT_RETURN:
+      printf("STMT_RETURN\n");
       return;
 	}
   stmt_typecheck(s->next); // if its a statement_list
@@ -304,6 +351,7 @@ void stmt_typecheck(struct stmt *s) {
 void decl_typecheck( struct decl *d ) {
     if (!d) return;
     if(d->value) {
+        printf("decl_typecheck d->value\n");
         struct type *t;
         t = expr_typecheck(d->value);
         if(!type_equals(d->type, t)) {
@@ -340,6 +388,7 @@ void decl_typecheck( struct decl *d ) {
         }
     }
     if(d->code) {
+        printf("decl_typecheck d->code\n");
         stmt_typecheck(d->code);
     }
     decl_typecheck(d->next);

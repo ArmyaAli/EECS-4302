@@ -18,14 +18,14 @@ void symbol_destroy(struct symbol* sym) {
 struct symbol* symbol_copy(struct symbol* s) {
     if (!s) return NULL;
 
-    struct symbol *new_symbol = malloc(sizeof(struct symbol));
+    struct symbol *new_symbol = (struct symbol*) malloc(sizeof(struct symbol));
     if (!new_symbol) return NULL;
 
-    // Copy the simple fields
     new_symbol->kind = s->kind;
     new_symbol->which = s->which;
 
     // Deep copy the type
+    new_symbol->type = (struct type*) malloc(sizeof(struct type));
     new_symbol->type = s->type ? type_copy(s->type) : NULL;
 
     // Deep copy the name

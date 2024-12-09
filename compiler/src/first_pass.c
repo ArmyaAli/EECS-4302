@@ -100,8 +100,9 @@ void expr_codegen_first_pass(struct expr* e) {
     if(e->kind == EXPR_STRING_LITERAL) {
       char* label = label_name(label_create());
       //printf("%s: .string \"%s\"\n", label, e->string_literal);
+      printf("%s: .string \"%s\"\n", label, e->string_literal);
       hash_table_insert(label_to_str, label, e->string_literal);
-      e->reg = scratch_alloc();
+      // e->reg = scratch_alloc();
     } else if(e->kind == EXPR_ASSIGN) {
       expr_codegen_first_pass(e->right);
     } else if(e->kind == EXPR_EQ || e->kind == EXPR_NEQ) {

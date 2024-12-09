@@ -376,8 +376,8 @@ reassignment : identifier TOKEN_ASSIGNMENT expr TOKEN_SEMICOLON
     }
 | identifier nested_sq_bracket_list TOKEN_ASSIGNMENT expr TOKEN_SEMICOLON
     {
-        $2->left = $1;
         struct expr* e = expr_create(EXPR_ASSIGN, $2, $4);
+        e->left = $1;
         $$ = stmt_create (
             STMT_EXPR,
             NULL,
@@ -426,13 +426,12 @@ reassignment : identifier TOKEN_ASSIGNMENT expr TOKEN_SEMICOLON
 
 // if statment can be a single / multiple nested if statments
 if_statement_list : if_statement if_statement_list { printf("if_statement_412\n"); $$ = $1; $1->next = $2; }
-| if_statement {         printf("if_statement_413\n"); $$ = $1; }
+| if_statement { $$ = $1; }
 ;
 
 // i.g, if {condition} {statments}
 if_statement : TOKEN_IF TOKEN_LPAREN cond_expr TOKEN_RPAREN statement_list
     {
-        printf("IF_IF_419\n");
         $$ = stmt_create(
             STMT_IF,
             NULL,

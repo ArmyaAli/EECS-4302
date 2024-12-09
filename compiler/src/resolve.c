@@ -21,9 +21,13 @@ void decl_resolve(struct decl *d) {
 
 
   if(stack_size(&SYMBOL_STACK) > 0) scope_bind(d->name,d->symbol);
-  //  stack_print(&SYMBOL_STACK);
+   stack_print(&SYMBOL_STACK);
 
 	if(d->code) {
+    struct symbol* s = scope_lookup(d->name);
+    d->symbol = symbol_copy(s); // deep copy is needed since we have recurive struct types
+    
+    printf("name: %s\n", d->name);
     if(stack_size(&SYMBOL_STACK) > 0) {
       current_stmt_type = FUNC;
       scope_enter();
@@ -134,7 +138,9 @@ void expr_resolve(struct expr *e) {
     } else {
         printf("=======> %s resolves to %s %d <=======\n", e->symbol->name, SCOPE_LOOKUP[e->symbol->kind], e->symbol->which);
     }
-
+    printf("address: %p\n", e);
+    // struct symbol * s = scope_lookup(e->name);
+    // e->symbol = symbol_copy(s);
   } else {
     expr_resolve(e->left);
     expr_resolve(e->right);

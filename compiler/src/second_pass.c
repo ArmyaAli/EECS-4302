@@ -380,16 +380,37 @@ void stmt_codegen_second_pass(struct stmt *s) {
 
      /* Use library.c instructions to print instead of generating code for the arg, list passed in print */
      struct expr* current = s->expr;
-     int iteration = 0;
      while (current) {
       const char* name = current->string_literal;
       struct expr* name_left = current->left;
-      struct expr* name_right = current->right;
 
+      char* label = NULL;
       if(name_left) {
         printf("check_left: %s\n", name_left->string_literal);
+        char* key;
+        char* val;
+        hash_table_firstkey(label_to_str);
+        while(hash_table_nextkey(label_to_str, &key, (void*)(&val))) {
+          if (strcmp(name_left->string_literal, val) == 0) {
+            printf("key: %s, value: %s\n", key, val);
+            label = strdup(key);
+            printf("label 1: %s\n", label);
+            break;
+          }
+        }
       } else {
         if(name) printf("check_right: %s\n", name);
+        char* key;
+        char* val;
+        hash_table_firstkey(label_to_str);
+        while(hash_table_nextkey(label_to_str, &key, (void*)(&val))) {
+          if (strcmp(name, val) == 0) {
+            printf("key: %s, value: %s\n", key, val);
+            label = strdup(key);
+            printf("label 2: %s\n", label);
+            break;
+          }
+        }
       } 
 
       struct type* t = expr_typecheck(current);
