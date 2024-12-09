@@ -38,12 +38,7 @@ void param_list_delete(struct param_list *params) {
     free(params);
 }
 
-void type_delete(struct type *t) {
-    if (!t) return;
-    if (t->subtype) type_delete(t->subtype);
-    if (t->params) param_list_delete(t->params);
-    free(t);
-}
+void type_delete(struct type *t) {}
 
 
 int is_atomic(struct type *x) {
@@ -166,8 +161,8 @@ struct type *expr_typecheck(struct expr *e) {
     result = type_copy(e->left->symbol->type->subtype);
     break;
   case EXPR_NAME:
-    // printf("EXPR_NAME %p %s %p\n", e, e->nae);
-    if (e->symbol) result = type_copy(e->symbol->type);
+    // printf("EXPR_NAME %s %p\n", e->name, e->symbol);
+    if (e && e->symbol) result = type_copy(e->symbol->type);
     break;
   case EXPR_ASSIGN:
     printf("EXPR_ASSIGN %p %p\n", lt, rt);
@@ -225,7 +220,7 @@ struct type *expr_typecheck(struct expr *e) {
     result = type_create(TYPE_INTEGER, 0, 0);
     break;
   case EXPR_LT:
-    printf("EXPR_LT\n");
+    printf("EXPR_LT %p %p\n", lt, rt);
     if( lt->kind!=TYPE_INTEGER || rt->kind!=TYPE_INTEGER ) {
       printf("TYPE_ERROR: `%s` can not be performed on [(%s) < (%s)] \n", EXPR_LOOKUP[EXPR_LT], TYPE_LOOKUP[lt->kind], TYPE_LOOKUP[rt->kind]);
       ERROR_COUNTER ++;
@@ -233,7 +228,7 @@ struct type *expr_typecheck(struct expr *e) {
     result = type_create(TYPE_BOOLEAN, 0, 0);
     break;
   case EXPR_GT:
-    printf("EXPR_GT %s %d %p %p\n", e->left->name, rt->kind, lt, rt);
+    printf("EXPR_GT %s %d %p %p\n", e->left->name, rt->kind, e, rt);
     if( lt->kind !=TYPE_INTEGER || rt->kind!=TYPE_INTEGER ) {
       printf("TYPE_ERROR: `%s` can not be performed on [(%s) > (%s)] \n", EXPR_LOOKUP[EXPR_GT], TYPE_LOOKUP[lt->kind], TYPE_LOOKUP[rt->kind]);
       ERROR_COUNTER ++;

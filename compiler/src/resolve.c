@@ -20,26 +20,23 @@ void decl_resolve(struct decl *d) {
   }
 
 
-  if(stack_size(&SYMBOL_STACK) > 0) scope_bind(d->name,d->symbol);
-   stack_print(&SYMBOL_STACK);
+  if(stack_size(&SYMBOL_STACK) > 0) {
+    scope_bind(d->name,d->symbol);
+    stack_print(&SYMBOL_STACK);
+  }
 
+  printf("d->name %s\n", d->name);
 	if(d->code) {
     struct symbol* s = scope_lookup(d->name);
     d->symbol = symbol_copy(s); // deep copy is needed since we have recurive struct types
     
-    printf("name: %s\n", d->name);
     if(stack_size(&SYMBOL_STACK) > 0) {
+      printf("abc: %s\n", d->name);
       current_stmt_type = FUNC;
       scope_enter();
+      stack_print(&SYMBOL_STACK);
       param_list_resolve(d->type->params);
       stmt_resolve(d->code);
-
-      // If we have a return statement, we should popoff stack till global scope 
-      // or exit scope as normal
-      if(current_stmt_type == RETURN_TYPE && 
-        stack_size(&SYMBOL_STACK) > 1) {
-        return;
-      }
     }
 	}
 	decl_resolve(d->next);
@@ -119,7 +116,6 @@ void stmt_resolve(struct stmt *s) {
       break;
     case STMT_RETURN:
       if(s->expr) expr_resolve(s->expr);
-      if(stack_size(&SYMBOL_STACK) > 1) scope_exit();
       break;
 	}
   stmt_resolve(s->next); // if its a statement_list
@@ -132,7 +128,7 @@ void expr_resolve(struct expr *e) {
     if(!e->symbol) {
       e->symbol = scope_lookup(e->name);
     }
-
+    
     if(e->symbol && e->symbol->kind == SYMBOL_GLOBAL) {
         printf("=======> %s resolves to %s %s <=======\n", e->symbol->name, SCOPE_LOOKUP[e->symbol->kind], e->symbol->name);
     } else {
@@ -154,6 +150,7 @@ void param_list_resolve(struct param_list *p) {
     // create a symbol for hashtable
     p->symbol = symbol_create(SYMBOL_PARAM, p->type,p->name);
     scope_bind(p->name, p->symbol);
+    printf("p-name: %s\n", p->name);
 
     struct symbol * s = scope_lookup(p->name);
     p->symbol = symbol_copy(s);
