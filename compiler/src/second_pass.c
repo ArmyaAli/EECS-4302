@@ -315,15 +315,10 @@ void stmt_codegen_second_pass(struct stmt *s) {
       printf("\tJLE %s\n", label_if);
       printf("%s: \n", label_if);
 
-      // Here we have to generate 2 branches.
-      // Also need to load the string label and put it into memory
       asm_output_offset += sprintf(asm_output + asm_output_offset, "\tJLE %s\n", label_if);
       asm_output_offset += sprintf(asm_output + asm_output_offset, "%s: \n", label_if);
 
       stmt_codegen_second_pass(s->body);
-
-      //printf("\tLEAQ(%rip) $%d, %%%s\n", e->literal_value, scratch_name(e->reg));
-      //
 
       char* label_if_else = label_name(label_create());
       printf("%s: \n", label_if_else);
@@ -332,19 +327,156 @@ void stmt_codegen_second_pass(struct stmt *s) {
 
       stmt_codegen_second_pass(s->else_body);
      }
-      printf("ali\n");
+     else if (s->expr->kind == EXPR_LT) {
+      char* label_if = label_name(label_create());
+      printf("\tJGE %s\n", label_if);
+      printf("%s: \n", label_if);
 
-      char* key;
-      char* val;
-      hash_table_firstkey(label_to_str);
-      while(hash_table_nextkey(label_to_str, &key, (void*)(&val))) {
-        printf("key: %s, value: %s\n", key, val);
-      }
+      asm_output_offset += sprintf(asm_output + asm_output_offset, "\tJGE %s\n", label_if);
+      asm_output_offset += sprintf(asm_output + asm_output_offset, "%s: \n", label_if);
 
-//      printf("check: %s\n", EXPR_LOOKUP[s->expr->kind]);
+      stmt_codegen_second_pass(s->body);
+
+      char* label_if_else = label_name(label_create());
+      printf("%s: \n", label_if_else);
+      asm_output_offset += sprintf(asm_output + asm_output_offset, "%s: \n", label_if_else);
+
+
+      stmt_codegen_second_pass(s->else_body);
+     }
+      else if (s->expr->kind == EXPR_GTE) {
+        char* label_if = label_name(label_create());
+        printf("\tJL %s\n", label_if);
+        printf("%s: \n", label_if);
+
+        asm_output_offset += sprintf(asm_output + asm_output_offset, "\tJL %s\n", label_if);
+        asm_output_offset += sprintf(asm_output + asm_output_offset, "%s: \n", label_if);
+
+        stmt_codegen_second_pass(s->body);
+
+        char* label_if_else = label_name(label_create());
+        printf("%s: \n", label_if_else);
+        asm_output_offset += sprintf(asm_output + asm_output_offset, "%s: \n", label_if_else);
+
+
+        stmt_codegen_second_pass(s->else_body);
+     }
+      else if (s->expr->kind == EXPR_LTE) {
+        char* label_if = label_name(label_create());
+        printf("\tJG %s\n", label_if);
+        printf("%s: \n", label_if);
+
+        asm_output_offset += sprintf(asm_output + asm_output_offset, "\tJG %s\n", label_if);
+        asm_output_offset += sprintf(asm_output + asm_output_offset, "%s: \n", label_if);
+
+        stmt_codegen_second_pass(s->body);
+
+        char* label_if_else = label_name(label_create());
+        printf("%s: \n", label_if_else);
+        asm_output_offset += sprintf(asm_output + asm_output_offset, "%s: \n", label_if_else);
+
+
+        stmt_codegen_second_pass(s->else_body);
+     }
+      else if (s->expr->kind == EXPR_EQ) {
+        char* label_if = label_name(label_create());
+        printf("\tJNE %s\n", label_if);
+        printf("%s: \n", label_if);
+
+        asm_output_offset += sprintf(asm_output + asm_output_offset, "\tJNE %s\n", label_if);
+        asm_output_offset += sprintf(asm_output + asm_output_offset, "%s: \n", label_if);
+
+        stmt_codegen_second_pass(s->body);
+
+        char* label_if_else = label_name(label_create());
+        printf("%s: \n", label_if_else);
+        asm_output_offset += sprintf(asm_output + asm_output_offset, "%s: \n", label_if_else);
+
+
+        stmt_codegen_second_pass(s->else_body);
+     }
+      else if (s->expr->kind == EXPR_NEQ) {
+        char* label_if = label_name(label_create());
+        printf("\tJE %s\n", label_if);
+        printf("%s: \n", label_if);
+
+        asm_output_offset += sprintf(asm_output + asm_output_offset, "\tJE %s\n", label_if);
+        asm_output_offset += sprintf(asm_output + asm_output_offset, "%s: \n", label_if);
+
+        stmt_codegen_second_pass(s->body);
+
+        char* label_if_else = label_name(label_create());
+        printf("%s: \n", label_if_else);
+        asm_output_offset += sprintf(asm_output + asm_output_offset, "%s: \n", label_if_else);
+
+
+        stmt_codegen_second_pass(s->else_body);
+     }
      break;
    case STMT_IF:
      printf("STMT_IF\n");
+     expr_codegen_second_pass(s->expr);
+
+     if (s->expr->kind == EXPR_GT) {
+      char* label_if = label_name(label_create());
+      printf("\tJLE %s\n", label_if);
+      printf("%s: \n", label_if);
+
+      asm_output_offset += sprintf(asm_output + asm_output_offset, "\tJLE %s\n", label_if);
+      asm_output_offset += sprintf(asm_output + asm_output_offset, "%s: \n", label_if);
+
+      stmt_codegen_second_pass(s->body);
+     }
+     else if (s->expr->kind == EXPR_LT) {
+      char* label_if = label_name(label_create());
+      printf("\tJGE %s\n", label_if);
+      printf("%s: \n", label_if);
+
+      asm_output_offset += sprintf(asm_output + asm_output_offset, "\tJGE %s\n", label_if);
+      asm_output_offset += sprintf(asm_output + asm_output_offset, "%s: \n", label_if);
+
+      stmt_codegen_second_pass(s->body);
+     }
+      else if (s->expr->kind == EXPR_LTE) {
+        char* label_if = label_name(label_create());
+        printf("\tJG %s\n", label_if);
+        printf("%s: \n", label_if);
+
+        asm_output_offset += sprintf(asm_output + asm_output_offset, "\tJG %s\n", label_if);
+        asm_output_offset += sprintf(asm_output + asm_output_offset, "%s: \n", label_if);
+
+        stmt_codegen_second_pass(s->body);
+     }
+      else if (s->expr->kind == EXPR_GTE) {
+        char* label_if = label_name(label_create());
+        printf("\tJL %s\n", label_if);
+        printf("%s: \n", label_if);
+
+        asm_output_offset += sprintf(asm_output + asm_output_offset, "\tJL %s\n", label_if);
+        asm_output_offset += sprintf(asm_output + asm_output_offset, "%s: \n", label_if);
+
+        stmt_codegen_second_pass(s->body);
+     }
+      else if (s->expr->kind == EXPR_EQ) {
+        char* label_if = label_name(label_create());
+        printf("\tJNE %s\n", label_if);
+        printf("%s: \n", label_if);
+
+        asm_output_offset += sprintf(asm_output + asm_output_offset, "\tJNE %s\n", label_if);
+        asm_output_offset += sprintf(asm_output + asm_output_offset, "%s: \n", label_if);
+
+        stmt_codegen_second_pass(s->body);
+     }
+      else if (s->expr->kind == EXPR_NEQ) {
+        char* label_if = label_name(label_create());
+        printf("\tJE %s\n", label_if);
+        printf("%s: \n", label_if);
+
+        asm_output_offset += sprintf(asm_output + asm_output_offset, "\tJE %s\n", label_if);
+        asm_output_offset += sprintf(asm_output + asm_output_offset, "%s: \n", label_if);
+
+        stmt_codegen_second_pass(s->body);
+     }
      break;
    case STMT_FOR:
      printf("STMT_FOR\n");

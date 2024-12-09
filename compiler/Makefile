@@ -50,7 +50,7 @@ $(SRC)/parser.c $(INC)/token.h: $(SRC)/parser.bison
 clean:
 	rm -f $(INC)/token.h $(SRC)/scanner.c $(SRC)/parser.c $(SRC)/parser.output $(DIST)/*.o $(DIST)/bminor
 
-# NOTE(Ali): usage: make ARG1=asm.s
+# NOTE(Ali): usage: make codegen ARG1=asm.s
 codegen: 
 	gcc -g $(ARG1) src/library.c -o $(ARG1).out
 	./$(ARG1).out
