@@ -114,6 +114,7 @@ void run_codegen(const char* filename) {
   printf(".data\n");
   asm_output_offset += sprintf(asm_output + asm_output_offset, ".data\n");
   // Perform first pass on AST
+  init_data_section();
   first_pass(parser_result);
   // Print all the string labels
     printf("--------------------------------\n");

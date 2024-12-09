@@ -23,6 +23,8 @@ void stmt_codegen_second_pass(struct stmt *s);
 
 
 void init_asm_output();
+void init_data_section();
 void destroy_asm_output();
+const char* helper_remove_nl(char* str);
 
 #endif

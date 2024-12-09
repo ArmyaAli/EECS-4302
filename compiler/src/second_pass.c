@@ -23,8 +23,10 @@ void second_pass(struct decl *d) {
     } else {
       expr_codegen_second_pass(d->value);
     }
-    printf("\tMOVQ %%%s, %s\n", scratch_name(d->value->reg), symbol_codegen(d->symbol));
-    asm_output_offset += sprintf(asm_output + asm_output_offset, "\tMOVQ %%%s, %s\n", scratch_name(d->value->reg), symbol_codegen(d->symbol));
+    if(d->symbol && d->symbol->kind != SYMBOL_GLOBAL) {
+      printf("\tMOVQ %%%s, %s\n", scratch_name(d->value->reg), symbol_codegen(d->symbol));
+      asm_output_offset += sprintf(asm_output + asm_output_offset, "\tMOVQ %%%s, %s\n", scratch_name(d->value->reg), symbol_codegen(d->symbol));
+    }
   }
  
   // This should generate the function prologue
@@ -33,12 +35,15 @@ void second_pass(struct decl *d) {
      printf(".global %s\n", d->name);
      asm_output_offset += sprintf(asm_output + asm_output_offset, ".global %s\n", d->name);
      printf("DECL_FUNC\n");
+
      printf("%s:\n", d->name);
      printf("\tPUSHQ %%%s \n", SCRATCH_LOOKUP[0]);
-     printf("\tMOVEQ %%%s, %%%s\n", SCRATCH_LOOKUP[0], SCRATCH_LOOKUP[1]);
+     printf("\tMOVQ %%%s, %%%s\n", SCRATCH_LOOKUP[0], SCRATCH_LOOKUP[1]);
+
      asm_output_offset += sprintf(asm_output + asm_output_offset, "%s:\n", d->name);
      asm_output_offset += sprintf(asm_output + asm_output_offset, "\tPUSHQ %%%s \n", SCRATCH_LOOKUP[0]);
-     asm_output_offset += sprintf(asm_output + asm_output_offset, "\tMOVEQ %%%s, %%%s\n", SCRATCH_LOOKUP[0], SCRATCH_LOOKUP[1]);
+     asm_output_offset += sprintf(asm_output + asm_output_offset, "\tMOVQ %%%s, %%%s\n", SCRATCH_LOOKUP[0], SCRATCH_LOOKUP[1]);
+
      stmt_codegen_second_pass(d->code);
   }
 
@@ -380,7 +385,7 @@ void stmt_codegen_second_pass(struct stmt *s) {
 
      /* Use library.c instructions to print instead of generating code for the arg, list passed in print */
      struct expr* current = s->expr;
-     while (current) {
+     while (current != NULL) {
       const char* name = current->string_literal;
       struct expr* name_left = current->left;
 
@@ -394,8 +399,13 @@ void stmt_codegen_second_pass(struct stmt *s) {
           if (strcmp(name_left->string_literal, val) == 0) {
             printf("key: %s, value: %s\n", key, val);
             label = strdup(key);
-            printf("label 1: %s\n", label);
-            break;
+            const char* reg = scratch_name(scratch_alloc());
+            if(reg == NULL) {
+              printf("ERROR: too many allocations\n");
+              return;
+            }
+            printf("LEAQ %s(%%rip), %%%s\n", label, reg);
+            asm_output_offset += sprintf(asm_output + asm_output_offset, "LEAQ %s(%%rip), %%%s\n", label, reg);
           }
         }
       } else {
@@ -407,38 +417,45 @@ void stmt_codegen_second_pass(struct stmt *s) {
           if (strcmp(name, val) == 0) {
             printf("key: %s, value: %s\n", key, val);
             label = strdup(key);
-            printf("label 2: %s\n", label);
-            break;
+            const char* reg = scratch_name(scratch_alloc());
+            if(reg == NULL) {
+              printf("ERROR: too many allocations\n");
+              return;
+            }
+            printf("LEAQ %s(%%rip), %%%s\n", label, reg);
+            asm_output_offset += sprintf(asm_output + asm_output_offset, "LEAQ %s(%%rip), %%%s\n", label, reg);
           }
         }
       } 
 
       struct type* t = expr_typecheck(current);
-      printf("TYPE IS: %d\n",  t->kind);
-      if (t->kind == TYPE_INTEGER) { 
-        printf("CALL print_integer\n"); 
-        asm_output_offset += sprintf(asm_output + asm_output_offset, "CALL print_integer\n"); 
-      }
-      if (t->kind == TYPE_BOOLEAN) { 
-        printf("CALL print_boolean\n"); 
-        asm_output_offset += sprintf(asm_output + asm_output_offset, "CALL print_boolean\n"); 
-      }
-      if (t->kind == TYPE_CHARACTER) { 
-        printf("CALL print_character\n"); 
-        asm_output_offset += sprintf(asm_output + asm_output_offset, "CALL print_character\n"); 
-      }
-      if (t->kind == TYPE_STRING) { 
-        printf("CALL print_string\n"); 
-        asm_output_offset += sprintf(asm_output + asm_output_offset, "CALL print_string\n"); 
+      if(t) {
+        printf("TYPE IS: %d\n",  t->kind);
+        if (t->kind == TYPE_INTEGER) { 
+          printf("CALL print_integer\n"); 
+          asm_output_offset += sprintf(asm_output + asm_output_offset, "CALL print_integer\n"); 
+        }
+        if (t->kind == TYPE_BOOLEAN) { 
+          printf("CALL print_boolean\n"); 
+          asm_output_offset += sprintf(asm_output + asm_output_offset, "CALL print_boolean\n"); 
+        }
+        if (t->kind == TYPE_CHARACTER) { 
+          printf("CALL print_character\n"); 
+          asm_output_offset += sprintf(asm_output + asm_output_offset, "CALL print_character\n"); 
+        }
+        if (t->kind == TYPE_STRING) { 
+          printf("CALL print_string\n"); 
+          asm_output_offset += sprintf(asm_output + asm_output_offset, "CALL print_string\n"); 
+        }
       }
       current = current->right;
      }
-
      break;
    case STMT_RETURN:
      printf("STMT_RETURN\n");
-     //printf("RET\n");
      expr_codegen_second_pass(s->expr);
+     printf("RET\n");
+     asm_output_offset += sprintf(asm_output + asm_output_offset, "RET\n"); 
      return;
  }
  stmt_codegen_second_pass(s->next);

@@ -6,7 +6,7 @@
 #include <string.h>
 #include "include/constants.h"
 
-#define SCRATCH_REGISTERS 16
+#define SCRATCH_REGISTERS 17
 
 int label_counter = 0;
 
