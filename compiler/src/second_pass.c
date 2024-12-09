@@ -316,14 +316,7 @@ void stmt_codegen_second_pass(struct stmt *s) {
       asm_output_offset += sprintf(asm_output + asm_output_offset, "%s: \n", label_if);
 
       stmt_codegen_second_pass(s->body);
-      printf("ali\n");
 
-      char* key;
-      char* val;
-      hash_table_firstkey(label_to_str);
-      while(hash_table_nextkey(label_to_str, &key, (void*)(&val))) {
-        printf("key: %s, value: %s\n", key, val);
-      }
       //printf("\tLEAQ(%rip) $%d, %%%s\n", e->literal_value, scratch_name(e->reg));
       //
 
@@ -334,6 +327,16 @@ void stmt_codegen_second_pass(struct stmt *s) {
 
       stmt_codegen_second_pass(s->else_body);
      }
+      printf("ali\n");
+
+      char* key;
+      char* val;
+      hash_table_firstkey(label_to_str);
+      while(hash_table_nextkey(label_to_str, &key, (void*)(&val))) {
+        printf("key: %s, value: %s\n", key, val);
+      }
+
+//      printf("check: %s\n", EXPR_LOOKUP[s->expr->kind]);
      break;
    case STMT_IF:
      printf("STMT_IF\n");
@@ -377,7 +380,18 @@ void stmt_codegen_second_pass(struct stmt *s) {
 
      /* Use library.c instructions to print instead of generating code for the arg, list passed in print */
      struct expr* current = s->expr;
+     int iteration = 0;
      while (current) {
+      const char* name = current->string_literal;
+      struct expr* name_left = current->left;
+      struct expr* name_right = current->right;
+
+      if(name_left) {
+        printf("check_left: %s\n", name_left->string_literal);
+      } else {
+        if(name) printf("check_right: %s\n", name);
+      } 
+
       struct type* t = expr_typecheck(current);
       printf("TYPE IS: %d\n",  t->kind);
       if (t->kind == TYPE_INTEGER) { 
